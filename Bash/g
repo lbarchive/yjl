@@ -1,23 +1,44 @@
 #!/bin/bash
 #
-# Quick Directory Switcher
+# g - Quick Directory Switcher
 #
-# GPLv3
+# Copyright (C) 2008 Yu-Jie Lin
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+# 
 #
 # Author       : Yu-Jie Lin
+# Website      : http://code.google.com/p/yjl/wiki/BashGscript
 # Creation Date: 2007-12-26T03:01:29+0800
 
+# Which file to store directories
 G_DIRS=~/.g_dirs
 
-ShowHelp() {
+# Shows help information
+G_ShowHelp() {
 	echo "Commands:
-  g -a     : add current directory
-  g -a dir : add dir
-  g -r     : remove a directory from list
+  g dir        : change working directory to dir
+  g (-g|g)     : get a list of directories
+  g (-a|a)     : add current directory
+  g (-a|a) dir : add dir
+  g (-r|r)     : remove a directory from list
+  g (-h|h)     : show what you are reading right now
 "
 	}
 
-ShowDirs() {
+# Shows stored directories
+G_ShowDirs() {
 	echo Pick one:
 	i=0
 	for d in $(cat $G_DIRS); do
@@ -28,13 +49,15 @@ ShowDirs() {
 	echo;
 	}
 
-SortDirs() {
+# Sorts directories after adding or removing
+G_SortDirs() {
 	sort $G_DIRS > $G_DIRS.tmp
 	mv -f $G_DIRS.tmp $G_DIRS
 	}
 
+# The main function
 g() {
-	[[ -e $1 ]] && cd $1 && return 0
+	[[ -d $1 ]] && cd $1 && return 0
 	# Check commands
 	if [[ $# > 0 ]]; then
 		case "$1" in
@@ -45,12 +68,13 @@ g() {
 				[[ $? == 0 ]] && echo "$dir already exists." && return 1
 				echo "$dir" >> $G_DIRS
 				echo "$dir added."
-				SortDirs
+				G_SortDirs
 				return 0
 				;;
 			-r|--remove|r|remove)
-				ShowDirs
+				G_ShowDirs
 				read -p "Which dir to remove? " removed
+				[[ $removed == "" ]] && return 1
 				rm -f $G_DIRS
 				touch $G_DIRS
 				for (( i=0; i<${#dir[@]}; i++)); do
@@ -60,13 +84,15 @@ g() {
 				return 0
 				;;
 			-h|--help|h|help)
-				ShowHelp
+				G_ShowHelp
 				return 0
+				;;
+			-g|--go|g|go)
 				;;
 			*)
 				echo "Wrong command!"
 				echo;
-				ShowHelp
+				G_ShowHelp
 				return 1
 				;;
 		esac
@@ -75,33 +101,41 @@ g() {
 	# Make sure there are some dirs in ~/.g_dirs
 	if [[ ! -e $G_DIRS ]] || [[ $(wc -l $G_DIRS) == 0* ]]; then
 		echo "Please add some directories first!
-	"
-		ShowHelp
+"
+		G_ShowHelp
 		return 1
 	fi
 
-	ShowDirs
+	G_ShowDirs
 	read -p "Which dir? " i
-
-	[[ "$i" == "" ]] && return 1
+	[[ $i == "" ]] && return 1
 
 	cd ${dir[$i]}
 	}
 
-g_comp() {
+# The Bash completion function
+_g() {
+	# Make sure we have $G_DIRS
+	[[ ! -e $G_DIRS ]] && return 1
+
     local cur prev opts
     COMPREPLY=()
     cur="${COMP_WORDS[COMP_CWORD]}"
     prev="${COMP_WORDS[COMP_CWORD-1]}"
     opts=$(cat $G_DIRS)
 
+	# Only do completion for once
+	for opt in $opts; do
+		[[ $prev == $opt ]] && return 1
+	done
 	COMPREPLY=( $(compgen -W "${opts}" -- ${cur}) )
 	return 0
 	}
 
-if [[ $(basename $0) == "g" ]]; then
+# If this script is sourced or run without arguments, it will think to be run
+# as Bash function.
+if [[ $# > 0 ]]; then
 	g $*
-	exit $?
 else
-	complete -F g_comp g
+	complete -F _g g
 fi
