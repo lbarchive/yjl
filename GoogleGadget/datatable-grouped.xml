@@ -2,10 +2,10 @@
 <Module>
 
   <ModulePrefs
-      title="Pie chart using grouped data"
-      description="Pie chart using grouped data"
+      title="Datatable using grouped data"
+      description="Datatable using grouped data"
       author="Yu-Jie Lin"
-      author_email="livibetter+gadget+pie@gmail.com">
+      author_email="livibetter+gadget+datatable@gmail.com">
     <!-- Public Domain -->
     <!-- Link: http://makeyjl.blogspot.com/2008/09/google-spreadsheet-form-gadget-api.html -->
     <Require feature="idi" />
@@ -19,7 +19,8 @@
     <EnumValue value="300" display_value="5"/>
     <EnumValue value="1800" display_value="30"/>
   </UserPref>
-  <UserPref name="chartTitle" display_name="Chart Title" datatype="string" default_value="Chart Title"/>
+  <UserPref name="groupColumnLabel" display_name="Grouped Column Label" datatype="string" default_value="Grouped Column"/>
+  <UserPref name="aggResultLabel" display_name="Aggregated Result Label" datatype="string" default_value="Aggregated Result"/>
   <UserPref name="groupBy" display_name="Group by column" datatype="string" default_value="A" required="true"/>
   <UserPref name="aggregateOn" display_name="Aggregate on column" datatype="string" default_value="B" required="true"/>
   <UserPref name="aggregationFunction" display_name="Aggregation Function" datatype="enum" default_value="count" required="true">
@@ -38,29 +39,16 @@
     <EnumValue value="50" display_value="50"/>
     <EnumValue value="100" display_value="100"/>
   </UserPref>
-  <UserPref name="legend" display_name="Legend" datatype="enum" default_value="right" required="true">
-    <EnumValue value="right" display_value="To the right of the chart"/>
-    <EnumValue value="left" display_value="To the left of the chart"/>
-    <EnumValue value="top" display_value="Above the chart"/>
-    <EnumValue value="bottom" display_value="Below the chart"/>
-    <EnumValue value="label" display_value="Labels near slices"/>
-    <EnumValue value="none" display_value="No legend"/>
-  </UserPref>
-  <!--
-  This is a sample gadget, that uses the Google Visualization API to read data
-  from a data source, and displays it as an html table.
-  -->
-
   <Content type="html"><![CDATA[
   <!-- begin=HTML --> 
   <!-- Load the Google common loader, that is later used to load the Visualization API. -->
   <script src="http://www.google.com/jsapi" type="text/javascript"></script>
 
-  <div id="chartdiv" style="overflow: auto;"></div>
+  <div id="tablediv" style="overflow: auto;"></div>
 
   <script>
     var gadgetHelper = null;
-    var chart = null;
+    var table = null;
     
     _IG_RegisterOnloadHandler(loadVisualizationAPI);
 
@@ -68,7 +56,7 @@
      * Load the Google Visualization API
      */
     function loadVisualizationAPI() {
-      google.load("visualization", "1", {"packages": ["piechart"]});
+      google.load("visualization", "1", {"packages": ["table"]});
       google.setOnLoadCallback(sendQuery);
     }
 
@@ -80,13 +68,15 @@
      */
     function sendQuery() {
       var prefs = new _IG_Prefs(); // User preferences
-      var chartDiv = _gel('chartdiv');
-      chartDiv.style.width = document.body.clientWidth + 'px';
-      chartDiv.style.height = document.body.clientHeight + 'px';
-      chart = new google.visualization.PieChart(_gel('chartdiv'));
+      var tableDiv = _gel('tablediv');
+      tableDiv.style.width = document.body.clientWidth + 'px';
+      tableDiv.style.height = document.body.clientHeight + 'px';
+      table = new google.visualization.Table(_gel('tablediv'));
 
       gadgetHelper = new google.visualization.GadgetHelper();
       var query = gadgetHelper.createQueryFromPrefs(prefs);
+      var groupColumnLabel = prefs.getString('groupColumnLabel');
+      var aggResultLabel = prefs.getString('aggResultLabel');
       var groupBy = prefs.getString('groupBy');
       var aggOn = prefs.getString('aggregateOn');
       var aggFunc = prefs.getString('aggregationFunction');
@@ -96,6 +86,8 @@
         groupBy + ' order by ' + aggFunc+ '(' + aggOn + ') desc'
       if (limitResults > 0)
         quertString += ' limit ' + limitResults.toString();
+      queryString += ' label ' + groupBy + " '" + groupColumnLabel + "', " +
+        aggFunc + '(' + aggOn + ") '" + aggResultLabel + "'";
       query.setQuery(queryString);
       query.send(handleQueryResponse);
     }
@@ -117,14 +109,10 @@
       // Take the data table from the response, and format it.
       var prefs = new _IG_Prefs(); // User preferences
       var options = {
-        width: document.body.clientWidth,
-        height: document.body.clientHeight,
-        is3D: true,
-        legend: prefs.getString('legend')};
-      var title = prefs.getString('chartTitle');
-      if (title.length > 0)
-        options['title'] = title;
-      chart.draw(data, options);
+        showRowNumber: true,
+        allowHtml: !prefs.getBool("disableHtml")
+        };
+      table.draw(data, options);
     };
   </script>
   <!-- end=HTML --> 
