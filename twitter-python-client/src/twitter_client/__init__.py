@@ -85,8 +85,13 @@ def WarningFromString(xml_string):
   return atom.CreateClassFromXMLString(Warning, xml_string)
 
 
-class LinkFinder():
-  pass
+class LinkFinder(atom.LinkFinder):
+
+  def GetLinkByRel(self, rel):
+    for link in self.link:
+      if rel == link.rel:
+        return link
+    return None
 
 
 # Search API
