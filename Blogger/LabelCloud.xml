@@ -1,0 +1,44 @@
+<!--
+LabelCloud for Blogger
+Link          : http://makeyjl.blogspot.com
+Version       : 0.1
+Creation Date : 2008-09-24T15:30:44+0800
+Modified Date : 2008-09-25T13:27:45+0800
+License       : LGPLv3
+
+Author        : Yu-Jie Lin
+Author Link   : http://friendfeed.com/livibetter
+-->
+&lt;!--
+LabelCloud for Blogger
+http://makeyjl.blogspot.com
+--&gt;
+<b:widget id='Label' locked='false' title='LabelCloud' type='Label'>
+<b:includable id='main'>
+  <div class='widget-content'>
+	<script src="http://www.google.com/jsapi"></script>
+    <script type='text/javascript'>
+window.LblCld = [<b:loop values='data:labels' var='label'>
+["<data:label.name/>", "<data:label.url/>", <data:label.count/>],</b:loop>
+null];
+LblCld.pop();
+
+google.load("prototype", "1.6.0.2");
+google.setOnLoadCallback(function() {
+	// Setting your widget
+	window.LblCldTitle = '<data:title/>';
+	window.LblCldMinFontSize = 1.0;
+	window.LblCldMaxFontSize = 2.0;
+	window.LblCldFontSizeUnit = 'em';
+	window.LblCldLimit = -100;
+	window.LblCldSortByName = true;
+	window.LblCldTarget = 'Label*****';
+	// End of setting
+	RenderLabelCloud();
+	});
+	</script>
+    <script type='text/javascript' src='http://yjl.googlecode.com/svn/tags/Blogger/LabelCloud/LabelCloud-0.1.js'> </script>
+    <b:include name='quickedit'/>
+  </div>
+</b:includable>
+</b:widget>
