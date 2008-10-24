@@ -1,6 +1,6 @@
 /*
 LabelCloud for Blogger
-Link          : http://makeyjl.blogspot.com
+Link          : http://makeyjl.blogspot.com/2008/09/labelcloud-tagcloud-for-blogger.html
 Version       : 0.1
 Creation Date : 2008-09-25T08:03:57+0800
 Modified Date : 2008-09-25T13:14:50+0800

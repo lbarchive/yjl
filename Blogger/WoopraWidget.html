@@ -1,0 +1,21 @@
+<script type="text/javascript">
+function AddWoopraWidget() {
+  document.getElementById('woopra_widget_content').value = 
+    document.getElementById('woopra_widget_content_template').value
+      .replace('%WOOPRA_ID%', document.getElementById('woopra_id').value);
+  document.add_woopra.submit();
+  }
+</script>
+<form method="post" action="http://www.blogger.com/add-widget" name="add_woopra">
+  <input type="hidden" name="infoUrl" value="http://getctrlback.blogspot.com"/>
+  <input type="hidden" name="widget.title" value=""/>
+  <input type="hidden" name="widget.content" value="" style="display:none;" id="woopra_widget_content"/>
+  <textarea type="hidden" name="widget.content.template" style="display:none;" id="woopra_widget_content_template">
+&lt;script type=&quot;text/javascript&quot;&gt;
+  var woopra_id = &apos;%WOOPRA_ID%&apos;;
+&lt;/script&gt;
+&lt;script src=&quot;http://static.woopra.com/js/woopra.js&quot;&gt;&lt;/script&gt;
+  </textarea>
+  <input type="text" name="woopra_id" value="123456789" id="woopra_id"/>
+  <input type="button" name="go" value="Add Woopra Tracking Code" onclick="AddWoopraWidget()"/>
+</form>

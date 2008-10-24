@@ -1,6 +1,6 @@
 <!--
 LabelCloud for Blogger
-Link          : http://makeyjl.blogspot.com
+Link          : http://makeyjl.blogspot.com/2008/09/labelcloud-tagcloud-for-blogger.html
 Version       : 0.1
 Creation Date : 2008-09-24T15:30:44+0800
 Modified Date : 2008-09-25T13:43:39+0800
@@ -9,15 +9,13 @@ License       : LGPLv3
 Author        : Yu-Jie Lin
 Author Link   : http://friendfeed.com/livibetter
 -->
-&lt;!--
-LabelCloud for Blogger
-http://makeyjl.blogspot.com
---&gt;
 <b:widget id='Label' locked='false' title='LabelCloud' type='Label'>
 <b:includable id='main'>
   <div class='widget-content'>
 	<script src="http://www.google.com/jsapi"></script>
     <script type='text/javascript'>
+// LabelCloud for Blogger 0.2
+// http://makeyjl.blogspot.com/2008/09/labelcloud-tagcloud-for-blogger.html
 window.LblCld = [<b:loop values='data:labels' var='label'>
 ["<data:label.name/>", "<data:label.url/>", <data:label.count/>],</b:loop>
 null];
