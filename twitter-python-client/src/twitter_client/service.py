@@ -59,6 +59,8 @@ class Search(object):
       query['q'] = ' '.join(self.keywords)
     if self.lang:
       query['lang'] = self.lang
+    if self.rpp:
+      query['rpp'] = str(self.rpp)
     if self.page:
       query['page'] = str(self.page)
     if self.since_id:

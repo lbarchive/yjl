@@ -18,6 +18,8 @@
 __author__ = 'livibetter (Yu-Jie Lin)'
 
 
+import datetime
+
 import atom
 
 
@@ -85,6 +87,39 @@ def WarningFromString(xml_string):
   return atom.CreateClassFromXMLString(Warning, xml_string)
 
 
+class Date(atom.Date):
+  _tag = 'date'
+  _namespace = atom.ATOM_NAMESPACE
+
+  def Get(self):
+    return datetime.datetime.strptime(self.text, '%Y-%m-%dT%H:%M:%SZ')
+
+  def Set(self, date):
+    self.text = date.strftime('%Y-%m-%dT%H:%M:%SZ')
+
+
+def DateFromString(xml_string):
+  return atom.CreateClassFromXMLString(Date, xml_string)
+
+
+class Updated(Date):
+  _tag = 'updated'
+  _namespace = atom.ATOM_NAMESPACE
+
+
+def UpdatedFromString(xml_string):
+  return atom.CreateClassFromXMLString(Updated, xml_string)
+
+
+class Published(Date):
+  _tag = 'published'
+  _namespace = atom.ATOM_NAMESPACE
+
+
+def PublishedFromString(xml_string):
+  return atom.CreateClassFromXMLString(Published, xml_string)
+
+
 class LinkFinder(atom.LinkFinder):
 
   def GetLinkByRel(self, rel):
@@ -98,6 +133,10 @@ class LinkFinder(atom.LinkFinder):
 class SearchResultEntry(atom.Entry, LinkFinder):
   """A Twitter Search Result Entry flavor of Atom Entry"""
 
+  _children = atom.Entry._children.copy()
+  _children['{%s}published' % atom.ATOM_NAMESPACE] = ('published', Published)
+  _children['{%s}updated' % atom.ATOM_NAMESPACE] = ('updated', Updated)
+  
   def __GetId(self):
     return self.__id
 
@@ -120,6 +159,7 @@ class SearchResultFeed(atom.Feed, LinkFinder):
   _namespace = atom.Feed._namespace
   _children = atom.Feed._children.copy()
   _attributes = atom.Feed._attributes.copy()
+  _children['{%s}updated' % atom.ATOM_NAMESPACE] = ('updated', Updated)
   _children['{%s}warning' % TWITTER_NAMESPACE] = (
       'warning', Warning)
   _children['{%s}itemsPerPage' % OPENSEARCH_NAMESPACE] = (

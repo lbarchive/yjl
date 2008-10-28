@@ -20,6 +20,7 @@
 __author__ = 'livibetter (Yu-Jie Lin)'
 
 
+import datetime
 import unittest
 
 import twitter_client as tc
@@ -69,13 +70,73 @@ class WarningTest(unittest.TestCase):
     self.assert_(self.warning.Get() == new_warning.Get())
 
 
+class DateTest(unittest.TestCase):
+
+  def setUp(self):
+    self.date = tc.Date()
+
+  def testToAndFromString(self):
+    now = datetime.datetime.utcnow().replace(microsecond=0)
+    self.date.Set(now)
+    self.assert_(self.date.Get() == now)
+    new_date = tc.DateFromString(self.date.ToString())
+    self.assert_(self.date.Get() == new_date.Get())
+
+
+class PublishedTest(unittest.TestCase):
+
+  def setUp(self):
+    self.published = tc.Published()
+
+  def testToAndFromString(self):
+    now = datetime.datetime.utcnow().replace(microsecond=0)
+    self.published.Set(now)
+    self.assert_(self.published.Get() == now)
+    new_published = tc.PublishedFromString(self.published.ToString())
+    self.assert_(self.published.Get() == new_published.Get())
+
+
+class UpdatedTest(unittest.TestCase):
+
+  def setUp(self):
+    self.updated = tc.Updated()
+
+  def testToAndFromString(self):
+    now = datetime.datetime.utcnow().replace(microsecond=0)
+    self.updated.Set(now)
+    self.assert_(self.updated.Get() == now)
+    new_updated = tc.UpdatedFromString(self.updated.ToString())
+    self.assert_(self.updated.Get() == new_updated.Get())
+
+
 class SearchResultEntryTest(unittest.TestCase):
 
+  def testToAndFromString(self):
+    published=datetime.datetime(2008, 10, 10, 1, 2, 3)
+    updated=datetime.datetime(2009, 11, 12, 2, 3, 4)
+
+    entry = tc.SearchResultEntry(
+        published=tc.Published(),
+        updated=tc.Updated(),
+        )
+    entry.published.Set(published)
+    entry.updated.Set(updated)
+    self.assert_(entry.published.Get() == published)
+    self.assert_(entry.updated.Get() == updated)
+
+    new_entry = tc.SearchResultEntryFromString(entry.ToString())
+    self.assert_(new_entry.published.Get() == published)
+    self.assert_(new_entry.updated.Get() == updated)
+    
   def testConvertActualData(self):
     feed = tc.SearchResultFeedFromString(test_data.SEARCH_RESULT_FEED)
     self.assert_(len(feed.entry) == 1)
     entry = feed.entry[0]
     self.assert_(isinstance(entry, tc.SearchResultEntry))
+    self.assert_(isinstance(entry.published, tc.Published))
+    self.assert_(isinstance(entry.updated, tc.Updated))
+    self.assert_(entry.published.Get() == datetime.datetime(2008, 10, 11, 9, 34, 37))
+    self.assert_(entry.updated.Get() == datetime.datetime(2008, 10, 11, 9, 34, 37))
 
 
 class SearchResultFeedTest(unittest.TestCase):
