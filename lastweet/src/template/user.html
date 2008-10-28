@@ -1,10 +1,25 @@
 <html>
 <body>
-{{ username }}'s Last Tweets
+<img src="{{ profile_image }}"/> {{ username }}<br/> Last Tweets
 <div id="messages">
 {{ messages }}
 </div>
+Last updated:
+{% if last_updated %}
+{{ last_updated|timesince }} ago.
+{% else %}
+never.
+{% endif %}
 <div id="tweets">
+{% for tweet in tweets %}
+<img src="{{ tweet.profile_image }}"/> @<a href="http://twitter.com/{{ tweet.username }}">{{ tweet.username }}</a> <a href="http://twitter.com/{{ username }}/status/{{ tweet.msg_id }}">{{ tweet.msg }}</a>
+{% if tweet.published %}
+about {{ tweet.published|timesince }} ago
+{% else %}
+Never
+{% endif %}
+<br/>
+{% endfor %}
 </div>
 </body>
 </html>

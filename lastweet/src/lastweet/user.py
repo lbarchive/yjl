@@ -1,3 +1,4 @@
+import logging
 import simplejson as json
 
 from google.appengine.api import urlfetch 
@@ -10,13 +11,15 @@ class User(db.Model):
   username = db.StringProperty()
   profile_image = db.StringProperty()
   email = db.StringProperty()
-  last_mail = db.DateTimeProperty()
-  last_update = db.DateTimeProperty()
-  tweets = db.StringProperty()
+  last_mailed = db.DateTimeProperty()
+  last_updated = db.DateTimeProperty()
+  tweets = db.TextProperty()
 
   @property
   def _queued(self):
-    return queue.has(self.username)
+    result = queue.has(self.username)
+    logging.debug('%s in queue: %s' % (self.username, str(result)))
+    return result
 
   @property
   def _friends(self):
@@ -27,6 +30,7 @@ class User(db.Model):
       friends = dict(
           [(friend['screen_name'], friend['profile_image_url'])
               for friend in u_json])
+      logging.debug('Retrievd %d friends of %s.' % (len(friends), self.username))
       return friends
 
 
