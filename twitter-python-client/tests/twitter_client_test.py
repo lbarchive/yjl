@@ -132,6 +132,7 @@ class SearchResultEntryTest(unittest.TestCase):
     feed = tc.SearchResultFeedFromString(test_data.SEARCH_RESULT_FEED)
     self.assert_(len(feed.entry) == 1)
     entry = feed.entry[0]
+    self.assert_(entry.GetMessageID() == '955300766')
     self.assert_(isinstance(entry, tc.SearchResultEntry))
     self.assert_(isinstance(entry.published, tc.Published))
     self.assert_(isinstance(entry.updated, tc.Updated))

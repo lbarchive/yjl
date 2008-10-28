@@ -19,6 +19,7 @@ __author__ = 'livibetter (Yu-Jie Lin)'
 
 
 import datetime
+import re
 
 import atom
 
@@ -146,6 +147,14 @@ class SearchResultEntry(atom.Entry, LinkFinder):
       self.__id.text = id.text.strip()
 
   id = property(__GetId, __SetId)
+
+  message_id_pattern = re.compile('tag:search.twitter.com,2005:(\d+)')
+
+  def GetMessageID(self):
+    """Extracts message id from id element"""
+    if self.id.text:
+      return self.message_id_pattern.match(self.id.text).group(1)
+    return None
 
 
 def SearchResultEntryFromString(xml_string):
