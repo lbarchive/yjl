@@ -1,6 +1,6 @@
 <html>
 <body>
-<img src="{{ profile_image }}"/> {{ username }}<br/> Last Tweets
+<img src="{{ profile_image }}"/> {{ username|escape }}<br/> Last Tweets
 <div id="messages">
 {{ messages }}
 </div>
@@ -12,7 +12,7 @@ never.
 {% endif %}
 <div id="tweets">
 {% for tweet in tweets %}
-<img src="{{ tweet.profile_image }}"/> @<a href="http://twitter.com/{{ tweet.username }}">{{ tweet.username }}</a> <a href="http://twitter.com/{{ username }}/status/{{ tweet.msg_id }}">{{ tweet.msg }}</a>
+<img src="{{ tweet.profile_image }}"/> @<a href="http://twitter.com/{{ tweet.username|urlencode }}">{{ tweet.username|escape }}</a> <a href="http://twitter.com/{{ username|urlencode }}/status/{{ tweet.msg_id }}">{{ tweet.msg|escape }}</a>
 {% if tweet.published %}
 about {{ tweet.published|timesince }} ago
 {% else %}

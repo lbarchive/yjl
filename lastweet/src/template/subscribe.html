@@ -1,0 +1,17 @@
+<html>
+  <body>
+Last Tweets
+Subscribe
+<div id="messages">
+{{ messages }}
+</div>
+    <form action="/subscribe" method="post">
+      <div>Twitter Username <input type="text" name="username" value="{{ username }}"/></div>
+      <div>Twitter Password <input type="password" name="password" value=""/></div>
+      <div>Your Email <input type="text" name="email" value="{{ email }}"/></div>
+      <div><input type="submit" value="Submit"/></div>
+    </form>
+    If you want to unsubscribe, empty email field and submit.
+  </body>
+</html>
+

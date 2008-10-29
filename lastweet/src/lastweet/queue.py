@@ -15,26 +15,103 @@ import gdata.alt.appengine
 
 # in second
 MIN_INTERVAL = 1.0
+FETCH_TIMEOUT = 30
 message_body_pattern = re.compile('@[^ ]+ (.*)')
+
 
 def has(username):
   """Returns if username is in queue"""
   q = memcache.get('q')
   if q is None or len(q) == 0:
-    curr = memcache.get('q_current')
-    if curr is None:
-      return False
-    return curr[0] == username
-  return username in q
+    return False
+  return username.lower() in q
+
+
+def lock(key, timeout=None, force=False, wait_interval=0.1):
+  """Lock helper
+  timeout in second, None is never timeout
+  force
+  """
+  start = datetime.datetime.utcnow()
+  while not memcache.add(key, datetime.datetime.utcnow()):
+    # There already is 'qlock' in memcache
+    if timeout is not None or (datetime.datetime.utcnow() - start).seconds >= timeout:
+      if not force:
+        # Can't acquire lock
+        return False
+      # Force to acquire lock
+      # FIXME still has possiblity of two to get lock forcibly in an about time
+      memcache.set(key, datetime.datetime.utcnow());
+      return True
+    time.sleep(wait_interval)
+  return True
+
+# TODO with?
+def unlock(key):
+  memcache.delete(key)
 
 
 def add(u):
   """Put a user in queue"""
+  if has(u.username):
+    # Already in queue
+    return False
+  if not lock('qlock', 5, True):
+    # Cannot get lock, should not happen
+    return False
   q = memcache.get('q') or []
-  if u.username in q:
-    return
-  q.append(u.username)
+  q.append(u.username.lower())
   memcache.set('q', q)
+  unlock('qlock')
+  return True
+
+
+def remove(u):
+  """Remove a user from queue
+
+  Remove username from queue
+  Remove q_username from memcache
+  Remove qlock_username from memcache
+  """
+  if isinstance(u, (str, unicode)):
+    username = u
+  else:
+    username = u.username
+  username = username.lower()
+
+  if not has(username):
+    # Not in queue
+    return False
+  if not lock('qlock', 5, True):
+    # Cannot get lock, should not happen
+    return False
+
+  memcache.delete('q_' + username)
+  unlock('qlock_' + username)
+
+  q = memcache.get('q') or []
+  q.remove(username)
+  memcache.set('q', q)
+  unlock('qlock')
+  return True
+
+  
+def lock_one_username():
+  q = memcache.get('q') or []
+  for username in q:
+    locked_time = memcache.get('qlock_' + username)
+    if locked_time is not None:
+      if (datetime.datetime.utcnow() - locked_time).seconds >= FETCH_TIMEOUT:
+        # Force to acquire, if locked more than FETCH_TIMEOUT ago
+        memcache.set('qlock_' + username, datetime.datetime.utcnow())
+        return username
+      else:
+        continue
+    if lock('qlock_' + username, 0):
+      # Get the lock
+      return username
+  return False
+
 
 def process():
   """Process a bit"""
@@ -49,24 +126,23 @@ def process():
       return
   memcache.set('q_last', datetime.datetime.utcnow())
 
-  curr = memcache.get('q_current')
+  username = lock_one_username()
+  if not username:
+    logging.debug('No item in queue, skipped')
+    return
+
+  curr = memcache.get('q_' + username)
   if curr is None:
-    q = memcache.get('q') or []
-    if len(q) == 0:
-      # Nothing in queue
-      logging.debug('No item in queue, skipped')
-      return
-    username = q.pop(0)
     u = user.get(username)
     if not u:
-      # No such user TODO log error
+      logging.debug('No such user %s in db' % username)
+      remove(username)
       return
     # Retrieve the friends list
     friends = u._friends
     # TODO Should drop protected friends?
     curr = (u.username, friends, [])
-    memcache.set('q', q)
-    memcache.set('q_current', curr)
+    memcache.set('q_' + username, curr)
   # Start to process a bit
   curr_f = curr[1].popitem()
 
@@ -107,28 +183,24 @@ def process():
 
   # If there is no more in curr[1]
   if not curr[1]:
-    # TODO sort result
+    # TODO transaction
     u = user.get(curr[0])
     u.tweets = pickle.dumps(sort_messages(curr[2]))
     u.last_updated = datetime.datetime.utcnow()
     u.put()
+    user.try_mail(u)
     # End of updating for this user
-    memcache.delete('q_current')
+    remove(u)
   else:
-    memcache.set('q_current', curr)
+    memcache.set('q_' + username, curr)
+  unlock('qlock_' + username)
+
 
 def get_status():
-  """Returns current status of queue
-  A 2-tuple, first element is length of queue, second is length of current processed username"""
-  q = memcache.get('q')
-  curr = memcache.get('q_current')
-  q_l = 0
-  curr_l = 0
-  if q:
-    q_l = len(q)
-  if curr:
-    curr_l = len(curr[1])
-  return (q_l, curr_l)
+  """Returns current length of queue"""
+  q = memcache.get('q') or []
+  return len(q)
+
 
 def sort_messages(msgs):
   # FIXME make me pretty
