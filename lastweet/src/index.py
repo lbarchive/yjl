@@ -25,13 +25,11 @@ class HomePage(webapp.RequestHandler):
 
 class CheckRedirection(webapp.RequestHandler):
   def post(self):
-    self.redirect('/u/' + self.request.get('username'))
+    self.redirect('/u/' + urllib.quote(self.request.get('username')))
 
 
 class UserPage(webapp.RequestHandler):
   def get(self, username):
-    # Unquote username, not sure what is a valid Twitter screen name
-    username = urllib.unquote(username)
     logging.debug('%s asked' % username)
     # Check if this username in db
     u = user.get(username)
@@ -60,32 +58,24 @@ class UserPage(webapp.RequestHandler):
           'tweets': pickle.loads(u.tweets),
           }
     else:
-      # This username isn't in db
-      f = urlfetch.fetch('http://twitter.com/users/show/%s.json' % username)
-      if f.status_code == 200:
-        u_json = json.loads(f.content)
-        # Create new entry
-        u = user.User(key_name=username.lower())
-        u.username = u_json['screen_name']
-        u.profile_image = u_json['profile_image_url']
-        u.put()
-        # Queue it
-        queue.add(u)
+      # This username isn't in db, trying to add
+      u = user.add(username)
+      if isinstance(u, user.User):
         # Show page
         template_values = {
           'username': u.username,
           'profile_image': u.profile_image,
           'messages': 'Put in queue',
           }
-      elif f.status_code == 403:
-        # Reject projected twitter user, can retrieve correct screen name and image from
+      elif u == 403:
+        # Reject protected twitter user, can retrieve correct screen name and image from
         # friends list, but no need to waste a request to Twitter
         template_values = {
           'username': username,
           'profile_image': 'http://static.twitter.com/images/default_profile_normal.png',
           'messages': "This Twitter's tweets are protected.",
           }
-      elif f.status_code == 404:
+      elif u == 404:
         template_values = {
           'username': username,
           'profile_image': 'http://static.twitter.com/images/default_profile_normal.png',
@@ -97,7 +87,7 @@ class UserPage(webapp.RequestHandler):
         template_values = {
           'username': 'ERROR',
           'profile_image': 'http://static.twitter.com/images/default_profile_normal.png',
-          'messages': 'Twitter responses with %d' % f.status_code,
+          'messages': 'Twitter responses with %d' % u,
           }
 
     path = os.path.join(os.path.dirname(__file__), 'template/user.html')

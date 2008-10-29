@@ -5,17 +5,26 @@ import re
 
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch 
+from google.appengine.ext import db
 
 #from lastweet import user
 import user
+from lastweet import util
+
 import twitter_client.service
 
 import gdata.alt.appengine
 
 
 # in second
-MIN_INTERVAL = 1.0
+PROCESS_AUTO_QUEUE_INTERVAL = 3600
+PROCESS_MAIL_INTERVAL = 600
+PROCESS_QUEUE_INTERVAL = 1
+# 2000 / 86400 * 600 ~= 13.88 mails
+MAILS_PER_PROCESS = 15
+
 FETCH_TIMEOUT = 30
+
 message_body_pattern = re.compile('@[^ ]+ (.*)')
 
 
@@ -114,17 +123,80 @@ def lock_one_username():
 
 
 def process():
+  process_queue()
+  process_auto_queue()
+  process_mail()
+
+
+def process_auto_queue():
+  """Find people need to be updated"""
+  last_process = memcache.get('last_process_auto_queue')
+  if last_process and util.td_seconds(last_process) < PROCESS_AUTO_QUEUE_INTERVAL:
+    return
+  logging.debug('Processing auto queue')
+  memcache.set('last_process_auto_queue', util.now())
+
+  now = util.now()
+  update_after = now - datetime.timedelta(seconds=user.UPDATE_INTERVAL)
+
+  # Queue those needs get updated, which have email address
+  #q = user.User.gql("WHERE email > '' AND last_updated < :1 AND last_updated > ''", update_after)
+  q = user.User.gql("WHERE last_updated < :1 AND last_updated > ''", update_after)
+  count = 0
+  offset = 0
+  while count < 50:
+    for u in q.fetch(50, offset * 50):
+      if u.email:
+        add(u)
+        count += 1
+        if count >= 50:
+          break
+    else:
+      break
+    offset += 1
+
+  # Queue those never get updated
+  q = user.User.gql("WHERE last_updated < ''")
+  for u in q.fetch(50):
+    add(u)
+
+
+def process_mail():
+  """Send some mails"""
+  last_process = memcache.get('last_process_mail')
+  if last_process and util.td_seconds(last_process) < PROCESS_MAIL_INTERVAL:
+    return
+  logging.debug('Processing mail')
+  memcache.set('last_process_mail', util.now())
+
+  now = util.now()
+  mail_before = now - datetime.timedelta(seconds=user.MAIL_INTERVAL)
+  update_after = now - datetime.timedelta(seconds=user.UPDATE_INTERVAL)
+
+  # Queue those needs get updated, which have email address
+  #q = user.User.gql("WHERE email > '' AND last_updated >= :1 AND last_mailed < :2", update_after, mail_before)
+  q = user.User.gql("WHERE last_mailed < :1", mail_before)
+  count = 0
+  offset = 0
+  while count < MAILS_PER_PROCESS:
+    for u in q.fetch(50, offset * 50):
+      if u.email and u.last_updated and u.last_updated >= update_after:
+        user.try_mail(u)
+        count += 1
+        if count >= MAILS_PER_PROCESS:
+          break
+    else:
+      break
+    offset += 1
+
+
+def process_queue():
   """Process a bit"""
   # Check if it's time to process
-  last_process = memcache.get('q_last')
-  if last_process:
-    # Has q_last, then check it
-    diff = datetime.datetime.utcnow() - last_process
-    seconds = diff.days * 86400 + diff.seconds + diff.microseconds / 1000000.0
-    if seconds < MIN_INTERVAL:
-      logging.debug('Ping too quick, skipped')
-      return
-  memcache.set('q_last', datetime.datetime.utcnow())
+  last_process = memcache.get('last_process_queue')
+  if last_process and util.td_seconds(last_process) < PROCESS_QUEUE_INTERVAL:
+    return
+  memcache.set('last_process_queue', util.now())
 
   username = lock_one_username()
   if not username:
@@ -152,6 +224,13 @@ def process():
   search.keywords = ['from:' + curr[0], 'to:' + curr_f[0]]
   search.rpp = 1
 
+  new_tweet = {
+      'username': curr_f[0],
+      'msg': '',
+      'msg_id': 0,
+      'published': None,
+      'profile_image': curr_f[1],
+      }
   result = search.Search()
   if len(result.entry) == 1:
     entry = result.entry[0]
@@ -165,29 +244,15 @@ def process():
       msg = msg[:47] + '...'
     else:
       msg = msg[:50]
-    curr[2].append({
-        'username': curr_f[0],
-        'msg': msg,
-        'msg_id': int(entry.GetMessageID()),
-        'published': entry.published.Get(),
-        'profile_image': curr_f[1],
-        })
-  else:
-    curr[2].append({
-        'username': curr_f[0],
-        'msg': '',
-        'msg_id': 0,
-        'published': None,
-        'profile_image': curr_f[1],
-        })
+    new_tweet['msg'] = msg
+    new_tweet['msg_id'] = int(entry.GetMessageID())
+    new_tweet['published'] = entry.published.Get()
+  curr[2].append(new_tweet)
 
   # If there is no more in curr[1]
   if not curr[1]:
-    # TODO transaction
-    u = user.get(curr[0])
-    u.tweets = pickle.dumps(sort_messages(curr[2]))
-    u.last_updated = datetime.datetime.utcnow()
-    u.put()
+    tweets = pickle.dumps(sort_messages(curr[2]))
+    u = db.run_in_transaction(user.transaction_update_tweets, curr[0], tweets)
     user.try_mail(u)
     # End of updating for this user
     remove(u)

@@ -1,0 +1,19 @@
+Last Tweets
+
+Updated at {{ last_updated }}
+
+{% for tweet in tweets %}
+{% if tweet.published %}
+- {{ tweet.published|timesince }} ago
+{% else %}
+- Never
+{% endif %}
+ @{{ tweet.username|escape }} [http://twitter.com/{{ tweet.username|urlencode }}]
+{%if tweet.msg %}
+ {{ tweet.msg|escape }}
+ http://twitter.com/{{ username|urlencode }}/status/{{ tweet.msg_id }}
+{% endif %}
+
+{% endfor %}
+
+http://lastweet.appspot.com/

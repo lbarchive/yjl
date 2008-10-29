@@ -1,17 +1,21 @@
 import base64
 import datetime
 import logging
+import os
+import pickle
 import simplejson as json
 
 from google.appengine.api import mail
 from google.appengine.api import urlfetch 
 from google.appengine.ext import db
+from google.appengine.ext.webapp import template
 
 from lastweet import queue
+from lastweet import util
 
 
-MAIL_INTERVAL = 14
-
+MAIL_INTERVAL = 14 * 86400
+UPDATE_INTERVAL = 86400
 
 class User(db.Model):
   username = db.StringProperty()
@@ -39,15 +43,72 @@ class User(db.Model):
       logging.debug('Retrievd %d friends of %s.' % (len(friends), self.username))
       return friends
 
+  @property
+  def _need_update(self):
+    if not self.last_updated or util.td_seconds(self.last_updated) > UPDATE_INTERVAL:
+      return True
+    return False
+
+  @property
+  def _need_mail(self):
+    if not self.email:
+      return False
+    if not self.last_mailed or util.td_seconds(self.last_mailed) > MAIL_INTERVAL:
+      return True
+    return False
+  # TODO add trymail here
+
 
 def get(username):
   return User.get_by_key_name(username.lower())
+
+
+def add(username):
+  """Adds a new user
+  If exists, then return that.
+  If adds, also put in queue
+  If errors, return the status code
+  """
+  username = username.lower()
+  # make sure
+  u = get(username)
+  if u:
+    return u
+
+  f = urlfetch.fetch('http://twitter.com/users/show/%s.json' % username)
+  if f.status_code == 200:
+    u_json = json.loads(f.content)
+    # Create new entry
+    u = db.run_in_transaction(transaction_add_user,
+        u_json['screen_name'], u_json['profile_image_url'])
+    # Queue it
+    queue.add(u)
+    return u
+  # Unknown error
+  return f.status_code
+    
+
+def transaction_add_user(username, profile_image):
+  user = User(key_name=username.lower())
+  user.username = username
+  user.profile_image = profile_image
+  user.put()
+  return user
 
 
 def transaction_update_email(username, email):
   user = User.get_by_key_name(username.lower())
   user.email = email
   user.put()
+  return user
+
+
+def transaction_update_tweets(username, tweets):
+  user = User.get_by_key_name(username.lower())
+  user.tweets = tweets
+  user.last_updated = datetime.datetime.utcnow()
+  user.put()
+  return user
 
 
 def transaction_remove_email(username):
@@ -55,6 +116,16 @@ def transaction_remove_email(username):
   user.email = None
   user.last_mailed = None
   user.put()
+  return user
+
+
+def transaction_mailed(username):
+  user = User.get_by_key_name(username.lower())
+  if user.email is None:
+    return
+  user.last_mailed = datetime.datetime.utcnow()
+  user.put()
+  return user
 
 
 def verify_twitter(username, password):
@@ -66,16 +137,34 @@ def verify_twitter(username, password):
   del headers
   return f.status_code == 200
 
+
 def try_mail(u):
-  if not u.last_updated or (datetime.datetime.utcnow() - u.last_updated).days > 0:
-    # haven't updated, or data is too old
+  if u._need_update or not u._need_mail:
     return
-  if u.email and (not u.last_mailed or (datetime.datetime.utcnow() - u.last_mailed).days > MAIL_INTERVAL):
+
+  # FIXME don't hard-coded the sender
+  # Filter tweets
+  tweets = []
+  if u.tweets:
+    for tweet in pickle.loads(u.tweets):
+      if tweet['published'] and util.td_seconds(tweet['published']) < MAIL_INTERVAL:
+        continue
+      tweets.append(tweet)
+
+  if len(tweets):
+    template_values = {
+        'username': u.username,
+        'last_updated': u.last_updated,
+        'tweets': tweets,
+        }
+    path = os.path.join(os.path.dirname(__file__), 'mail.txt')
+    body = template.render(path, template_values)
+
     mail.send_mail(
-        sender="support@example.com",
-        to="%s <%s>" % (u.username, u.email),
+        sender="livibetter@gmail.com",
+#        to="%s <%s>" % (u.username, u.email),
+        to="%s" % u.email,
         subject="Last Tweets",
-        body="""
-test mail
-""")
-  # TODO Update db
+        body=body)
+  # Update mailed date
+  db.run_in_transaction(transaction_mailed, u.username)
