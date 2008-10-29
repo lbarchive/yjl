@@ -1,8 +1,26 @@
 <html>
+<head>
+  <title>Last Tweets: {{ username|escape }}</title>
+  <link href="/css/lastweet.css" type="text/css" rel="stylesheet"/>
+</head>
 <body>
-<img src="{{ profile_image }}"/> {{ username|escape }}<br/> Last Tweets
+<div id="wrap">
+<div id="header">
+<div class="title">Last Tweets</div>
+<div class="description">How long have you not sent messages to you friends?</div>
+</div>
+<div id="nav">
+<a href="/">Home</a>
+<a href="/about">About</a>
+<a href="/subscribe">Subscribe</a>
+</div>
+<div id="content">
 <div id="messages">
 {{ messages }}
+</div>
+<div id="twitter">
+<a href="http://twitter.com/{{ username|urlencode }}"><img class="avatar" src="{{ profile_image }}"/></a>
+<a class="username" href="http://twitter.com/{{ username|urlencode }}">{{ username|escape }}</a>
 </div>
 Last updated:
 {% if last_updated %}
@@ -12,14 +30,27 @@ never.
 {% endif %}
 <div id="tweets">
 {% for tweet in tweets %}
-<img src="{{ tweet.profile_image }}"/> @<a href="http://twitter.com/{{ tweet.username|urlencode }}">{{ tweet.username|escape }}</a> <a href="http://twitter.com/{{ username|urlencode }}/status/{{ tweet.msg_id }}">{{ tweet.msg|escape }}</a>
+<div class="tweet">
+<a href="http://twitter.com/{{ tweet.username|urlencode }}"><img class="avatar" src="{{ tweet.profile_image }}"/></a>
+<div class="right">
+@<a href="http://twitter.com/{{ tweet.username|urlencode }}">{{ tweet.username|escape }}</a>
 {% if tweet.published %}
 about {{ tweet.published|timesince }} ago
 {% else %}
 Never
 {% endif %}
-<br/>
+<div class="message">
+<a href="http://twitter.com/{{ username|urlencode }}/status/{{ tweet.msg_id }}">{{ tweet.msg|escape }}</a>
+</div>
+</div>
+<br style="clear: both"/>
+</div>
 {% endfor %}
+</div>
+</div>
+<div id="footer">
+Last Tweets is created by <a href="http://friendfeed.com/livibetter">Yu-Jie Lin</a>, you can follow <a href="http://twitter.com/livibetter">him</a>.
+</div>
 </div>
 </body>
 </html>

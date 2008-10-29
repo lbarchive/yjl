@@ -1,6 +1,5 @@
 import datetime
 import logging
-import pickle
 import re
 
 from google.appengine.api import memcache
@@ -29,11 +28,14 @@ message_body_pattern = re.compile('@[^ ]+ (.*)')
 
 
 def has(username):
-  """Returns if username is in queue"""
+  """Returns 1-based position of username in queue"""
   q = memcache.get('q')
   if q is None or len(q) == 0:
     return False
-  return username.lower() in q
+  try:
+    return q.index(username.lower()) + 1
+  except ValueError:
+    return 0
 
 
 def lock(key, timeout=None, force=False, wait_interval=0.1):
@@ -108,9 +110,14 @@ def remove(u):
 def lock_one_username():
   q = memcache.get('q') or []
   for username in q:
+    u = user.get(username)
+    if not u._need_update:
+      remove(u)
+      continue
     locked_time = memcache.get('qlock_' + username)
     if locked_time is not None:
-      if (datetime.datetime.utcnow() - locked_time).seconds >= FETCH_TIMEOUT:
+      # I don't think this would be used...
+      if util.td_seconds(locked_time) >= FETCH_TIMEOUT:
         # Force to acquire, if locked more than FETCH_TIMEOUT ago
         memcache.set('qlock_' + username, datetime.datetime.utcnow())
         return username
@@ -141,7 +148,7 @@ def process_auto_queue():
 
   # Queue those needs get updated, which have email address
   #q = user.User.gql("WHERE email > '' AND last_updated < :1 AND last_updated > ''", update_after)
-  q = user.User.gql("WHERE last_updated < :1 AND last_updated > ''", update_after)
+  q = user.User.gql("WHERE last_updated < :1 AND last_updated > DATE(1,1,1)", update_after)
   count = 0
   offset = 0
   while count < 50:
@@ -156,7 +163,7 @@ def process_auto_queue():
     offset += 1
 
   # Queue those never get updated
-  q = user.User.gql("WHERE last_updated < ''")
+  q = user.User.gql("WHERE last_updated < DATE(1,1,1)")
   for u in q.fetch(50):
     add(u)
 
@@ -251,8 +258,8 @@ def process_queue():
 
   # If there is no more in curr[1]
   if not curr[1]:
-    tweets = pickle.dumps(sort_messages(curr[2]))
-    u = db.run_in_transaction(user.transaction_update_tweets, curr[0], tweets)
+    u = db.run_in_transaction(user.transaction_update_tweets, curr[0],
+        sort_messages(curr[2]))
     user.try_mail(u)
     # End of updating for this user
     remove(u)

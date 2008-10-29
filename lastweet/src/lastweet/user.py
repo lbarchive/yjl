@@ -17,6 +17,7 @@ from lastweet import util
 MAIL_INTERVAL = 14 * 86400
 UPDATE_INTERVAL = 86400
 
+
 class User(db.Model):
   username = db.StringProperty()
   profile_image = db.StringProperty()
@@ -24,6 +25,18 @@ class User(db.Model):
   last_mailed = db.DateTimeProperty()
   last_updated = db.DateTimeProperty()
   tweets = db.TextProperty()
+
+  def _get_tweets(self):
+    if self.tweets:
+      return pickle.loads(self.tweets)
+
+  def _set_tweets(self, new_tweets):
+    if isinstance(new_tweets, (str, unicode)):
+      self.tweets = new_tweets
+    else:
+      self.tweets = pickle.dumps(new_tweets)
+
+  _tweets_ = property(_get_tweets, _set_tweets)
 
   @property
   def _queued(self):
@@ -105,7 +118,7 @@ def transaction_update_email(username, email):
 
 def transaction_update_tweets(username, tweets):
   user = User.get_by_key_name(username.lower())
-  user.tweets = tweets
+  user._tweets_ = tweets
   user.last_updated = datetime.datetime.utcnow()
   user.put()
   return user
@@ -146,7 +159,7 @@ def try_mail(u):
   # Filter tweets
   tweets = []
   if u.tweets:
-    for tweet in pickle.loads(u.tweets):
+    for tweet in u._tweets_:
       if tweet['published'] and util.td_seconds(tweet['published']) < MAIL_INTERVAL:
         continue
       tweets.append(tweet)

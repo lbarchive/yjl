@@ -1,7 +1,8 @@
 Last Tweets
 
-Updated at {{ last_updated }}
+Updated at {{ last_updated }}, read last tweets online: http://lastweet.appspot.com/u/{{ tweet.username|urlencode }}
 
+The following last tweets are older than 14 days:
 {% for tweet in tweets %}
 {% if tweet.published %}
 - {{ tweet.published|timesince }} ago

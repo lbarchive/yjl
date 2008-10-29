@@ -1,17 +1,36 @@
 <html>
-  <body>
-Last Tweets
-Subscribe
+<head>
+  <title>Last Tweets: Subscribe</title>
+  <link href="/css/lastweet.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<div id="wrap">
+<div id="header">
+<div class="title">Last Tweets</div>
+<div class="description">How long have you not sent messages to you friends?</div>
+</div>
+<div id="nav">
+<a href="/">Home</a>
+<a href="/about">About</a>
+<a href="/subscribe">Subscribe</a>
+</div>
+<div id="content">
+<h1>Subscribe to Your Last Tweets</h1>
 <div id="messages">
 {{ messages }}
 </div>
-    <form action="/subscribe" method="post">
-      <div>Twitter Username <input type="text" name="username" value="{{ username }}"/></div>
-      <div>Twitter Password <input type="password" name="password" value=""/></div>
-      <div>Your Email <input type="text" name="email" value="{{ email }}"/></div>
-      <div><input type="submit" value="Submit"/></div>
-    </form>
-    If you want to unsubscribe, empty email field and submit.
-  </body>
+  <form id="subscribe" action="/subscribe" method="post">
+    <div><label for="username">Twitter Username</label> <input type="text" name="username" value="{{ username }}"/></div>
+    <div><label for="password">Twitter Password</label> <input type="password" name="password" value=""/></div>
+    <div><label for="email">Your Email</label> <input type="text" name="email" value="{{ email }}"/></div>
+    <div><input type="submit" value="Submit"/></div>
+  </form>
+<p>Last Tweets will not store your Twitter username and password, but you must proof you own that Twiiter acocount in order to (un)subscribe. If you want to unsubscribe, empty email field and submit.</p>
+</div>
+<div id="footer">
+Last Tweets is created by <a href="http://friendfeed.com/livibetter">Yu-Jie Lin</a>, you can follow <a href="http://twitter.com/livibetter">him</a>.
+</div>
+</div>
+</body>
 </html>
 

@@ -1,0 +1,104 @@
+body {
+  background-color: #3366aa;
+  color: #aaeeff;
+  }
+
+a {
+  font-weight: bold;
+  text-decoration: none;
+  color: #fff;
+  }
+
+a:hover {
+  background-color: #fff;
+  color: #3366aa;
+  }
+
+#wrap {
+  width: 600px;
+  margin: auto;
+  text-align: center;
+  }
+
+#header {
+  font-family: Times;
+  }
+
+#header>.title {
+  font-size: 72px;
+  color: #66ccdd;
+  }
+
+#header>.description {
+  font-size: 24px;
+  color: #ee5555;
+  }
+
+#nav>a {
+  font-family: Arial;
+  font-size: 16px;
+  font-weight: bold;
+  font-variant: small-caps;
+  color: #77aa77;
+  }
+
+#content {
+  margin: 10px;
+  }
+
+#content form#subscribe {
+  width: 400px;
+  margin: auto;
+  }
+
+#content form#subscribe label {
+  width: 200px;
+  display: block;
+  float: left;
+  }
+
+#content form#subscribe input {
+  width: 180px;
+  }
+
+#twitter .avatar {
+  vertical-align: middle;
+  }
+
+#twitter .username {
+  font-family: Times;
+  font-size: 48px;
+  vertical-align: middle;
+  }
+
+#tweets {
+  margin: auto;
+  }
+
+#tweets>.tweet {
+  margin-top: 10px;
+  text-align: left;
+  clear: both;
+  }
+
+#tweets .tweet .avatar {
+  float: left;
+  }
+
+#tweets .tweet .right {
+  width: 520px;
+  float: right;
+  }
+
+#tweets .tweet .message a{
+  color: #ccc;
+  }
+
+#about_content {
+  text-align: left;
+  margin: auto;
+  }
+
+#footer {
+  clear: both;
+  }

@@ -1,7 +1,7 @@
 import cgi
 import datetime
+import simplejson as json
 import logging
-import pickle
 import os
 import urllib
 
@@ -10,8 +10,6 @@ from google.appengine.ext import db
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
-
-import simplejson as json
 
 from lastweet import user, queue
 
@@ -35,7 +33,7 @@ class UserPage(webapp.RequestHandler):
     u = user.get(username)
     if u is not None:
       logging.debug('%s retrieved from db' % u.username)
-      if u.last_updated is None or (datetime.datetime.utcnow() - u.last_updated).days > 0:
+      if u._need_update:
         # More than 24 hours or haven't updated
         queue.add(u)
         template_values = {
@@ -43,10 +41,11 @@ class UserPage(webapp.RequestHandler):
           'profile_image': u.profile_image,
           'last_updated': u.last_updated,
           }
-        if u._queued:
-          template_values['messages'] = 'This user is in queue'
+        pos = u._queued
+        if pos:
+          template_values['messages'] = 'This user is in queue #%d' % pos
         if u.tweets:
-          template_values['tweets'] = pickle.loads(u.tweets)
+          template_values['tweets'] = u._tweets_
       else:
         # the weets has been updated within 24 hours
         # Also check if need to email result. mail is not empty and last_mail > 14 days
@@ -55,7 +54,7 @@ class UserPage(webapp.RequestHandler):
           'profile_image': u.profile_image,
           'last_updated': u.last_updated,
           'messages': '',
-          'tweets': pickle.loads(u.tweets),
+          'tweets': u._tweets_,
           }
     else:
       # This username isn't in db, trying to add
@@ -65,7 +64,7 @@ class UserPage(webapp.RequestHandler):
         template_values = {
           'username': u.username,
           'profile_image': u.profile_image,
-          'messages': 'Put in queue',
+          'messages': 'Put in queue #%d' % u._queued,
           }
       elif u == 403:
         # Reject protected twitter user, can retrieve correct screen name and image from
@@ -111,6 +110,7 @@ class SubscribePage(webapp.RequestHandler):
     password = self.request.get('password')
     email = self.request.get('email')
     # TODO check user
+    # TODO mail.is_email_valid
     if username and password:
       if user.verify_twitter(username, password):
         template_values = {
@@ -141,6 +141,15 @@ class SubscribePage(webapp.RequestHandler):
     self.response.out.write(template.render(path, template_values))
 
 
+class AboutPage(webapp.RequestHandler):
+  """Serves about page"""
+
+  def get(self):
+    template_values = {}
+    path = os.path.join(os.path.dirname(__file__), 'template/about.html')
+    self.response.out.write(template.render(path, template_values))
+
+
 class PingPage(webapp.RequestHandler):
   """Being pinged to process queue"""
 
@@ -158,6 +167,7 @@ class PingPage(webapp.RequestHandler):
 
 application = webapp.WSGIApplication(
     [('/', HomePage),
+     ('/about', AboutPage),
      ('/check', CheckRedirection),
      (r'/u/(.*)', UserPage),
      ('/subscribe', SubscribePage),

@@ -1,9 +1,28 @@
 <html>
-  <body>
-Last Tweets
+<head>
+  <title>Last Tweets</title>
+  <link href="/css/lastweet.css" type="text/css" rel="stylesheet"/>
+</head>
+<body>
+<div id="wrap">
+<div id="header">
+<div class="title">Last Tweets</div>
+<div class="description">How long have you not sent messages to you friends?</div>
+</div>
+<div id="nav">
+<a href="/">Home</a>
+<a href="/about">About</a>
+<a href="/subscribe">Subscribe</a>
+</div>
+<div id="content">
     <form action="/check" method="post">
-      <div>Twitter Username <input type="text" name="username" value=""/> <input type="submit" value="Check Last Tweets"/></div>
+      <div>Twitter Username <input type="text" name="username" value=""/> <input type="submit" value="Let's see!"/></div>
     </form>
-  </body>
+</div>
+<div id="footer">
+Last Tweets is created by <a href="http://friendfeed.com/livibetter">Yu-Jie Lin</a>, you can follow <a href="http://twitter.com/livibetter">him</a>.
+</div>
+</div>
+</body>
 </html>
 
