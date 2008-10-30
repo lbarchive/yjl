@@ -37,8 +37,14 @@
 
 <h2>Server things</h2>
 <ul>
+  <li>Once Last Tweets finishes updating for an account, it tries to mail if that account is subscribed and have not mailed in last 14 days.</li>
   <li>Up to one searching request to Twitter a second, means 100 friends need 100 seconds to check them all, and that is the ideal case.</li>
+  <li>Every 10 minutes, Last Tweets tries to mail for those failed to mail last time.</li>
+  <li>Every an hour, Last Tweets automatically queues those accounts have been subscribed and last mailed more than 14 days.</li>
 </ul>
+
+<h2>The Code</h2>
+The source code is licensed under the <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a>. You can check out the <a href="http://code.google.com/p/yjl/wiki/LasTweet">project page</a> on Google Code.
 
 <h2>Sucks!</h2>
 <p>Yea... I know.</p>

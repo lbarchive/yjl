@@ -59,8 +59,9 @@ def lock(key, timeout=None, force=False, wait_interval=0.1):
   timeout in second, None is never timeout
   force
   """
+  logging.debug('Trying to acquire lock %s' % key)
   start = util.now()
-  while not memcache.add(key, util.now()):
+  while memcache.get(key):
     logging.debug('already has lock %s in memcache' % key)
     # There already is 'qlock' in memcache
     if timeout is not None or util.td_seconds(start) >= timeout:
@@ -78,7 +79,8 @@ def lock(key, timeout=None, force=False, wait_interval=0.1):
 
 # TODO with?
 def unlock(key):
-  memcache.delete(key)
+  logging.debug('Unlocking %s' % key)
+  logging.debug('Result: %d' % memcache.delete(key))
 
 
 def add(u):
@@ -248,38 +250,40 @@ def process_queue():
     curr = (u.username, friends, [])
     memcache.set('q_' + username, curr)
   # Start to process a bit
-  curr_f = curr[1].popitem()
+  # In case this user do have friends
+  if curr[1]:
+    curr_f = curr[1].popitem()
 
-  client = twitter_client.service.TwitterService(application_name='LasTweet/0')
-  gdata.alt.appengine.run_on_appengine(client)
-  search = client.NewSearch()
-  search.keywords = ['from:' + curr[0], 'to:' + curr_f[0]]
-  search.rpp = 1
+    client = twitter_client.service.TwitterService(application_name='LasTweet/0')
+    gdata.alt.appengine.run_on_appengine(client)
+    search = client.NewSearch()
+    search.keywords = ['from:' + curr[0], 'to:' + curr_f[0]]
+    search.rpp = 1
 
-  new_tweet = {
-      'username': curr_f[0],
-      'msg': '',
-      'msg_id': 0,
-      'published': None,
-      'profile_image': curr_f[1],
-      }
-  result = search.Search()
-  if len(result.entry) == 1:
-    entry = result.entry[0]
-    # Process the message
-    # Get the unicode string
-    msg = entry.title.text.decode('utf-8')
-    # Remove the @reply
-    msg = message_body_pattern.match(msg).group(1)
-    # Truncate
-    if len(msg) > 50:
-      msg = msg[:47] + '...'
-    else:
-      msg = msg[:50]
-    new_tweet['msg'] = msg
-    new_tweet['msg_id'] = int(entry.GetMessageID())
-    new_tweet['published'] = entry.published.Get()
-  curr[2].append(new_tweet)
+    new_tweet = {
+        'username': curr_f[0],
+        'msg': '',
+        'msg_id': 0,
+        'published': None,
+        'profile_image': curr_f[1],
+        }
+    result = search.Search()
+    if len(result.entry) == 1:
+      entry = result.entry[0]
+      # Process the message
+      # Get the unicode string
+      msg = entry.title.text.decode('utf-8')
+      # Remove the @reply
+      msg = message_body_pattern.match(msg).group(1)
+      # Truncate
+      if len(msg) > 50:
+        msg = msg[:47] + '...'
+      else:
+        msg = msg[:50]
+      new_tweet['msg'] = msg
+      new_tweet['msg_id'] = int(entry.GetMessageID())
+      new_tweet['published'] = entry.published.Get()
+    curr[2].append(new_tweet)
 
   # If there is no more in curr[1]
   if not curr[1]:
@@ -300,6 +304,8 @@ def get_status():
 
 
 def sort_messages(msgs):
+  if not msgs:
+    return msgs
   # FIXME make me pretty
   def cmp(x, y):
     x = x['published']

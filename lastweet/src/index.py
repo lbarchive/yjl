@@ -32,18 +32,26 @@ from lastweet import user, queue
 
 
 class HomePage(webapp.RequestHandler):
+
   def get(self):
     template_values = {}
     path = os.path.join(os.path.dirname(__file__), 'template/home.html')
     self.response.out.write(template.render(path, template_values))
 
-
-class CheckRedirection(webapp.RequestHandler):
   def post(self):
-    self.redirect('/u/' + urllib.quote(self.request.get('username')))
+    username = self.request.get('username')
+    if username:
+      self.redirect('/u/' + urllib.quote(username))
+   
+    template_values = {
+      'messages': [['error', 'Please enter username']],
+      }
+    path = os.path.join(os.path.dirname(__file__), 'template/home.html')
+    self.response.out.write(template.render(path, template_values))
 
 
 class UserPage(webapp.RequestHandler):
+
   def get(self, username):
     logging.debug('%s asked' % username)
     # Check if this username in db
@@ -66,14 +74,13 @@ class UserPage(webapp.RequestHandler):
           template_values['tweets'] = u._tweets_
       else:
         # the weets has been updated within 24 hours
-        # Also check if need to email result. mail is not empty and last_mail > 14 days
         template_values = {
           'username': u.username,
           'profile_image': u.profile_image,
           'email': u.email,
           'last_mailed': u.last_mailed,
           'last_updated': u.last_updated,
-          'messages': [],
+          'messages': '',
           'tweets': u._tweets_,
           }
     else:
@@ -126,7 +133,6 @@ class SubscribePage(webapp.RequestHandler):
     return post_uri
 
   def get(self):
-
     template_values = {
         'username': '',
         'email': '',
@@ -150,7 +156,7 @@ class SubscribePage(webapp.RequestHandler):
 
     if email:
       logging.debug('Checking email')
-      # TODO is_email_valid not working on development server
+      # TODO is_email_valid not working on development and production servers
       if not mail.is_email_valid(email):
         template_values['messages'].append(['error', 'Email address is not valid'])
         path = os.path.join(os.path.dirname(__file__), 'template/subscribe.html')
@@ -202,13 +208,12 @@ class PingPage(webapp.RequestHandler):
     self.response.out.write(', took %f seconds.<BR>' % seconds)
 
     status = queue.get_status()
-    self.response.out.write('Queue: %d' % status)
+    self.response.out.write('Queue: %d\n' % status)
 
 
 application = webapp.WSGIApplication(
     [('/', HomePage),
      ('/about', AboutPage),
-     ('/check', CheckRedirection),
      (r'/u/(.*)', UserPage),
      ('/subscribe', SubscribePage),
      ('/ping', PingPage),

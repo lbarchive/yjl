@@ -18,7 +18,7 @@
 <div id="content">
 <div id="messages">
 {% for message in messages %} 
-<div class="{{ message.0 }}">{{ message.1 }}</div>
+<div class="{{ message.0 }}">{{ message.1|escape }}</div>
 {% endfor %}
 </div>
 <div id="twitter">
@@ -44,6 +44,7 @@ Never
 </div>
 {% endif %}
 <div id="tweets">
+{% if tweets %}
 {% for tweet in tweets %}
 <div class="tweet">
 <a href="http://twitter.com/{{ tweet.username|urlencode }}"><img class="avatar" src="{{ tweet.profile_image }}"/></a>
@@ -61,6 +62,13 @@ Never
 <br style="clear: both"/>
 </div>
 {% endfor %}
+{% else %}
+{% if last_updated %}
+No Friends
+{% else %}
+No data available yet.
+{% endif %}
+{% endif %}
 </div>
 </div>
 <div id="footer">

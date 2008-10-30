@@ -16,9 +16,16 @@
 <a href="/subscribe">Subscribe</a>
 </div>
 <div id="content">
-  <form action="/check" method="post">
+<div id="messages">
+{% for message in messages %} 
+<div class="{{ message.0 }}">{{ message.1|escape }}</div>
+{% endfor %}
+</div>
+<div>
+  <form action="/" method="post">
     <div>Twitter Username <input type="text" name="username" value=""/> <input type="submit" value="Let's see!"/></div>
   </form>
+</div>
 </div>
 <div id="footer">
 Last Tweets is created by <a href="http://friendfeed.com/livibetter">Yu-Jie Lin</a>, you can follow <a href="http://twitter.com/livibetter">him</a>.

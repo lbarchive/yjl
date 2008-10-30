@@ -26,6 +26,7 @@ from google.appengine.api import urlfetch
 from google.appengine.ext import db
 from google.appengine.ext.webapp import template
 
+import config
 from lastweet import queue
 from lastweet import util
 
@@ -44,7 +45,9 @@ class User(db.Model):
 
   def _get_tweets(self):
     if self.tweets:
-      return pickle.loads(self.tweets)
+      # Copy the self.tweets is important to avoid KeyError: '\x00'
+      # on Production server
+      return pickle.loads(str(self.tweets))
 
   def _set_tweets(self, new_tweets):
     if isinstance(new_tweets, (str, unicode)):
@@ -62,7 +65,9 @@ class User(db.Model):
 
   @property
   def _friends(self):
-    f = urlfetch.fetch('http://twitter.com/statuses/friends/%s.json' % self.username)
+    f = util.fetch(
+        'http://twitter.com/statuses/friends/%s.json' % self.username,
+        config.twitter_username, config.twitter_password)
     if f.status_code == 200:
       u_json = json.loads(f.content)
       # TODO error
@@ -71,6 +76,8 @@ class User(db.Model):
               for friend in u_json])
       logging.debug('Retrievd %d friends of %s.' % (len(friends), self.username))
       return friends
+    else:
+      logging.debug('Cannot fetch friends of %s: %d' % (self.username. f.status_code))
 
   @property
   def _need_update(self):
@@ -104,7 +111,9 @@ def add(username):
   if u:
     return u
   logging.debug('Fetching %s for adding to db' % username)
-  f = urlfetch.fetch('http://twitter.com/users/show/%s.json' % username)
+  f = util.fetch(
+      'https://twitter.com/users/show/%s.json' % username,
+      config.twitter_username, config.twitter_password)
   if f.status_code == 200:
     u_json = json.loads(f.content)
     # Create new entry
@@ -158,12 +167,8 @@ def transaction_mailed(username):
 
 
 def verify_twitter(username, password):
-  headers = {
-      'Authorization': 'Basic ' + base64.b64encode('%s:%s' % (username, password)),
-      }
-  f = urlfetch.fetch('https://twitter.com/account/verify_credentials.json', headers=headers)
+  f = util.fetch('https://twitter.com/account/verify_credentials.json', username, password)
   del password
-  del headers
   return f.status_code == 200
 
 
