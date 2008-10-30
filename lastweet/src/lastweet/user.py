@@ -103,7 +103,7 @@ def add(username):
   u = get(username)
   if u:
     return u
-
+  logging.debug('Fetching %s for adding to db' % username)
   f = urlfetch.fetch('http://twitter.com/users/show/%s.json' % username)
   if f.status_code == 200:
     u_json = json.loads(f.content)

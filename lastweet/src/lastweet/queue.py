@@ -59,18 +59,21 @@ def lock(key, timeout=None, force=False, wait_interval=0.1):
   timeout in second, None is never timeout
   force
   """
-  start = datetime.datetime.utcnow()
-  while not memcache.add(key, datetime.datetime.utcnow()):
+  start = util.now()
+  while not memcache.add(key, util.now()):
+    logging.debug('already has lock %s in memcache' % key)
     # There already is 'qlock' in memcache
-    if timeout is not None or (datetime.datetime.utcnow() - start).seconds >= timeout:
+    if timeout is not None or util.td_seconds(start) >= timeout:
       if not force:
         # Can't acquire lock
+        logging.debug('cannot acquire lock %s' % key)
         return False
       # Force to acquire lock
-      # FIXME still has possiblity of two to get lock forcibly in an about time
-      memcache.set(key, datetime.datetime.utcnow());
-      return True
+      logging.debug('forcibly acquire lock %s' % key)
+      break
     time.sleep(wait_interval)
+  logging.debug('acquire lock %s' % key)
+  memcache.set(key, util.now());
   return True
 
 # TODO with?
@@ -126,21 +129,27 @@ def remove(u):
 def lock_one_username():
   q = memcache.get('q') or []
   for username in q:
+    logging.debug('Retrieving %s from db' % username)
     u = user.get(username)
     if not u._need_update:
       remove(u)
       continue
+    logging.debug('Checking lock')
     locked_time = memcache.get('qlock_' + username)
-    if locked_time is not None:
+    logging.debug('locked_time: %s' % locked_time)
+    if locked_time:
+      logging.debug('Locked, timeout?')
       # I don't think this would be used...
       if util.td_seconds(locked_time) >= FETCH_TIMEOUT:
+        logging.debug('Yes, timed out')
         # Force to acquire, if locked more than FETCH_TIMEOUT ago
-        memcache.set('qlock_' + username, datetime.datetime.utcnow())
+        memcache.set('qlock_' + username, util.now())
         return username
       else:
         continue
-    if lock('qlock_' + username, 0):
-      # Get the lock
+    else:
+      logging.debug('locked_time does not have a value, force to acquire')
+      memcache.set('qlock_' + username, util.now())
       return username
   return False
 

@@ -57,10 +57,11 @@ class UserPage(webapp.RequestHandler):
           'username': u.username,
           'profile_image': u.profile_image,
           'last_updated': u.last_updated,
+          'messages': [],
           }
         pos = u._queued
         if pos:
-          template_values['messages'] = ['message', 'This user is in queue #%d' % pos]
+          template_values['messages'].append(['message', 'This user is in queue #%d' % pos])
         if u.tweets:
           template_values['tweets'] = u._tweets_
       else:
@@ -85,7 +86,7 @@ class UserPage(webapp.RequestHandler):
           'profile_image': u.profile_image,
           'email': u.email,
           'last_mailed': u.last_mailed,
-          'messages': ['message', 'Put in queue #%d' % u._queued],
+          'messages': [['message', 'Put in queue #%d' % u._queued]],
           }
       elif u == 403:
         # Reject protected twitter user, can retrieve correct screen name and image from
@@ -93,13 +94,13 @@ class UserPage(webapp.RequestHandler):
         template_values = {
           'username': username,
           'profile_image': 'http://static.twitter.com/images/default_profile_normal.png',
-          'messages': ['error', "This Twitter's tweets are protected."],
+          'messages': [['error', "This Twitter's tweets are protected."]],
           }
       elif u == 404:
         template_values = {
           'username': username,
           'profile_image': 'http://static.twitter.com/images/default_profile_normal.png',
-          'messages': ['error', 'No such Twitter user'],
+          'messages': [['error', 'No such Twitter user']],
           }
       else:
         # Unknown error
@@ -107,7 +108,7 @@ class UserPage(webapp.RequestHandler):
         template_values = {
           'username': 'ERROR',
           'profile_image': 'http://static.twitter.com/images/default_profile_normal.png',
-          'messages': ['error', 'Twitter responses with %d' % u],
+          'messages': [['error', 'Twitter responses with %d' % u]],
           }
 
     path = os.path.join(os.path.dirname(__file__), 'template/user.html')
@@ -121,7 +122,7 @@ class SubscribePage(webapp.RequestHandler):
     post_uri = '/subscribe'
     server_name = os.environ.get('SERVER_NAME', '')
     if 'appspot.com' in server_name:
-      post_uri = 'https://%s/subscribe' + server_name
+      post_uri = 'https://%s/subscribe' % server_name
     return post_uri
 
   def get(self):
@@ -148,6 +149,7 @@ class SubscribePage(webapp.RequestHandler):
         }
 
     if email:
+      logging.debug('Checking email')
       # TODO is_email_valid not working on development server
       if not mail.is_email_valid(email):
         template_values['messages'].append(['error', 'Email address is not valid'])
@@ -156,6 +158,7 @@ class SubscribePage(webapp.RequestHandler):
         return
 
     if username and password:
+      logging.debug('About to verify')
       if user.verify_twitter(username, password):
         # Make sure username in db
         u = user.get(username)
@@ -169,6 +172,7 @@ class SubscribePage(webapp.RequestHandler):
           template_values['messages'].append(['message', 'Email has been removed'])
       else:
         template_values['messages'].append(['error', 'Cannot verify Twitter account'])
+      logging.debug('End of verifying')
     else:
       template_values['messages'].append(['error', 'Please input both username and password!'])
     del password
