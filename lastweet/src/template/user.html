@@ -2,6 +2,7 @@
 <head>
   <title>Last Tweets: {{ username|escape }}</title>
   <link href="/css/lastweet.css" type="text/css" rel="stylesheet"/>
+  <link href="/favicon.ico" type="image/x-icon" rel="shortcut icon"/>
 </head>
 <body>
 <div id="wrap">
@@ -16,17 +17,31 @@
 </div>
 <div id="content">
 <div id="messages">
-{{ messages }}
+{% for message in messages %} 
+<div class="{{ message.0 }}">{{ message.1 }}</div>
+{% endfor %}
 </div>
 <div id="twitter">
 <a href="http://twitter.com/{{ username|urlencode }}"><img class="avatar" src="{{ profile_image }}"/></a>
 <a class="username" href="http://twitter.com/{{ username|urlencode }}">{{ username|escape }}</a>
 </div>
+<div>
 Last updated:
 {% if last_updated %}
-{{ last_updated|timesince }} ago.
+{{ last_updated|timesince }} ago
 {% else %}
-never.
+Never
+{% endif %}
+</div>
+{% if email %}
+<div>
+Last mailed:
+{% if last_mailed %}
+{{ last_mailed|timesince }} ago
+{% else %}
+Never
+{% endif %}
+</div>
 {% endif %}
 <div id="tweets">
 {% for tweet in tweets %}

@@ -1,3 +1,19 @@
+# LasTweet lists last tweets to friends
+# Copyright (C) 2008  Yu-Jie Lin
+# 
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+# 
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+# 
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
 import base64
 import datetime
 import logging
@@ -173,11 +189,17 @@ def try_mail(u):
     path = os.path.join(os.path.dirname(__file__), 'mail.txt')
     body = template.render(path, template_values)
 
+    if 'appspot.com' in os.environ.get('SERVER_NAME', ''):
+      sender = "Last Tweets <livibetter@gmail.com>"
+      to = "%s <%s>" % (u.username, u.email)
+    else:
+      sender = "livibetter@gmail.com"
+      to = "%s" % u.email
+
     mail.send_mail(
-        sender="livibetter@gmail.com",
-#        to="%s <%s>" % (u.username, u.email),
-        to="%s" % u.email,
-        subject="Last Tweets",
+        subject="Last Tweets Subscription",
+        sender=sender,
+        to=to,
         body=body)
   # Update mailed date
   db.run_in_transaction(transaction_mailed, u.username)

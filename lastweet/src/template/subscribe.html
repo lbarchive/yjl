@@ -2,6 +2,7 @@
 <head>
   <title>Last Tweets: Subscribe</title>
   <link href="/css/lastweet.css" type="text/css" rel="stylesheet"/>
+  <link href="/favicon.ico" type="image/x-icon" rel="shortcut icon"/>
 </head>
 <body>
 <div id="wrap">
@@ -17,9 +18,11 @@
 <div id="content">
 <h1>Subscribe to Your Last Tweets</h1>
 <div id="messages">
-{{ messages }}
+{% for message in messages %} 
+<div class="{{ message.0 }}">{{ message.1 }}</div>
+{% endfor %}
 </div>
-  <form id="subscribe" action="/subscribe" method="post">
+  <form id="subscribe" action="{{ post_uri }}" method="post">
     <div><label for="username">Twitter Username</label> <input type="text" name="username" value="{{ username }}"/></div>
     <div><label for="password">Twitter Password</label> <input type="password" name="password" value=""/></div>
     <div><label for="email">Your Email</label> <input type="text" name="email" value="{{ email }}"/></div>
