@@ -2,11 +2,34 @@
 
 
 import os
+import re
 import readline
 import time
 
 import twitter_client as tc
 import twitter_client.service
+
+
+def unescape(s):
+  s = s.replace("&lt;", "<")
+  s = s.replace("&gt;", ">")
+  s = s.replace("&quot;", '"')
+  s = s.replace("&amp;", "&")
+  return s
+
+
+link_re = re.compile('(.*?)<a href="(.*?)">(.*?)</a>(.*)', re.DOTALL)
+
+
+def cleanup_links(s):
+  m = link_re.match(s)
+  while m:
+    if m.group(2) == str(m.group(3)).replace('<b>', '').replace('</b>', ''):
+      s = "%s\033[1:33m%s\033[0m%s" % (m.group(1), m.group(2), m.group(4))
+    else:
+      s = "%s%s[\033[1:34m%s\033[0m]%s" % (m.group(1), m.group(3), m.group(2), m.group(4))
+    m = link_re.match(s)
+  return s
 
 
 histfile = os.path.join(os.environ['HOME'], '.tthist')
@@ -37,7 +60,7 @@ try:
       print
     for entry in feed.entry:
       print entry.published.text + ':', #entry.title.text
-      print entry.content.text.replace('<b>', '\033[1;31m').replace('</b>', '\033[0m')
+      print cleanup_links(unescape(entry.content.text)).replace('<b>', '\033[1;31m').replace('</b>', '\033[0m')
     time.sleep(60)
     feed = search.Refresh()
 except KeyboardInterrupt:
