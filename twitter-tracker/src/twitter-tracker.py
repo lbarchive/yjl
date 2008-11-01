@@ -27,7 +27,11 @@ def cleanup_links(s):
     if m.group(2) == str(m.group(3)).replace('<b>', '').replace('</b>', ''):
       s = "%s\033[1:33m%s\033[0m%s" % (m.group(1), m.group(2), m.group(4))
     else:
-      s = "%s%s[\033[1:34m%s\033[0m]%s" % (m.group(1), m.group(3), m.group(2), m.group(4))
+      if m.group(2)[0] == '/':
+        # A hashtag has uri /search?q=%23... 
+        s = "%s\033[1:32m%s\033[0m%s" % (m.group(1), m.group(3), m.group(4))
+      else:
+        s = "%s%s[\033[1:34m%s\033[0m]%s" % (m.group(1), m.group(3), m.group(2), m.group(4))
     m = link_re.match(s)
   return s
 
