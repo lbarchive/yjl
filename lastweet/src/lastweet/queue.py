@@ -40,7 +40,9 @@ MAILS_PER_PROCESS = 15
 
 FETCH_TIMEOUT = 30
 
-message_body_pattern = re.compile('@[^ ]+ (.*)')
+# Somehow, there may be no a space betweet @ and message,
+# So just assume valid characters of a Twitter account
+message_body_pattern = re.compile('@[_a-zA-Z0-9]+ ?(.*)')
 
 
 def has(username):
