@@ -100,8 +100,18 @@ class User(db.Model):
   # TODO add trymail here
 
 
+def fix_key_name(key_name):
+  if key_name[0] in '0123456789':
+    key_name = '#' + key_name
+  else:
+    key_name = key_name
+  return key_name.lower()
+
+
 def get(username):
-  return User.get_by_key_name(username.lower())
+  if username:
+    return User.get_by_key_name(fix_key_name(username))
+  return None
 
 
 def add(username):
@@ -129,10 +139,10 @@ def add(username):
     return u
   # Unknown error
   return f.status_code
-    
+
 
 def transaction_add_user(username, profile_image):
-  user = User(key_name=username.lower())
+  user = User(key_name=fix_key_name(username))
   user.username = username
   user.profile_image = profile_image
   user.put()
@@ -140,22 +150,22 @@ def transaction_add_user(username, profile_image):
 
 
 def transaction_update_email(username, email):
-  user = User.get_by_key_name(username.lower())
+  user = User.get_by_key_name(fix_key_name(username))
   user.email = email
   user.put()
   return user
 
 
 def transaction_update_tweets(username, tweets):
-  user = User.get_by_key_name(username.lower())
+  user = User.get_by_key_name(fix_key_name(username))
   user._tweets_ = tweets
-  user.last_updated = datetime.datetime.utcnow()
+  user.last_updated = util.now()
   user.put()
   return user
 
 
 def transaction_remove_email(username):
-  user = User.get_by_key_name(username.lower())
+  user = User.get_by_key_name(fix_key_name(username))
   user.email = None
   user.last_mailed = None
   user.put()
@@ -163,10 +173,10 @@ def transaction_remove_email(username):
 
 
 def transaction_mailed(username):
-  user = User.get_by_key_name(username.lower())
+  user = User.get_by_key_name(fix_key_name(username))
   if user.email is None:
     return
-  user.last_mailed = datetime.datetime.utcnow()
+  user.last_mailed = util.now()
   user.put()
   return user
 
