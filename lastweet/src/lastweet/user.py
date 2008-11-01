@@ -83,7 +83,10 @@ class User(db.Model):
 
   @property
   def _need_update(self):
-    if not self.last_updated or util.td_seconds(self.last_updated) > UPDATE_INTERVAL:
+    # Need update when 
+    #  a) never updated
+    #  b) need to mail latest result
+    if not self.last_updated or (self._need_mail and util.td_seconds(self.last_updated) > UPDATE_INTERVAL):
       return True
     return False
 
