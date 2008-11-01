@@ -45,15 +45,17 @@ class User(db.Model):
 
   def _get_tweets(self):
     if self.tweets:
-      # Copy the self.tweets is important to avoid KeyError: '\x00'
+      # No need to Copy the self.tweets is important to avoid KeyError: '\x00'
       # on Production server
-      return pickle.loads(str(self.tweets))
+      # Fixing the encoding problem also fixing the KeyError above
+      return pickle.loads(self.tweets.encode('latin-1'))
 
   def _set_tweets(self, new_tweets):
     if isinstance(new_tweets, (str, unicode)):
       self.tweets = new_tweets
     else:
-      self.tweets = pickle.dumps(new_tweets)
+      # a message with a degree symbol \xb0 cause encoding problem
+      self.tweets = db.Text(pickle.dumps(new_tweets), encoding='latin-1')
 
   _tweets_ = property(_get_tweets, _set_tweets)
 
