@@ -54,7 +54,7 @@ search.keywords = query.split(' ')
 search.show_user = True
 
 print
-print 'Searching...'
+print 'Tracking...'
 
 feed = search.Search()
 try:
@@ -65,6 +65,7 @@ try:
     for entry in feed.entry:
       print entry.published.text + ':', #entry.title.text
       print cleanup_links(unescape(entry.content.text)).replace('<b>', '\033[1;31m').replace('</b>', '\033[0m')
+      time.sleep(0.1)
     time.sleep(60)
     feed = search.Refresh()
 except KeyboardInterrupt:
