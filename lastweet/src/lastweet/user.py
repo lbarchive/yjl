@@ -85,8 +85,8 @@ class User(db.Model):
   def _need_update(self):
     # Need update when 
     #  a) never updated
-    #  b) need to mail latest result
-    if not self.last_updated or (self._need_mail and util.td_seconds(self.last_updated) > UPDATE_INTERVAL):
+    #  b) longer than UPDATE_INTERVAL since last updated 
+    if not self.last_updated or util.td_seconds(self.last_updated) > UPDATE_INTERVAL:
       return True
     return False
 
