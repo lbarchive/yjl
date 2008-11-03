@@ -49,6 +49,9 @@ Never
 <div class="tweet">
 <a href="http://twitter.com/{{ tweet.username|urlencode }}"><img class="avatar" src="{{ tweet.profile_image }}"/></a>
 <div class="right">
+<div class="option-right">
+<a href="http://twitter.com/home?status=@{{ tweet.username|urlencode }}">Tweet Now</a>
+</div>
 @<a href="http://twitter.com/{{ tweet.username|urlencode }}">{{ tweet.username|escape }}</a>
 {% if tweet.published %}
 about {{ tweet.published|timesince }} ago
@@ -58,6 +61,14 @@ Never
 <div class="message">
 <a href="http://twitter.com/{{ username|urlencode }}/status/{{ tweet.msg_id }}">{{ tweet.msg|escape }}</a>
 </div>
+{% if tweet.magpie %}
+<div class="option-right">
+<a href="http://twitter.com/{{ tweet.username|urlencode }}">Go to unfollow</a>
+</div>
+<div class="magpie">
+Magpie detected: <a href="http://twitter.com/{{ tweet.username|urlencode }}/status/{{ tweet.magpie.msg_id }}">{{ tweet.magpie.msg|escape }}</a> about {{ tweet.magpie.published|timesince }} ago
+</div>
+{% endif %}
 </div>
 <br style="clear: both"/>
 </div>

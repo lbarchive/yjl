@@ -268,6 +268,7 @@ def process_queue():
         'msg_id': 0,
         'published': None,
         'profile_image': curr_f[1],
+        'maggie': None,
         }
     result = search.Search()
     if len(result.entry) == 1:
@@ -285,6 +286,26 @@ def process_queue():
       new_tweet['msg'] = msg
       new_tweet['msg_id'] = int(entry.GetMessageID())
       new_tweet['published'] = entry.published.Get()
+
+    # Search for maggie ads
+    search.keywords = ['from:' + curr_f[0], '#magpie']
+    search.rpp = 10
+    result = search.Search()
+    for entry in result.entry:
+      # If #magpie at beginning, then this is a possiblity; and a link as well
+      if entry.title.text.find('#magpie') == 0 and entry.title.text.find('http://') >= 0:
+        msg = entry.title.text.decode('utf-8')
+        if len(msg) > 50:
+          msg = msg[:47] + '...'
+        else:
+          msg = msg[:50]
+        new_tweet['magpie'] = {
+          'msg': msg,
+          'msg_id': int(entry.GetMessageID()),
+          'published': entry.published.Get(),
+          }
+        # Only store the last
+        break
     curr[2].append(new_tweet)
 
   # If there is no more in curr[1]

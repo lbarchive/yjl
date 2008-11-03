@@ -128,6 +128,23 @@ a:hover {
 
 #tweets .tweet .message a{
   color: #ccc;
+  width: 400px;
+  }
+
+#tweets .tweet .magpie {
+  background-color: #f00;
+  border: 1px solid #ff0;
+  color: #fff;
+  width: 400px;
+  }
+
+#tweets .tweet .option-right {
+  font-size: 12px;
+  background-color: #336677;
+  border: 1px solid #66ccdd;
+  float: right;
+  width: 110px;
+  text-align: center;
   }
 
 #about_content {
