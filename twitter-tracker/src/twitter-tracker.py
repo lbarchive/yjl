@@ -25,7 +25,7 @@ def cleanup_links(s):
   m = link_re.match(s)
   while m:
     if m.group(2) == str(m.group(3)).replace('<b>', '').replace('</b>', '') or \
-        m.group(3).find(m.group(2)) >= 0:
+        m.group(2).find(m.group(3)) >= 0:
       s = "%s\033[1:33m%s\033[0m%s" % (m.group(1), m.group(2), m.group(4))
     else:
       if m.group(2)[0] == '/':
