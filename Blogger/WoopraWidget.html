@@ -4,8 +4,7 @@
 // This script and form below is in Public Domain
 function AddWoopraWidget() {
   document.getElementById('woopra_widget_content').value = 
-    document.getElementById('woopra_widget_content_template').value
-      .replace('%WOOPRA_ID%', document.getElementById('woopra_id').value);
+    document.getElementById('woopra_widget_content_template').value;
   document.add_woopra.submit();
   }
 </script>
@@ -14,11 +13,12 @@ function AddWoopraWidget() {
   <input type="hidden" name="widget.title" value=""/>
   <input type="hidden" name="widget.content" value="" style="display:none;" id="woopra_widget_content"/>
   <textarea type="hidden" name="widget.content.template" style="display:none;" id="woopra_widget_content_template">
+&lt;!-- Woopra Code Start --&gt;
 &lt;script type=&quot;text/javascript&quot;&gt;
-  var woopra_id = &apos;%WOOPRA_ID%&apos;;
+var _wh = ((document.location.protocol==&apos;https:&apos;) ? &quot;https://sec1.woopra.com&quot; : &quot;http://static.woopra.com&quot;);
+document.write(unescape(&quot;%3Cscript src=&apos;&quot; + _wh + &quot;/js/woopra.js&apos; type=&apos;text/javascript&apos;%3E%3C/script%3E&quot;));
 &lt;/script&gt;
-&lt;script src=&quot;http://static.woopra.com/js/woopra.js&quot;&gt;&lt;/script&gt;
+&lt;!-- Woopra Code End --&gt;
   </textarea>
-  Website ID: <input type="text" name="woopra_id" value="123456789" id="woopra_id"/>
   <input type="button" name="go" value="Add Woopra Tracking Code" onclick="AddWoopraWidget()"/>
 </form>
