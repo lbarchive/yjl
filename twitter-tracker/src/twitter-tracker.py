@@ -65,7 +65,7 @@ try:
       print
     for entry in feed.entry:
       print entry.published.text + ':', #entry.title.text
-      print cleanup_links(unescape(entry.content.text)).replace('<b>', '\033[1;31m').replace('</b>', '\033[0m')
+      print cleanup_links(unescape(entry.content.text)).replace('<b>', '\033[1;31m').replace('</b>', '\033[0m').replace('\n', ' ')
       time.sleep(0.1)
     time.sleep(60)
     feed = search.Refresh()
