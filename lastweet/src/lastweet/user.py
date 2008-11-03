@@ -210,7 +210,7 @@ def try_mail(u):
     body = template.render(path, template_values)
 
     if 'appspot.com' in os.environ.get('SERVER_NAME', ''):
-      sender = "Last Tweets <livibetter@gmail.com>"
+      sender = "livibetter@gmail.com"
       to = "%s <%s>" % (u.username, u.email)
     else:
       sender = "livibetter@gmail.com"
