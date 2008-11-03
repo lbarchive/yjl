@@ -6,15 +6,7 @@
 </head>
 <body>
 <div id="wrap">
-<div id="header">
-<div class="title">Last Tweets</div>
-<div class="description">How long have you not sent messages to you friends?</div>
-</div>
-<div id="nav">
-<a href="/">Home</a>
-<a href="/about">About</a>
-<a href="/subscribe">Subscribe</a>
-</div>
+{% include "header.html" %}
 <div id="content">
 <h1>Subscribe to Your Last Tweets</h1>
 <div id="messages">
@@ -30,9 +22,7 @@
   </form>
 <p>Last Tweets will not store your Twitter username and password, but you must proof you own that Twiiter acocount in order to (un)subscribe. If you want to unsubscribe, empty email field and submit.</p>
 </div>
-<div id="footer">
-Last Tweets is created by <a href="http://friendfeed.com/livibetter">Yu-Jie Lin</a>, you can follow <a href="http://twitter.com/livibetter">him</a>.
-</div>
+{% include "footer.html" %}
 </div>
 </body>
 </html>

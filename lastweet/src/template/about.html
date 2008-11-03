@@ -6,15 +6,7 @@
 </head>
 <body>
 <div id="wrap">
-<div id="header">
-<div class="title">Last Tweets</div>
-<div class="description">How long have you not sent messages to you friends?</div>
-</div>
-<div id="nav">
-<a href="/">Home</a>
-<a href="/about">About</a>
-<a href="/subscribe">Subscribe</a>
-</div>
+{% include "header.html" %}
 <div id="content">
 <h1>About</h1>
 <div id="about_content">
@@ -28,6 +20,13 @@
 <h2>Subscription</h2>
 <h3>When will Last Tweets send mail?</h3>
 <p>If there are a) a friend you never sent a message or b) a friend you have not sent in last 14 days; and at least 14 days after last time sent.</p>
+
+<h2>Magpie Detection</h2>
+<h3>How accurate is the detection</h3>
+Maybe not high enough. Those Magpie ads doesn't have client source, e.g. Twhirl, Twitterfox, etc. Therefore I can only see if the first word of tweet is <b>#magpie</b> and if there is <b>http://</b>. Please must read the suspicious tweets before you take more further actions.
+
+<h3>Why add this?</h3>
+I don't like it. However, I haven't seen any Magpie ads in my stream (I don't follow many people). In my opinion, it would not be a totally bad thing IF the followers of that account can have choices besides UNFOLLOWING in order to get rid of those ads. So far, it's bad.
 
 <h2>Limitations</h2>
 <ul>
@@ -50,9 +49,7 @@ The source code is licensed under the <a href="http://www.gnu.org/licenses/gpl-3
 <p>Yea... I know.</p>
 </div>
 </div>
-<div id="footer">
-Last Tweets is created by <a href="http://friendfeed.com/livibetter">Yu-Jie Lin</a>, you can follow <a href="http://twitter.com/livibetter">him</a>.
-</div>
+{% include "footer.html" %}
 </div>
 </body>
 </html>

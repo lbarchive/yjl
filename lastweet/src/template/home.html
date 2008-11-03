@@ -6,15 +6,7 @@
 </head>
 <body>
 <div id="wrap">
-<div id="header">
-<div class="title">Last Tweets</div>
-<div class="description">How long have you not sent messages to you friends?</div>
-</div>
-<div id="nav">
-<a href="/">Home</a>
-<a href="/about">About</a>
-<a href="/subscribe">Subscribe</a>
-</div>
+{% include "header.html" %}
 <div id="content">
 <div id="messages">
 {% for message in messages %} 
@@ -27,9 +19,7 @@
   </form>
 </div>
 </div>
-<div id="footer">
-Last Tweets is created by <a href="http://friendfeed.com/livibetter">Yu-Jie Lin</a>, you can follow <a href="http://twitter.com/livibetter">him</a>.
-</div>
+{% include "footer.html" %}
 </div>
 </body>
 </html>
