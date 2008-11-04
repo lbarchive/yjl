@@ -79,7 +79,7 @@ class User(db.Model):
       logging.debug('Retrievd %d friends of %s.' % (len(friends), self.username))
       return friends
     else:
-      logging.debug('Cannot fetch friends of %s: %d' % (self.username. f.status_code))
+      logging.debug('Cannot fetch friends of %s: %d' % (self.username, f.status_code))
 
   @property
   def _need_update(self):
