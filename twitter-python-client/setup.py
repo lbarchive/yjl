@@ -20,7 +20,7 @@ from setuptools import setup, find_packages
 
 setup(
     name='twitter_client',
-    version='0.1a1',
+    version='0.1a2',
     packages=find_packages('src'),
     install_requires=['gdata.py>=1.2.0'],
     description='Python client library for Twitter APIs',
