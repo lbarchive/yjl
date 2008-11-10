@@ -1,0 +1,19 @@
+application: brps
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /css
+  static_dir: css
+
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
+
+- url: /brps.js
+  static_files: brps.js
+  upload: brps.js
+
+- url: /.*
+  script: index.py
