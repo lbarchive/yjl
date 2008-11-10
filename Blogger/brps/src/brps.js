@@ -21,6 +21,7 @@
 
 google.load('jquery', '1.2.6');
 google.setOnLoadCallback(function() {
+  var $ = jQuery;
   // Get Blog ID
   link = $($('link[rel=EditURI]')[0]).attr('href')
   var blog_id = ''
@@ -39,14 +40,17 @@ google.setOnLoadCallback(function() {
   if (blog_id != '' && post_id != '') {
     $.getJSON("http://brps.appspot.com/get?blog=" + blog_id + "&post=" + post_id + "&callback=?",
         function(data){
+		  var $ = jQuery;
           $('<h2>Related Posts</h2>').appendTo('#related_posts');
-          if (data.entry.length > 0)
+          if (data.entry.length > 0) {
             $('<ul></ul>').appendTo('#related_posts');
             $.each(data.entry, function(i, entry){
               $('<li><a href="' + entry.link + '">' + entry.title + '</a></li>').appendTo('#related_posts ul');
-            });
-          else
+	          });
+			}
+          else {
             $('<p>No related post found.</p>').appendTo('#related_posts');
+			}
         });
     }
   });
