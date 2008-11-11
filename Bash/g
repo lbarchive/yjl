@@ -32,6 +32,7 @@ G_ShowHelp() {
   g (-g|g)     : get a list of directories
   g (-a|a)     : add current directory
   g (-a|a) dir : add dir
+  g (-c|c)     : clean up non-existing directories
   g (-r|r)     : remove a directory from list
   g (-h|h)     : show what you are reading right now
 "
@@ -39,10 +40,10 @@ G_ShowHelp() {
 
 # Shows stored directories
 G_ShowDirs() {
-	echo Pick one:
+	[[ $1 == "" ]] && echo Pick one:
 	i=0
 	for d in $(cat $G_DIRS); do
-		echo "$i: $d"
+		[[ $1 == "" ]] && echo "$i: $d"
 		dir[$i]=$d
 		(( i++ ))
 	done
@@ -69,6 +70,17 @@ g() {
 				echo "$dir" >> $G_DIRS
 				echo "$dir added."
 				G_SortDirs
+				return 0
+				;;
+			-c|--clean|c|clean)
+				G_ShowDirs 1
+				echo -n "cleaning up..."
+				rm -f $G_DIRS
+				touch $G_DIRS
+				for (( i=0; i<${#dir[@]}; i++)); do
+					[[ -d ${dir[$i]} ]] && echo "${dir[$i]}" >> $G_DIRS
+				done
+				echo "done."
 				return 0
 				;;
 			-r|--remove|r|remove)
