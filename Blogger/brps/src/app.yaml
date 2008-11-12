@@ -7,6 +7,9 @@ handlers:
 - url: /css
   static_dir: css
 
+- url: /images
+  static_dir: images
+ 
 - url: /robots.txt
   static_files: robots.txt
   upload: robots.txt

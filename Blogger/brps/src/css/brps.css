@@ -35,6 +35,13 @@ a:hover {
   color: #e55c00;
   }
 
+img.right {
+  float: right;
+  padding: 5px;
+  margin: 5px;
+  border: 1px solid #e55c00;
+  }
+
 pre {
   margin: 10px;
   background-color: #eee;

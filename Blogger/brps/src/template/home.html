@@ -7,8 +7,14 @@
 <div id="wrap">
 {% include "header.html" %}
 <div id="content">
+<h2>About</h2>
+<h3>What is this?</h3>
+<p>Blogger, a.k.a. Blogger.com, Blogspot, or Blog*Spot, has operated for many years, but the blog owners still doesn't have a easy installation <b>Related Posts</b> widget. You have to go through really nasty steps in order to install those code which you can search on Google. I finally decided to make this small project. It's not only good for blog owners, but also good for Blogger.com, it caches results that can ease server load. If you want to more about this service, please visit the <a href="http://code.google.com/p/yjl/wiki/BRPS?ts=1226481819&updated=BRPS">project page</a>.</p>
+
 <h2>Installation</h2>
+<img src="/images/RelatedPostsSidebar.png" class="right" title="Screenshot of the Widget at sidebar"/>
 <h3>Add a Sidebar Widget</h3>
+<h4>Step 1. Click the button below</h4>
 <form method="post" action="http://www.blogger.com/add-widget" name="add_brps">
   <input type="hidden" name="infoUrl" value="http://brps.appspot.com"/>
   <input type="hidden" name="widget.title" value=""/>
@@ -20,7 +26,14 @@
   <input type="submit" name="go" value="Add Related Posts Widget"/>
 </form>
 
+<h4>Step 2. Move the new sidebar widget to a position you like</h4>
+The new sidebar widget will be created at top of your sidebar, you may want to move it a better place. Remember to save.
+
+<h4>Step 3. Go to one of your blog post</h4>
+You have to see it in action in single post, you will not see the Related Posts list in your home page of your blog. Just randomly choose one of your blog post.
+
 <h3>Add after your post</h3>
+<img src="/images/RelatedPostsAfterPost.png" class="right" title="Screenshot of the Widget after your post content"/>
 <h4>Step 1. Go to Layout/Edit HTML/Edit Template</h4>
 <h4>Step 2. BACKUP your template! Do not skip this!</h4>
 <h4>Step 3. Find a block like:</h4>
@@ -57,7 +70,7 @@
 </ul>
 
 <h2>The Code</h2>
-<p>The source code is licensed under the <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a>. You can check out the <a href="http://code.google.com/p/yjl/wiki/brps">project page</a> on Google Code.</p>
+<p>The source code is licensed under the <a href="http://www.gnu.org/licenses/gpl-3.0.html">GPLv3</a>. You can check out the <a href="http://code.google.com/p/yjl/wiki/BRPS">project page</a> on Google Code.</p>
 
 <h2>Sucks!</h2>
 <p>Yea... I know.</p>
