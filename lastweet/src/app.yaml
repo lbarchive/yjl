@@ -11,6 +11,14 @@ handlers:
   static_files: favicon.ico
   upload: favicon.ico
 
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
+
+- url: /googlec8042ec8ab6ba5f0.html
+  static_files: googlec8042ec8ab6ba5f0.html
+  upload: googlec8042ec8ab6ba5f0.html
+
 - url: /.*
   script: index.py
   secure: optional

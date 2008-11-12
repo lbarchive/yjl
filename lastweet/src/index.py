@@ -22,6 +22,7 @@ import os
 import urllib
 
 from google.appengine.api import mail
+from google.appengine.api import memcache
 from google.appengine.api import urlfetch
 from google.appengine.ext import db
 from google.appengine.ext import webapp
@@ -80,7 +81,7 @@ class UserPage(webapp.RequestHandler):
           'email': u.email,
           'last_mailed': u.last_mailed,
           'last_updated': u.last_updated,
-          'messages': '',
+          'messages': [],
           'tweets': u._tweets_,
           }
     else:
@@ -117,6 +118,10 @@ class UserPage(webapp.RequestHandler):
           'profile_image': 'http://static.twitter.com/images/default_profile_normal.png',
           'messages': [['error', 'Twitter responses with %d' % u]],
           }
+    # Check if pinging system offline
+    last_process = memcache.get('last_process_queue')
+    if not last_process or util.td_seconds(last_process) > 600:
+      template_values['messages'].append(['message', 'Pinging system is temporarily offine, you request will be processed in a few hours.'])
 
     path = os.path.join(os.path.dirname(__file__), 'template/user.html')
     self.response.out.write(template.render(path, template_values))
