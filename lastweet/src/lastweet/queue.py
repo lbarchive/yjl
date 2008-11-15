@@ -177,18 +177,21 @@ def process_auto_queue():
 
   # Queue those needs get updated, which have email address
   #q = user.User.gql("WHERE email > '' AND last_updated < :1 AND last_updated > ''", update_after)
+  # TODO only few users have email in datastore, should querying for email > '' first,
+  # then check the last_updated
   q = user.User.gql("WHERE last_updated < :1 AND last_updated > DATE(1,1,1)", update_after)
   count = 0
   offset = 0
   while count < 50:
-    for u in q.fetch(50, offset * 50):
+    users = q.fetch(50, offset * 50)
+    if not users:
+      break
+    for u in users:
       if u.email:
         add(u)
         count += 1
         if count >= 50:
           break
-    else:
-      break
     offset += 1
 
   # Queue those never get updated
@@ -211,18 +214,21 @@ def process_mail():
 
   # Queue those needs get updated, which have email address
   #q = user.User.gql("WHERE email > '' AND last_updated >= :1 AND last_mailed < :2", update_after, mail_before)
+  # TODO only few users have email in datastore, should querying for email > '' first,
+  # then check the last_mailed and the last_updated
   q = user.User.gql("WHERE last_mailed < :1", mail_before)
   count = 0
   offset = 0
   while count < MAILS_PER_PROCESS:
-    for u in q.fetch(50, offset * 50):
+    users = q.fetch(50, offset * 50)
+    if not users:
+      break
+    for u in users:
       if u.email and u.last_updated and u.last_updated >= update_after:
         user.try_mail(u)
         count += 1
         if count >= MAILS_PER_PROCESS:
           break
-    else:
-      break
     offset += 1
 
 
