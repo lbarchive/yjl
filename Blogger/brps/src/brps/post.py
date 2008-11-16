@@ -130,7 +130,12 @@ def get_relates(blog_id, post_id, labels):
   for label in labels[:MAX_LABEL_QUERIES]:
     f = urlfetch.fetch(POST_QUERY_URL % (blog_id, urllib.quote(label)))
     if f.status_code == 200:
-      p_json = json.loads(f.content)
+      try:
+        p_json = json.loads(f.content)
+      except ValueError:
+        # TODO this is a temporary fix
+        p_json = json.loads(f.content.replace('\t', '\\t'))
+
       for entry in p_json['feed']['entry']:
         if entry['id']['$t'].find(s_post_id) >= 0:
           # Same post skip
