@@ -97,7 +97,7 @@ def add(blog_id, post_id):
   # Get labels of post
   labels = get_labels(blog_id, post_id)
   relates = []
-  if labels:
+  if isinstance(labels, list):
     relates = get_relates(blog_id, post_id, labels)
   p = db.run_in_transaction(transaction_add_post, blog_id, post_id, relates)
   memcache.set(key_name, p, POST_CACHE_TIME)
@@ -111,9 +111,11 @@ def get_labels(blog_id, post_id):
     p_json = json.loads(f.content)
     entry = p_json['entry']
     labels = []
-    for cat in entry['category']:
-      labels.append(cat['term'])
+    if 'category' in entry:
+      for cat in entry['category']:
+        labels.append(cat['term'])
     return labels
+  logging.debug('Unable to fetch labels: %d' % f.status_code)
   return f.status_code
 
 
