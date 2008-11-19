@@ -83,13 +83,6 @@ function LX_RenderCloud(labels, ele_id, options) {
 	options.MaxCount = labels[labels.length - 1][2];
 	// Need to use max of int
 	options.MinCount = labels[0][2];
-	// Sort by name?
-	if (options.SortByName != undefined && options.SortByName == true)
-		labels = labels.sort(function(a, b) {
-			if (a[0] == b[0]) return 0;
-			if (a[0] < b[0]) return -1;
-			if (a[0] > b[0]) return 1;
-			});
 	// Reverse?
 	if (options.Reverse != undefined && options.Reverse == true)
 		labels.reverse()
@@ -102,6 +95,13 @@ function LX_RenderCloud(labels, ele_id, options) {
 		else
 			labels = labels.slice(options.Limit);
 		}
+	// Sort by name?
+	if (options.SortByName != undefined && options.SortByName == true)
+		labels = labels.sort(function(a, b) {
+			if (a[0] == b[0]) return 0;
+			if (a[0] < b[0]) return -1;
+			if (a[0] > b[0]) return 1;
+			});
 
 	// Print them out
 	// Clean it up! Folks!
