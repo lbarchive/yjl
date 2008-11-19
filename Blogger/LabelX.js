@@ -83,9 +83,6 @@ function LX_RenderCloud(labels, ele_id, options) {
 	options.MaxCount = labels[labels.length - 1][2];
 	// Need to use max of int
 	options.MinCount = labels[0][2];
-	// Reverse?
-	if (options.Reverse != undefined && options.Reverse == true)
-		labels.reverse()
 	// TODO: dividen by zero
 	options.CountSpan = options.MaxCount - options.MinCount;
 	// Select only top/least items
@@ -102,6 +99,9 @@ function LX_RenderCloud(labels, ele_id, options) {
 			if (a[0] < b[0]) return -1;
 			if (a[0] > b[0]) return 1;
 			});
+	// Reverse?
+	if (options.Reverse != undefined && options.Reverse == true)
+		labels.reverse()
 
 	// Print them out
 	// Clean it up! Folks!
