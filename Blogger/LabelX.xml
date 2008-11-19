@@ -1,0 +1,44 @@
+<!--
+LabelX for Blogger (http://code.google.com/p/yjl/wiki/LabelX)
+Copyright 2008 Yu-Jie Lin
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU Lesser General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU Lesser General Public License for more details.
+
+You should have received a copy of the GNU Lesser General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Author      : Yu-Jie Lin
+Author Link : http://sites.google.com/site/livibetter/
+-->
+<script src="http://www.google.com/jsapi"></script>
+<script type='text/javascript'>
+// LabelX for Blogger
+// http://code.google.com/p/yjl/wiki/LabelX
+google.load("jquery", "1.2.6");
+google.setOnLoadCallback(function() {
+	// As Label Cloud
+	LX_Render('Label1', 'cloud', {
+		MinFontSize: 1.0,
+		MaxFontSize: 2.0,
+		FontSizeUnit: 'em',
+		Limit: -100,
+		SortByName: true,
+		Reverse: false
+		});
+	// As Dropdown box
+	LX_Render('Label2', 'dropdown', {
+		Limit: -100,
+		SortByName: true,
+		Reverse: false
+		});
+	});
+</script>
+<script type='text/javascript' src='http://yjl.googlecode.com/svn-history/r72/trunk/Blogger/LabelX.js'> </script>
