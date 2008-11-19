@@ -41,4 +41,4 @@ google.setOnLoadCallback(function() {
 		});
 	});
 </script>
-<script type='text/javascript' src='http://yjl.googlecode.com/svn-history/r72/trunk/Blogger/LabelX.js'> </script>
+<script type='text/javascript' src='http://yjl.googlecode.com/svn-history/r76/trunk/Blogger/LabelX.js'> </script>
