@@ -17,6 +17,7 @@
 
 
 import simplejson as json
+import StringIO
 import logging
 import os
 
@@ -27,9 +28,21 @@ from google.appengine.ext.webapp.util import run_wsgi_app
 from brps import post
 
 
-def json_error(msg):
-  error = {'error': msg}
-  return json.dumps(error)
+def send_json(response, obj, callback):
+  json_result = obj
+  if not isinstance(obj, (str, unicode)):
+    json_result = json.dumps(obj)
+
+  response.headers['Content-Type'] = 'application/json'
+  if callback:
+    response.out.write('%s(%s)' % (callback, json_result))
+  else:
+    response.out.write(json_result)
+
+
+def json_error(response, msg, callback):
+  # TODO sends 500
+  send_json(response, {'error': msg}, callback)
 
 
 class HomePage(webapp.RequestHandler):
@@ -44,24 +57,18 @@ class GetPage(webapp.RequestHandler):
   """Serves relates posts"""
 
   def get(self):
-    blog_id = int(self.request.get('blog'))
-    post_id = int(self.request.get('post'))
     callback = self.request.get('callback')
-    if blog_id and post_id:
-      p = post.get(blog_id, post_id)
-      if not p:
-        p = post.add(blog_id, post_id)
-      json = p.relates
-    else:
-      # missing blog_id and/or post_id
-      # http://www.iana.org/assignments/media-types/application/
-      json = json_error('Missing Ids')
+    try:
+      blog_id = int(self.request.get('blog'))
+      post_id = int(self.request.get('post'))
+    except ValueError:
+      json_error(self.response, 'Missing Ids', callback)
       return
-    self.response.headers['Content-Type'] = 'application/json'
-    if callback:
-      self.response.out.write('%s(%s)' % (callback, json))
-    else:
-      self.response.out.write(json)
+
+    p = post.get(blog_id, post_id)
+    if not p:
+      p = post.add(blog_id, post_id)
+    send_json(self.response, p.relates, callback)
 
 
 application = webapp.WSGIApplication(
