@@ -187,7 +187,7 @@ def process_auto_queue():
     if not users:
       break
     for u in users:
-      if u.email:
+      if u._need_mail:
         add(u)
         count += 1
         if count >= 50:
