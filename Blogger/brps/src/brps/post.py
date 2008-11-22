@@ -108,7 +108,7 @@ def get_labels(blog_id, post_id):
   logging.debug('Fetching labels for %d, %d' % (blog_id, post_id))
   f = urlfetch.fetch(POST_FETCH_URL % (blog_id, post_id))
   if f.status_code == 200:
-    p_json = json.loads(f.content)
+    p_json = json.loads(f.content.replace('\t', '\\t'))
     entry = p_json['entry']
     labels = []
     if 'category' in entry:
