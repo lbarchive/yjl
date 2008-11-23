@@ -24,7 +24,7 @@ google.setOnLoadCallback(function() {
   if ($buttons.length == 0) return;
   $buttons.hide();
   // Add restore button
-  $('<img style="position:absolute;left:10px;top:40px;z-index:1000;cursor:pointer;" alt="Restore Quick Edit Buttons" height="18" src="http://img1.blogblog.com/img/icon18_wrench_allbkg.png" width="18"/>')
+  $('<img style="position:absolute;left:10px;top:40px;z-index:1000;cursor:pointer;" title="Restore Quick Edit Buttons" height="18" src="http://img1.blogblog.com/img/icon18_wrench_allbkg.png" width="18"/>')
     .appendTo('body')
     .click(function() {
       $('a.quickedit').show();
