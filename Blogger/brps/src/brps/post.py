@@ -33,8 +33,9 @@ from brps import util
 # Need to limit the max queries
 MAX_LABEL_QUERIES = 5
 MAX_POSTS = 10
-# Post cache time in minutes
-POST_CACHE_TIME = 60
+# Post cache time in seconds
+POST_CACHE_TIME = 3600
+LABEL_QUERY_RESULT_CACHE_TIME = 86400
 # In seconds
 UPDATE_INTERVAL = 86400
 
@@ -99,8 +100,8 @@ def add(blog_id, post_id):
   relates = []
   if isinstance(labels, list):
     relates = get_relates(blog_id, post_id, labels)
-  p = db.run_in_transaction(transaction_add_post, blog_id, post_id, relates)
-  memcache.set(key_name, p, POST_CACHE_TIME)
+    p = db.run_in_transaction(transaction_add_post, blog_id, post_id, relates)
+    memcache.set(key_name, p, POST_CACHE_TIME)
   return p
 
 
@@ -130,42 +131,55 @@ def get_relates(blog_id, post_id, labels):
   entries = []
   link_check = []
   for label in labels[:MAX_LABEL_QUERIES]:
-    f = urlfetch.fetch(POST_QUERY_URL % (blog_id, urllib.quote(label)))
-    if f.status_code == 200:
+    p_json = None
+    json_content = memcache.get('b%dl%s' % (blog_id, label))
+    if json_content:
+      logging.debug('Got label %s from mamcache' % label)
+    else:
+      logging.debug('Querying label %s' % label)
+      f = urlfetch.fetch(POST_QUERY_URL % (blog_id, urllib.quote(label)))
+      if f.status_code == 200:
+        json_content = f.content
+        memcache.set('b%dl%s' % (blog_id, label), json_content, LABEL_QUERY_RESULT_CACHE_TIME)
+        
+    if json_content:
       try:
-        p_json = json.loads(f.content)
+        p_json = json.loads(json_content)
       except ValueError:
         # TODO this is a temporary fix
-        p_json = json.loads(f.content.replace('\t', '\\t'))
+        p_json = json.loads(json_content.replace('\t', '\\t'))
 
-      for entry in p_json['feed']['entry']:
-        if entry['id']['$t'].find(s_post_id) >= 0:
-          # Same post skip
-          continue
-
-        # Find the link to this related post
-        link = ''
-        for l in entry['link']:
-          if l['rel'] == 'alternate':
-            link = l['href']
-            break
-        # Skip if we already have this post
-        if link in link_check:
-          continue
-
-        c_labels = []
-        for cat in entry['category']:
-          c_labels.append(cat['term'])
-
-        match_count = len(s_labels & sets.Set(c_labels))
-        if not match_count:
-          # No label is matched
-          continue
-
-        entries.append((float(match_count) / len_labels, entry['title']['$t'], link))
-        link_check.append(link)
-    else:
+    if not p_json:
       logging.debug('Unable to retrieve for label %s: %d, %s' % (label, f.status_code, f.content))
+      continue
+      
+    for entry in p_json['feed']['entry']:
+      if entry['id']['$t'].find(s_post_id) >= 0:
+        # Same post skip
+        continue
+
+      # Find the link to this related post
+      link = ''
+      for l in entry['link']:
+        if l['rel'] == 'alternate':
+          link = l['href']
+          break
+      # Skip if we already have this post
+      if link in link_check:
+        continue
+
+      c_labels = []
+      for cat in entry['category']:
+        c_labels.append(cat['term'])
+
+      match_count = len(s_labels & sets.Set(c_labels))
+      if not match_count:
+        # No label is matched
+        continue
+
+      entries.append((float(match_count) / len_labels, entry['title']['$t'], link))
+      link_check.append(link)
+
   if entries:
     entries.sort()
     entries.reverse()

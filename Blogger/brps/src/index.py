@@ -68,7 +68,10 @@ class GetPage(webapp.RequestHandler):
     p = post.get(blog_id, post_id)
     if not p:
       p = post.add(blog_id, post_id)
-    send_json(self.response, p.relates, callback)
+    if p:
+      send_json(self.response, p.relates, callback)
+    else:
+      json_error(self.response, 'Unable to get related posts', callback)
 
 
 application = webapp.WSGIApplication(
