@@ -1,0 +1,85 @@
+<html>
+<head>
+  <title>Build Next Button</title>
+</head>
+<!--
+Build Next Button (http://code.google.com/p/yjl/wiki/BuildNextButton)
+Copyright 2008 Yu-Jie Lin
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
+
+Author      : Yu-Jie Lin
+Author Link : http://sites.google.com/site/livibetter/
+-->
+<script src="http://www.google.com/jsapi"></script>
+<script type='text/javascript'>
+google.load("jquery", "1.2.6");
+function GenerateButton() {
+  var s = $('#random_sources').val().split('\n');
+  var code = 'javascript:var a=[';
+  var a = [];
+  for (var i=0; i<s.length; i++)
+    if (s[i] != '')
+      a.push('"' + s[i] + '"');
+  
+  code += a.join(',') + '];document.location=a[Math.floor(Math.random()*a.length)];'
+
+  $('#button_placeholder')
+    .empty()
+    .append($('<a href="' + encodeURI(code) + '">' + $('#button_name').val() + '</a>'));
+  }
+</script>
+<body>
+<h1>Build Next Button</h1>
+<p>Information about this page, please visit <a href="http://code.google.com/p/yjl/wiki/BuildNextButton">BuildNextButton</a>. You can also visit <a href="http://sites.google.com/site/livibetter/">author's website</a>.</p>
+<h2>Step 1: Remove unwanted random sources</h2>
+<p style="color:red;font-size:24px"><b>Warning</b>: Choose sources carefully! Some may direct you to malicious or adult content websites.</p>
+<textarea id="random_sources" rows="10" cols="80">
+http://www.blogger.com/next-blog?navBar=true
+http://wordpress.com/next/
+http://delicious.com/recent?min=10&amp;random=1
+http://random.yahoo.com/bin/ryl
+</textarea>
+
+<h2>Step 2: What do you want to name your Next button?</h2>
+<input type="text" value="SuperNext" id="button_name"/>
+
+<h2>Step 3: Generate your Next Button</h2>
+<input type="button" value="Generate" onclick="GenerateButton()"/>
+
+<h2>Step 4: Drag and drop onto your bookmark bar</h2>
+<div id="button_placeholder">
+</div>
+
+<h2>License</h2>
+<pre>
+Copyright 2008 Yu-Jie Lin
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see &lt;http://www.gnu.org/licenses/&gt;.
+</pre>
+</body>
+<!--
+vim:ts=2:et
+-->
