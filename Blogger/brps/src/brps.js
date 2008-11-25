@@ -42,7 +42,7 @@ google.setOnLoadCallback(function() {
           if (data.entry.length > 0) {
             $('<ul></ul>').appendTo('#related_posts');
             $.each(data.entry, function(i, entry){
-              $('<li><a href="' + entry.link + '">' + entry.title + '</a></li>').appendTo('#related_posts ul');
+              $('<li><a hr' + 'ef="' + entry.link + '">' + entry.title + '</a></li>').appendTo('#related_posts ul');
 	          });
 			}
           else {
