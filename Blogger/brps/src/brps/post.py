@@ -134,7 +134,7 @@ def get_relates(blog_id, post_id, labels):
     p_json = None
     json_content = memcache.get('b%dl%s' % (blog_id, label))
     if json_content:
-      logging.debug('Got label %s from mamcache' % label)
+      logging.debug('Got label %s from memcache' % label)
     else:
       logging.debug('Querying label %s' % label)
       f = urlfetch.fetch(POST_QUERY_URL % (blog_id, urllib.quote(label.encode('utf-8'))))

@@ -24,6 +24,7 @@ import os
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
+from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError 
 
 from brps import post
 
@@ -67,7 +68,12 @@ class GetPage(webapp.RequestHandler):
 
     p = post.get(blog_id, post_id)
     if not p:
-      p = post.add(blog_id, post_id)
+      try:
+        p = post.add(blog_id, post_id)
+      except CapabilityDisabledError:
+        logging.debug('Caught CapabilityDisabledError')
+        json_error(self.response, 'Unable to process, Google App Engine may be under maintenance.', callback)
+        return
     if p:
       send_json(self.response, p.relates, callback)
     else:

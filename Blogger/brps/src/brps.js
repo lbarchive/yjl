@@ -37,17 +37,23 @@ google.setOnLoadCallback(function() {
   if (blog_id != '' && post_id != '') {
     $.getJSON("http://brps.appspot.com/get?blog=" + blog_id + "&post=" + post_id + "&callback=?",
         function(data){
-		  var $ = jQuery;
+	    	  var $ = jQuery;
           $('<h2>Related Posts</h2>').appendTo('#related_posts');
-          if (data.entry.length > 0) {
-            $('<ul></ul>').appendTo('#related_posts');
-            $.each(data.entry, function(i, entry){
-              $('<li><a hr' + 'ef="' + entry.link + '">' + entry.title + '</a></li>').appendTo('#related_posts ul');
-	          });
-			}
-          else {
-            $('<p>No related post found.</p>').appendTo('#related_posts');
-			}
+          if (data.error) {
+            $('<p>' + data.error + '</p>').appendTo('#related_posts');
+    		  	}
+		      else {
+            if (data.entry.length > 0) {
+              $('<ul></ul>').appendTo('#related_posts');
+              $.each(data.entry, function(i, entry){
+                $('<li><a hr' + 'ef="' + entry.link + '">' + entry.title + '</a></li>').appendTo('#related_posts ul');
+                });
+              }
+            else {
+              $('<p>No related post found.</p>').appendTo('#related_posts');
+              }
+            }
         });
     }
   });
+// vim:ts=2:sw=2:et:
