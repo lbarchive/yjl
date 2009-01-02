@@ -19,7 +19,7 @@
 google.load('jquery', '1.2.6');
 google.setOnLoadCallback(function() {
   BRPS_get();
-  }
+  });
 
 function BRPS_get() {
   var $ = jQuery;
