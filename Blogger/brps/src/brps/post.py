@@ -141,7 +141,11 @@ def get_relates(blog_id, post_id, labels):
       if f.status_code == 200:
         json_content = f.content
         memcache.set('b%dl%s' % (blog_id, label), json_content, LABEL_QUERY_RESULT_CACHE_TIME)
-        
+      else:
+        # Something went wrong when querying label for posts
+        logging.debug('Error on querying label %s, %d' % (label, f.status_code))
+        continue
+
     if json_content:
       try:
         p_json = json.loads(json_content)
@@ -149,10 +153,11 @@ def get_relates(blog_id, post_id, labels):
         # TODO this is a temporary fix
         p_json = json.loads(json_content.replace('\t', '\\t'))
 
-    if not p_json:
-      logging.debug('Unable to retrieve for label %s: %d, %s' % (label, f.status_code, f.content))
+    if 'type' in p_json and p_json['type'] == 'error':
+      # Something went wrong when querying label for posts
+      logging.warning('Unable to have correct label %s, %s' % (label, p_json['details']))
       continue
-      
+        
     for entry in p_json['feed']['entry']:
       if entry['id']['$t'].find(s_post_id) >= 0:
         # Same post skip
