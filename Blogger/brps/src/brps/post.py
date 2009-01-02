@@ -31,7 +31,7 @@ from brps import util
 
 # Since Google hasn't support disjunction querying on labels
 # Need to limit the max queries
-MAX_LABEL_QUERIES = 5
+MAX_LABEL_QUERIES = 10
 MAX_POSTS = 10
 # Post cache time in seconds
 POST_CACHE_TIME = 3600

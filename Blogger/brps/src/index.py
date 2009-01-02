@@ -21,6 +21,7 @@ import StringIO
 import logging
 import os
 
+from google.appengine.api.urlfetch import DownloadError
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -41,9 +42,13 @@ def send_json(response, obj, callback):
     response.out.write(json_result)
 
 
-def json_error(response, msg, callback):
+def json_error(response, code, msg, callback):
+  # 1 - Missing Ids
+  # 2 - GAE problem
+  # 3 - Server is processing, try again
+  # 99 - Unknown problem
   # TODO sends 500
-  send_json(response, {'error': msg}, callback)
+  send_json(response, {'code': code, 'error': msg}, callback)
 
 
 class HomePage(webapp.RequestHandler):
@@ -63,21 +68,25 @@ class GetPage(webapp.RequestHandler):
       blog_id = int(self.request.get('blog'))
       post_id = int(self.request.get('post'))
     except ValueError:
-      json_error(self.response, 'Missing Ids', callback)
+      json_error(self.response, 1, 'Missing Ids', callback)
       return
 
-    p = post.get(blog_id, post_id)
-    if not p:
-      try:
-        p = post.add(blog_id, post_id)
-      except CapabilityDisabledError:
-        logging.debug('Caught CapabilityDisabledError')
-        json_error(self.response, 'Unable to process, Google App Engine may be under maintenance.', callback)
-        return
-    if p:
-      send_json(self.response, p.relates, callback)
-    else:
-      json_error(self.response, 'Unable to get related posts', callback)
+    try:
+      p = post.get(blog_id, post_id)
+      if not p:
+        try:
+          p = post.add(blog_id, post_id)
+        except CapabilityDisabledError:
+          logging.debug('Caught CapabilityDisabledError')
+          json_error(self.response, 2, 'Unable to process, Google App Engine may be under maintenance.', callback)
+          return
+      if p:
+        send_json(self.response, p.relates, callback)
+      else:
+        json_error(self.response, 99, 'Unable to get related posts', callback)
+    except DownloadError:
+      # Should be a timeout, just tell client to retry in a few seconds
+      json_error(self.response, 3, 'BRPS server is processing for this post... will retry in a few seconds...', callback)
 
 
 application = webapp.WSGIApplication(

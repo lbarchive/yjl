@@ -18,6 +18,10 @@
 
 google.load('jquery', '1.2.6');
 google.setOnLoadCallback(function() {
+  BRPS_get();
+  }
+
+function BRPS_get() {
   var $ = jQuery;
   // Get Blog ID
   link = $($('link[rel=EditURI]')[0]).attr('href')
@@ -35,12 +39,19 @@ google.setOnLoadCallback(function() {
         }
     }
   if (blog_id != '' && post_id != '') {
+    $('#related_posts').empty()
+    $('<h2>Related Posts</h2>').appendTo('#related_posts');
+    $('<i>Loading...</i>').appendTo('#related_posts');
     $.getJSON("http://brps.appspot.com/get?blog=" + blog_id + "&post=" + post_id + "&callback=?",
         function(data){
 	    	  var $ = jQuery;
+          $('#related_posts').empty()
           $('<h2>Related Posts</h2>').appendTo('#related_posts');
           if (data.error) {
             $('<p>' + data.error + '</p>').appendTo('#related_posts');
+            if (data.code == 3)
+              // Need to retry in 5 seconds
+              window.setTimeout('BRPS_get()', 5);
     		  	}
 		      else {
             if (data.entry.length > 0) {
@@ -50,10 +61,10 @@ google.setOnLoadCallback(function() {
                 });
               }
             else {
-              $('<p>No related post found.</p>').appendTo('#related_posts');
+              $('<p>No related posts found.</p>').appendTo('#related_posts');
               }
             }
         });
     }
-  });
+  }
 // vim:ts=2:sw=2:et:
