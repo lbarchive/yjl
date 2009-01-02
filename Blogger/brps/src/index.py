@@ -21,13 +21,15 @@ import StringIO
 import logging
 import os
 
-from google.appengine.api.urlfetch import DownloadError
+from google.appengine.api import memcache
+from google.appengine.api.urlfetch import DownloadError, fetch
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError 
 
 from brps import post
+import Simple24
 
 
 def send_json(response, obj, callback):
@@ -59,6 +61,18 @@ class HomePage(webapp.RequestHandler):
     self.response.out.write(template.render(path, template_values))
 
 
+class StatsPage(webapp.RequestHandler):
+  """Statistics Page"""
+
+  def get(self):
+    template_values = {
+      'completed_requests': Simple24.get_count('completed_requests'),
+      'blogs': (memcache.get('blogs') or {}).values(),
+      }
+    path = os.path.join(os.path.dirname(__file__), 'template/stats.html')
+    self.response.out.write(template.render(path, template_values))
+
+
 class GetPage(webapp.RequestHandler):
   """Serves relates posts"""
 
@@ -82,6 +96,30 @@ class GetPage(webapp.RequestHandler):
           return
       if p:
         send_json(self.response, p.relates, callback)
+        Simple24.incr('completed_requests')
+        # Add to blog list
+        blogs = memcache.get('blogs')
+        if blogs is None or memcache.get('blogs_reset') is None:
+          blogs = {}
+          memcache.set('blogs', blogs)
+          memcache.set('blogs_reset', 86400)
+        if blog_id not in blogs:
+          try:
+            f = fetch('http://www.blogger.com/feeds/%s/posts/default?v=2&alt=json&max-results=0' % blog_id)
+            if f.status_code == 200:
+              p_json = json.loads(f.content.replace('\t', '\\t'))
+              blog_name = p_json['feed']['title']['$t']
+              blog_uri = ''
+              for link in p_json['feed']['link']:
+                if link['rel'] == 'alternate' and link['type'] == 'text/html':
+                  blog_uri = link['href']
+                  break
+              blogs[blog_id] = (blog_name, blog_uri)
+              memcache.set('blogs', blogs)
+            else:
+              logging.warning('Unable to fetch blog info %s, %d.' % (blog_id, f.status_code))
+          except Exception, e:
+            logging.warning('Unable to add blog %s, %s: %s' % (blog_id, type(e), e))
       else:
         json_error(self.response, 99, 'Unable to get related posts', callback)
     except DownloadError:
@@ -91,6 +129,7 @@ class GetPage(webapp.RequestHandler):
 
 application = webapp.WSGIApplication(
     [('/', HomePage),
+     ('/stats', StatsPage),
      ('/get', GetPage),
      ],
     debug=True)
