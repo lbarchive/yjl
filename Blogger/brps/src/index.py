@@ -16,6 +16,7 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+from datetime import timedelta
 import simplejson as json
 import StringIO
 import logging
@@ -28,7 +29,7 @@ from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError 
 
-from brps import post
+from brps import post, util
 import Simple24
 
 
@@ -67,7 +68,9 @@ class StatsPage(webapp.RequestHandler):
   def get(self):
     template_values = {
       'completed_requests': Simple24.get_count('completed_requests'),
+      'chart_uri': Simple24.get_chart_uri('completed_requests'),
       'blogs': (memcache.get('blogs') or {}).values(),
+      'blogs_reset': memcache.get('blogs_reset'),
       }
     path = os.path.join(os.path.dirname(__file__), 'template/stats.html')
     self.response.out.write(template.render(path, template_values))
@@ -99,10 +102,11 @@ class GetPage(webapp.RequestHandler):
         Simple24.incr('completed_requests')
         # Add to blog list
         blogs = memcache.get('blogs')
-        if blogs is None or memcache.get('blogs_reset') is None:
+        blogs_reset = memcache.get('blogs_reset')
+        if blogs is None or blogs_reset is None:
           blogs = {}
           memcache.set('blogs', blogs)
-          memcache.set('blogs_reset', 86400)
+          memcache.set('blogs_reset', util.now() + timedelta(days=1), 86400)
         if blog_id not in blogs:
           try:
             f = fetch('http://www.blogger.com/feeds/%s/posts/default?v=2&alt=json&max-results=0' % blog_id)

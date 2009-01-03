@@ -52,3 +52,39 @@ def full_count(key):
       total_count += count
   memcache.set('simple24_%s_total' % key, total_count)
   return total_count
+
+
+def get_hourly_counts(key):
+  counts = []
+  for hour in range(24):
+    count = memcache.get('simple24_%s_%d' % (key, hour))
+    if count is None:
+      counts.append(0)
+    else:
+      counts.append(count)
+  return counts
+
+
+def get_chart_uri(key, cache_time=300):
+  if cache_time > 0:
+    chart_uri =  memcache.get('simple24_%s_chart_uri' % key)
+    if chart_uri:
+      return chart_uri
+  curr_hour = datetime.utcnow().hour
+  counts = get_hourly_counts(key)
+  min_count = min(counts)
+  max_count = max(counts)
+  # Rearrange counts from oldest to recent
+  s_counts = [str(counts[(curr_hour + i + 1) % 24]) for i in range(24)]
+  
+  chtt = 'Completed request in 24-hour moving window|Times in UTC'
+  chxt = 't,x,x,y'
+  chxl = '0:|23 Hours ago' + '|'*11 +'12 Hours ago' + '|'*12 + 'This hour|'
+  chxl += '1:|%s|' % '|'.join(s_counts)
+  chxl += '2:|%s|' % '|'.join([str((curr_hour + i + 1) % 24) for i in range(24)])
+  chxl += '3:|%s' % '|'.join([str(min_count), str((min_count + max_count) / 2), str(max_count)])
+  chd = ','.join(s_counts)
+  chart_uri = "http://chart.apis.google.com/chart?chs=600x200&chf=bg,s,F5EDE3&chtt=%s&cht=bvs&chco=4D89F9&chbh=a&chd=t:%s&chds=%d,%d&chxt=%s&chxl=%s" % (chtt, chd, min_count, max_count, chxt, chxl)
+  if cache_time > 0:
+    memcache.set('simple24_%s_chart_uri' % key, chart_uri, cache_time)
+  return chart_uri
