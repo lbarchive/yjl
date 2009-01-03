@@ -66,10 +66,12 @@ class StatsPage(webapp.RequestHandler):
   """Statistics Page"""
 
   def get(self):
+    blogs = (memcache.get('blogs') or {}).values()
+    blogs.sort()
     template_values = {
       'completed_requests': Simple24.get_count('completed_requests'),
       'chart_uri': Simple24.get_chart_uri('completed_requests'),
-      'blogs': (memcache.get('blogs') or {}).values(),
+      'blogs': blogs,
       'blogs_reset': memcache.get('blogs_reset'),
       }
     path = os.path.join(os.path.dirname(__file__), 'template/stats.html')

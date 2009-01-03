@@ -32,6 +32,11 @@ a:hover {
   color: #e55c00;
   }
 
+a.uri {
+  color: #888;
+  font-family: monospace;
+  }
+
 img.right {
   float: right;
   padding: 5px;
