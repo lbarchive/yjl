@@ -17,7 +17,7 @@ Chart regenerates every 5 minutes.
 <h2>{{ blogs|length }} Active Blog{{ blogs|length|pluralize }}</h2>
 <ul>
 {% for blog in blogs %}
-  <li><a href="{{ blog.1 }}" rel="nofollow">{{ blog.0 }}</a><br/><a class="uri" href="{{ blog.1 }}">{{ blog.1|escape }}</a></li>
+  <li><a href="{{ blog.1 }}" rel="nofollow">{{ blog.0 }}</a><br/><a class="uri" href="{{ blog.1 }}" rel="nofollow">{{ blog.1|escape }}</a></li>
 {% endfor %}
 </ul>
 Resets in {{ blogs_reset|timeuntil }}.
