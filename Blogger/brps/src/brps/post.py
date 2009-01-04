@@ -40,8 +40,8 @@ LABEL_QUERY_RESULT_CACHE_TIME = 86400
 UPDATE_INTERVAL = 86400
 
 
-POST_FETCH_URL = 'http://www.blogger.com/feeds/%d/posts/default/%d?alt=json'
-POST_QUERY_URL = 'http://www.blogger.com/feeds/%d/posts/default?category=%s&max-results=100&alt=json'
+POST_FETCH_URL = 'http://www.blogger.com/feeds/%d/posts/default/%d?alt=json&v=2'
+POST_QUERY_URL = 'http://www.blogger.com/feeds/%d/posts/default?category=%s&max-results=100&alt=json&v=2'
 
 
 class Post(db.Model):
@@ -153,6 +153,7 @@ def get_relates(blog_id, post_id, labels):
         # TODO this is a temporary fix
         p_json = json.loads(json_content.replace('\t', '\\t'))
 
+    # TODO G-Data v2 seems to resolve the problem
     if 'type' in p_json and p_json['type'] == 'error':
       # Something went wrong when querying label for posts
       logging.warning('Unable to have correct label %s, %s' % (label, p_json['details']))
