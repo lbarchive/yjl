@@ -31,7 +31,7 @@ from brps import util
 
 # Since Google hasn't support disjunction querying on labels
 # Need to limit the max queries
-MAX_LABEL_QUERIES = 10
+MAX_LABEL_QUERIES = 20
 MAX_POSTS = 10
 # Post cache time in seconds
 POST_CACHE_TIME = 3600
@@ -106,6 +106,10 @@ def add(blog_id, post_id):
 
 
 def get_labels(blog_id, post_id):
+  labels = memcache.get('b%dp%dlabels' % (blog_id, post_id))
+  if labels is not None:
+    logging.debug('Fetching labels for %d, %d from memcache' % (blog_id, post_id))
+    return labels
   logging.debug('Fetching labels for %d, %d' % (blog_id, post_id))
   f = urlfetch.fetch(POST_FETCH_URL % (blog_id, post_id))
   if f.status_code == 200:
@@ -115,6 +119,8 @@ def get_labels(blog_id, post_id):
     if 'category' in entry:
       for cat in entry['category']:
         labels.append(cat['term'])
+    # Save it for 5 minutes in case of this post has too many labels to query
+    memcache.set('b%dp%dlabels' % (blog_id, post_id), labels, 300)
     return labels
   logging.debug('Unable to fetch labels: %d' % f.status_code)
   return f.status_code
