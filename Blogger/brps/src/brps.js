@@ -51,7 +51,7 @@ function BRPS_get() {
             $('<p>' + data.error + '</p>').appendTo('#related_posts');
             if (data.code == 3)
               // Need to retry in 5 seconds
-              window.setTimeout('BRPS_get()', 5);
+              window.setTimeout('BRPS_get()', 5000);
     		  	}
 		      else {
             if (data.entry.length > 0) {
