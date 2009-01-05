@@ -1,4 +1,7 @@
-<html>
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
   <title>Blogger Related Posts Service</title>
   <link href="/css/brps.css" type="text/css" rel="stylesheet"/>
@@ -13,30 +16,32 @@
 <p>Blogger, a.k.a. Blogger.com, Blogspot, or Blog*Spot, has operated for many years, but the blog owners still doesn't have a easy installation <b>Related Posts</b> widget. You have to go through really nasty steps in order to install those code which you can search on Google. I finally decided to make this small project. It's not only good for blog owners, but also good for Blogger.com, it caches results that can ease server load. If you want to more about this service, please visit the <a href="http://code.google.com/p/yjl/wiki/BRPS">project page</a>.</p>
 
 <h2>Installation</h2>
-<img src="/images/RelatedPostsSidebar.png" class="right" title="Screenshot of the Widget at sidebar"/>
+<img src="/images/RelatedPostsSidebar.png" class="right" alt="Screenshot of the Widget at sidebar" title="Screenshot of the Widget at sidebar"/>
 <h3>Add a Sidebar Widget</h3>
 <h4>Step 1. Click the button below</h4>
-<form method="post" action="http://www.blogger.com/add-widget" name="add_brps">
-  <input type="hidden" name="infoUrl" value="http://brps.appspot.com"/>
-  <input type="hidden" name="widget.title" value=""/>
-  <textarea type="hidden" name="widget.content" style="display:none;" id="widget_content">
-&lt;script src=&quot;http://www.google.com/jsapi&quot;&gt;&lt;/script&gt;
-&lt;script src=&quot;http://brps.appspot.com/brps.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
-&lt;div id=&quot;related_posts&quot;&gt;&lt;/div&gt;
-  </textarea>
-  <input type="submit" name="go" value="Add Related Posts Widget"/>
+<form method="post" action="http://www.blogger.com/add-widget">
+  <div>
+    <input type="hidden" name="infoUrl" value="http://brps.appspot.com"/>
+    <input type="hidden" name="widget.title" value=""/>
+    <textarea name="widget.content" style="display:none;" id="widget_content" rows="5" cols="80">
+  &lt;script src=&quot;http://www.google.com/jsapi&quot;&gt;&lt;/script&gt;
+  &lt;script src=&quot;http://brps.appspot.com/brps.js&quot; type=&quot;text/javascript&quot;&gt;&lt;/script&gt;
+  &lt;div id=&quot;related_posts&quot;&gt;&lt;/div&gt;
+    </textarea>
+    <input type="submit" name="go" value="Add Related Posts Widget"/>
+  </div>
 </form>
 
 <h4>Step 2. Move the new sidebar widget to a position you like</h4>
 <p>The new sidebar widget will be created at top of your sidebar, you may want to move it a better place. Remember to save.</p>
 
-<p><b>Tip</b>: You actually can drag this sidebar widget and drop onto after <i>Blog Posts</i> widget, then this widget will show up after <i>comments</i>.
+<p><b>Tip</b>: You actually can drag this sidebar widget and drop onto after <i>Blog Posts</i> widget, then this widget will show up after <i>comments</i>.</p>
 
 <h4>Step 3. Go to one of your blog post</h4>
 You have to see it in action in single post, you will not see the Related Posts list in your home page of your blog. Just randomly choose one of your blog post.
 
 <h3>Add after your post</h3>
-<img src="/images/RelatedPostsAfterPost.png" class="right" title="Screenshot of the Widget after your post content"/>
+<img src="/images/RelatedPostsAfterPost.png" class="right" alt="Screenshot of the Widget after your post content" title="Screenshot of the Widget after your post content"/>
 <h4>Step 1. Go to Layout/Edit HTML/Edit Template</h4>
 <h4>Step 2. BACKUP your template! Do not skip this!</h4>
 <h4>Step 3. Find a block like:</h4>
