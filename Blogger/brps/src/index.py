@@ -28,6 +28,12 @@ from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
 from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError 
+try:
+  # When deployed
+  from google.appengine.runtime import DeadlineExceededError
+except ImportError:
+  # In the development server
+  from google.appengine.runtime.apiproxy_errors import DeadlineExceededError
 
 from brps import post, util
 import Simple24
@@ -128,9 +134,9 @@ class GetPage(webapp.RequestHandler):
             logging.warning('Unable to add blog %s, %s: %s' % (blog_id, type(e), e))
       else:
         json_error(self.response, 99, 'Unable to get related posts', callback)
-    except DownloadError:
+    except (DownloadError, DeadlineExceededError):
       # Should be a timeout, just tell client to retry in a few seconds
-      json_error(self.response, 3, 'BRPS server is processing for this post... will retry in a few seconds...', callback)
+      json_error(self.response, 3, '<a href="http://brps.appspot.com/">Blogger Related Posts Service</a> is processing for this post... will retry in a few seconds...', callback)
 
 
 application = webapp.WSGIApplication(
