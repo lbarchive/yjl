@@ -72,8 +72,11 @@ def get_chart_uri(key, cache_time=300):
       return chart_uri
   curr_hour = datetime.utcnow().hour
   counts = get_hourly_counts(key)
-  min_count = min(counts)
   max_count = max(counts)
+  min_count = max_count - int((max_count - min(counts)) / 0.95)
+  if min_count < 0:
+    min_count = 0
+
   # Rearrange counts from oldest to recent
   s_counts = [str(counts[(curr_hour + i + 1) % 24]) for i in range(24)]
   
