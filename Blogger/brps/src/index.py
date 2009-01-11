@@ -35,6 +35,7 @@ except ImportError:
   # In the development server
   from google.appengine.runtime.apiproxy_errors import DeadlineExceededError
 
+import config
 from brps import post, util
 import Simple24
 
@@ -63,7 +64,9 @@ def json_error(response, code, msg, callback):
 class HomePage(webapp.RequestHandler):
 
   def get(self):
-    template_values = {}
+    template_values = {
+      'after_footer': config.after_footer,
+      }
     path = os.path.join(os.path.dirname(__file__), 'template/home.html')
     self.response.out.write(template.render(path, template_values))
 
@@ -79,6 +82,7 @@ class StatsPage(webapp.RequestHandler):
       'chart_uri': Simple24.get_chart_uri('completed_requests'),
       'blogs': blogs,
       'blogs_reset': memcache.get('blogs_reset'),
+      'after_footer': config.after_footer,
       }
     path = os.path.join(os.path.dirname(__file__), 'template/stats.html')
     self.response.out.write(template.render(path, template_values))
