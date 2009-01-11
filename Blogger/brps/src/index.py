@@ -23,11 +23,12 @@ import logging
 import os
 
 from google.appengine.api import memcache
+from google.appengine.api.datastore_errors import Timeout
 from google.appengine.api.urlfetch import DownloadError, fetch
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError 
+from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
 try:
   # When deployed
   from google.appengine.runtime import DeadlineExceededError
@@ -138,8 +139,9 @@ class GetPage(webapp.RequestHandler):
             logging.warning('Unable to add blog %s, %s: %s' % (blog_id, type(e), e))
       else:
         json_error(self.response, 99, 'Unable to get related posts', callback)
-    except (DownloadError, DeadlineExceededError):
+    except (DownloadError, DeadlineExceededError, Timeout), e:
       # Should be a timeout, just tell client to retry in a few seconds
+      logging.warning('Timeout on b%sp%s, %s: %s' % (blog_id, post_id, type(e), e))
       json_error(self.response, 3, '<a href="http://brps.appspot.com/">Blogger Related Posts Service</a> is processing for this post... will retry in a few seconds...', callback)
 
 
