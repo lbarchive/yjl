@@ -67,6 +67,7 @@ class HomePage(webapp.RequestHandler):
   def get(self):
     template_values = {
       'after_footer': config.after_footer,
+      'before_body_end': config.before_body_end,
       }
     path = os.path.join(os.path.dirname(__file__), 'template/home.html')
     self.response.out.write(template.render(path, template_values))
@@ -84,6 +85,7 @@ class StatsPage(webapp.RequestHandler):
       'blogs': blogs,
       'blogs_reset': memcache.get('blogs_reset'),
       'after_footer': config.after_footer,
+      'before_body_end': config.before_body_end,
       }
     path = os.path.join(os.path.dirname(__file__), 'template/stats.html')
     self.response.out.write(template.render(path, template_values))
@@ -125,7 +127,7 @@ class GetPage(webapp.RequestHandler):
             f = fetch('http://www.blogger.com/feeds/%s/posts/default?v=2&alt=json&max-results=0' % blog_id)
             if f.status_code == 200:
               p_json = json.loads(f.content.replace('\t', '\\t'))
-              blog_name = p_json['feed']['title']['$t']
+              blog_name = p_json['feed']['title']['$t'].strip()
               blog_uri = ''
               for link in p_json['feed']['link']:
                 if link['rel'] == 'alternate' and link['type'] == 'text/html':
