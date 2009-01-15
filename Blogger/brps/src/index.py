@@ -66,6 +66,7 @@ class HomePage(webapp.RequestHandler):
 
   def get(self):
     template_values = {
+      'before_head_end': config.before_head_end,
       'after_footer': config.after_footer,
       'before_body_end': config.before_body_end,
       }
@@ -84,6 +85,7 @@ class StatsPage(webapp.RequestHandler):
       'chart_uri': Simple24.get_chart_uri('completed_requests'),
       'blogs': blogs,
       'blogs_reset': memcache.get('blogs_reset'),
+      'before_head_end': config.before_head_end,
       'after_footer': config.after_footer,
       'before_body_end': config.before_body_end,
       }
