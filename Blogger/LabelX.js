@@ -91,8 +91,10 @@ function LX_RenderCloud(labels, ele_id, options) {
 	options.MaxCount = labels[labels.length - 1][2];
 	// Need to use max of int
 	options.MinCount = labels[0][2];
-	// TODO: dividen by zero
 	options.CountSpan = options.MaxCount - options.MinCount;
+	// Should never be less than 1 except 0 (all labels have same post count).
+	if (options.CountSpan < 1)
+		options.CountSpan = 1;
 	// Select only top/least items
 	if (options.Limit != undefined) {
 		if (options.Limit > 0)
