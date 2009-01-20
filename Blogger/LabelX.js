@@ -1,6 +1,6 @@
 /*
 LabelX for Blogger (http://code.google.com/p/yjl/wiki/LabelX)
-Copyright 2008 Yu-Jie Lin
+Copyright 2008, 2009 Yu-Jie Lin
 
 This program is free software: you can redistribute it and/or modify
 it under the terms of the GNU Lesser General Public License as published by
@@ -28,10 +28,18 @@ function LX_ParseLabels(ele_id) {
 	var labels = []
 	$('#' + ele_id + ' div.widget-content ul li').each(function () {
 		var $label = $(this);
-		// Also remove the tailling line return
-		var name = $label.children('a').text().replace(/\n/g, '');
-		var url = $label.children('a').attr('href');
-		var count = $label.children('span').text();
+		if ($label.children('span').length == 2) {
+			// Selected label, in label page
+			var name = $label.children('span:first').text().replace(/\n/g, '');
+			var url = '#';
+			var count = $label.children('span:last').text();	
+			}
+		else {
+			// Also remove the tailling line return
+			var name = $label.children('a').text().replace(/\n/g, '');
+			var url = $label.children('a').attr('href');
+			var count = $label.children('span').text();
+			}
 		// Remove parenthesis
 		count = parseInt(count.substring(1, count.length - 1));
 		labels.push([name, url, count]);
