@@ -83,6 +83,16 @@ function LX_RenderCloud(labels, ele_id, options) {
 		options.FontSizeUnit = 'em';
 		}
 	options.FontSizeSpan = options.MaxFontSize - options.MinFontSize;
+	options.Colored = true;
+	if (options.StartColor == undefined ||
+		options.EndColor == undefined)
+		options.Colored = false;
+	else
+		options.ColorSpan = [
+			options.EndColor[0] - options.StartColor[0],
+			options.EndColor[1] - options.StartColor[1],
+			options.EndColor[2] - options.StartColor[2]
+			]
 	// Sort by count
 	labels = labels.sort(function(a, b) {
 		return a[2] - b[2];
@@ -118,9 +128,16 @@ function LX_RenderCloud(labels, ele_id, options) {
 	$target.empty();
 	for (var i = 0; i < labels.length; i++) {
 		var $a = $('<a href="' + labels[i][1] + '">' + labels[i][0] + '</a>')
+		var normDiffCount = (labels[i][2] - options.MinCount) / options.CountSpan;
 		$a.css('font-size', 
-			(options.MinFontSize + (labels[i][2] - options.MinCount) / options.CountSpan * options.FontSizeSpan).toString() + options.FontSizeUnit
+			(options.MinFontSize + normDiffCount * options.FontSizeSpan).toString() + options.FontSizeUnit
 			);
+		if (options.Colored)
+			$a.css('color', 'rgb('
+				+ Math.floor(options.StartColor[0] + normDiffCount * options.ColorSpan[0]).toString() + ','
+				+ Math.floor(options.StartColor[1] + normDiffCount * options.ColorSpan[1]).toString() + ','
+				+ Math.floor(options.StartColor[2] + normDiffCount * options.ColorSpan[2]).toString() + ')'
+				);
 		if (labels[i][2] == 1) 
 			$a.attr('title', labels[i][2] + ' post');
 		else
