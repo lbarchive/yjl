@@ -57,6 +57,7 @@ def json_error(response, code, msg, callback):
   # 1 - Missing Ids
   # 2 - GAE problem
   # 3 - Server is processing, try again
+  # 4 - Blocked Blog
   # 99 - Unknown problem
   # TODO sends 500
   send_json(response, {'code': code, 'error': msg}, callback)
@@ -100,6 +101,11 @@ class GetPage(webapp.RequestHandler):
     callback = self.request.get('callback')
     try:
       blog_id = int(self.request.get('blog'))
+      if blog_id in config.blocked_blog_ids:
+        # Blocked blog
+        logging.debug('Blocked blog: %d' % blog_id)
+        json_error(self.response, 4, 'This blog is blocked from using <a href="http://brps.appspot.com/">Blogger Related Posts Service</a> because of %s. If you are the blog owner and believe this blocking is a mistake, please contact the author of BRPS.' % config.blocked_blog_ids[blog_id], callback)
+        return
       post_id = int(self.request.get('post'))
     except ValueError:
       json_error(self.response, 1, 'Missing Ids', callback)

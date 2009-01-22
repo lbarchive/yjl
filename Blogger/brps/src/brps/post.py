@@ -41,7 +41,7 @@ UPDATE_INTERVAL = 86400
 
 
 POST_FETCH_URL = 'http://www.blogger.com/feeds/%d/posts/default/%d?alt=json&v=2'
-POST_QUERY_URL = 'http://www.blogger.com/feeds/%d/posts/default?category=%s&max-results=100&alt=json&v=2'
+POST_QUERY_URL = 'http://www.blogger.com/feeds/%d/posts/default?category=%s&max-results=20&alt=json&v=2'
 
 
 class Post(db.Model):
