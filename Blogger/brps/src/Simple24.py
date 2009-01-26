@@ -16,12 +16,16 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+"""Provides 24 hourly moving windows simple counting statistics."""
+
+
 from datetime import datetime
 
 from google.appengine.api import memcache
 
 
 def incr(key):
+  """Increases counter by one"""
   curr_hour = datetime.utcnow().hour
   idx_hour = memcache.get('simple24_%s_index' % key)
   if idx_hour != curr_hour:
@@ -38,6 +42,7 @@ def incr(key):
 
 
 def get_count(key):
+  """Returns the counter"""
   count = memcache.get('simple24_%s_total' % key)
   if count is None:
     return full_count(key)
@@ -45,6 +50,7 @@ def get_count(key):
 
 
 def full_count(key):
+  """Returns sum of all 24 counters"""
   total_count = 0
   for hour in range(24):
     count = memcache.get('simple24_%s_%d' % (key, hour))
@@ -55,6 +61,7 @@ def full_count(key):
 
 
 def get_hourly_counts(key):
+  """Returns 24 counters"""
   counts = []
   for hour in range(24):
     count = memcache.get('simple24_%s_%d' % (key, hour))
@@ -66,6 +73,7 @@ def get_hourly_counts(key):
 
 
 def get_chart_uri(key, cache_time=300):
+  """Returns a image URI of Google Chart API"""
   if cache_time > 0:
     chart_uri =  memcache.get('simple24_%s_chart_uri' % key)
     if chart_uri:
@@ -84,10 +92,14 @@ def get_chart_uri(key, cache_time=300):
   chxt = 't,x,x,y'
   chxl = '0:|23 Hours ago' + '|'*11 +'12 Hours ago' + '|'*12 + 'This hour|'
   chxl += '1:|%s|' % '|'.join(s_counts)
-  chxl += '2:|%s|' % '|'.join([str((curr_hour + i + 1) % 24) for i in range(24)])
-  chxl += '3:|%s' % '|'.join([str(min_count), str((min_count + max_count) / 2), str(max_count)])
+  chxl += '2:|%s|' % '|'.join(
+      [str((curr_hour + i + 1) % 24) for i in range(24)])
+  chxl += '3:|%s' % '|'.join([str(min_count), str((min_count + max_count) / 2),
+      str(max_count)])
   chd = ','.join(s_counts)
-  chart_uri = "http://chart.apis.google.com/chart?chs=600x200&chf=bg,s,F5EDE3&chtt=%s&cht=bvs&chco=4D89F9&chbh=a&chd=t:%s&chds=%d,%d&chxt=%s&chxl=%s" % (chtt, chd, min_count, max_count, chxt, chxl)
+  chart_uri = "http://chart.apis.google.com/chart?chs=600x200&chf=bg,s,F5EDE3&\
+chtt=%s&cht=bvs&chco=4D89F9&chbh=a&chd=t:%s&chds=%d,%d&chxt=%s&chxl=%s" % \
+      (chtt, chd, min_count, max_count, chxt, chxl)
   if cache_time > 0:
     memcache.set('simple24_%s_chart_uri' % key, chart_uri, cache_time)
   return chart_uri

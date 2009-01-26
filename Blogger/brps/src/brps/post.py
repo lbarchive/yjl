@@ -16,6 +16,8 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+"""For posts"""
+
 import logging
 import sets
 import simplejson as json
@@ -24,7 +26,6 @@ import urllib
 from google.appengine.api import memcache
 from google.appengine.api import urlfetch 
 from google.appengine.ext import db
-from google.appengine.ext.webapp import template
 
 from brps import util
 
@@ -40,21 +41,25 @@ LABEL_QUERY_RESULT_CACHE_TIME = 86400
 UPDATE_INTERVAL = 86400
 
 
-POST_FETCH_URL = 'http://www.blogger.com/feeds/%d/posts/default/%d?alt=json&v=2'
-POST_QUERY_URL = 'http://www.blogger.com/feeds/%d/posts/default?category=%s&max-results=20&alt=json&v=2'
+BASE_API_URL = 'http://www.blogger.com/feeds/%d/posts/default'
+POST_FETCH_URL = BASE_API_URL + '/%d?alt=json&v=2'
+POST_QUERY_URL = BASE_API_URL + '?category=%s&max-results=20&alt=json&v=2'
 
 
 class Post(db.Model):
+  """Post data model"""
   blog_id = db.IntegerProperty()
   post_id = db.IntegerProperty()
   last_updated = db.DateTimeProperty()
   relates = db.TextProperty()
 
   def _get_relates(self):
+    """Gets related posts"""
     if self.relates:
       return json.loads(self.relates.encode('latin-1'))
 
   def _set_relates(self, new_relates):
+    """Sets related posts"""
     if isinstance(new_relates, (str, unicode)):
       self.relates = new_relates
     else:
@@ -82,7 +87,8 @@ def get(blog_id, post_id):
       relates = []
       if labels:
         relates = get_relates(blog_id, post_id, labels)
-      p = db.run_in_transaction(transaction_update_relates, blog_id, post_id, relates)
+      p = db.run_in_transaction(transaction_update_relates, blog_id, post_id,
+          relates)
       memcache.set(key_name, p, POST_CACHE_TIME)
     return p
   return None
@@ -106,9 +112,11 @@ def add(blog_id, post_id):
 
 
 def get_labels(blog_id, post_id):
+  """Gets labels of a blog post"""
   labels = memcache.get('b%dp%dlabels' % (blog_id, post_id))
   if labels is not None:
-    logging.debug('Fetching labels for %d, %d from memcache' % (blog_id, post_id))
+    logging.debug('Fetching labels for %d, %d from memcache' % \
+        (blog_id, post_id))
     return labels
   logging.debug('Fetching labels for %d, %d' % (blog_id, post_id))
   f = urlfetch.fetch(POST_FETCH_URL % (blog_id, post_id))
@@ -127,6 +135,7 @@ def get_labels(blog_id, post_id):
 
 
 def get_relates(blog_id, post_id, labels):
+  """Gets a list of realted posts of a blog post"""
   logging.debug('Fetching relates for %d' % blog_id)
   # Nice Google: Disjunctions not supported yet
   # %7C = '|'
@@ -143,13 +152,16 @@ def get_relates(blog_id, post_id, labels):
       logging.debug('Got label %s from memcache' % label)
     else:
       logging.debug('Querying label %s' % label)
-      f = urlfetch.fetch(POST_QUERY_URL % (blog_id, urllib.quote(label.encode('utf-8'))))
+      f = urlfetch.fetch(POST_QUERY_URL % (blog_id,
+          urllib.quote(label.encode('utf-8'))))
       if f.status_code == 200:
         json_content = f.content
-        memcache.set('b%dl%s' % (blog_id, label), json_content, LABEL_QUERY_RESULT_CACHE_TIME)
+        memcache.set('b%dl%s' % (blog_id, label), json_content,
+            LABEL_QUERY_RESULT_CACHE_TIME)
       else:
         # Something went wrong when querying label for posts
-        logging.debug('Error on querying label %s, %d' % (label, f.status_code))
+        logging.debug('Error on querying label %s, %d' % (label,
+            f.status_code))
         continue
 
     if json_content:
@@ -162,7 +174,8 @@ def get_relates(blog_id, post_id, labels):
     # TODO G-Data v2 seems to resolve the problem
     if 'type' in p_json and p_json['type'] == 'error':
       # Something went wrong when querying label for posts
-      logging.warning('Unable to have correct label %s, %s' % (label, p_json['details']))
+      logging.warning('Unable to have correct label %s, %s' % (label,
+          p_json['details']))
       continue
         
     for entry in p_json['feed']['entry']:
@@ -189,7 +202,8 @@ def get_relates(blog_id, post_id, labels):
         # No label is matched
         continue
 
-      entries.append((float(match_count) / len_labels, entry['title']['$t'], link))
+      entries.append((float(match_count) / len_labels, entry['title']['$t'],
+          link))
       link_check.append(link)
 
   if entries:
@@ -197,13 +211,15 @@ def get_relates(blog_id, post_id, labels):
     entries.reverse()
     entries = entries[:MAX_POSTS]
     # jsonize the result
-    entries_json = {'entry': [dict(zip(('score', 'title', 'link'), entry)) for entry in entries]}
+    entries_json = {'entry': [dict(zip(('score', 'title', 'link'), entry))\
+        for entry in entries]}
   else:
     entries_json = {'entry': []}
   return entries_json
 
 
 def transaction_add_post(blog_id, post_id, relates):
+  """Transaction function to add a new post"""
   post = Post(key_name='b%dp%d' % (blog_id, post_id))
   post.blog_id = blog_id
   post.post_id = post_id
@@ -214,6 +230,7 @@ def transaction_add_post(blog_id, post_id, relates):
 
 
 def transaction_update_relates(blog_id, post_id, relates):
+  """Transaction function to update related posts of a post"""
   post = Post.get_by_key_name('b%dp%d' % (blog_id, post_id))
   post._relates_ = relates
   post.last_updated = util.now()

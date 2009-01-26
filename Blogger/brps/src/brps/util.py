@@ -14,6 +14,10 @@
 # You should have received a copy of the GNU General Public License
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+
+"""Provides utilities for BRPS"""
+
+
 import base64
 import datetime
 import logging
@@ -37,7 +41,8 @@ def fetch(uri, username='', password=''):
   """Can fetch with Basic Authentication"""
   headers = {}
   if username and password:
-    headers['Authorization'] = 'Basic ' + base64.b64encode('%s:%s' % (username, password))
+    headers['Authorization'] = 'Basic ' + base64.b64encode('%s:%s' % \
+        (username, password))
   
   f = urlfetch.fetch(uri, headers=headers)
   logging.debug('Fetching %s (%s): %d' % (uri, username, f.status_code))

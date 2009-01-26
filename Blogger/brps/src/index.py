@@ -16,9 +16,11 @@
 # along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+"""Main file"""
+
+
 from datetime import timedelta
 import simplejson as json
-import StringIO
 import logging
 import os
 
@@ -41,7 +43,12 @@ from brps import post, util
 import Simple24
 
 
+BASE_API_URI = 'http://www.blogger.com/feeds/'
+BLOG_POSTS_FEED = BASE_API_URI + '%s/posts/default?v=2&alt=json&max-results=0'
+
+
 def send_json(response, obj, callback):
+  """Sends JSON to client-side"""
   json_result = obj
   if not isinstance(obj, (str, unicode)):
     json_result = json.dumps(obj)
@@ -54,18 +61,22 @@ def send_json(response, obj, callback):
 
 
 def json_error(response, code, msg, callback):
+  """Sends error in JSON to client-side
+  Error codes:
   # 1 - Missing Ids
   # 2 - GAE problem
   # 3 - Server is processing, try again
   # 4 - Blocked Blog
   # 99 - Unknown problem
   # TODO sends 500
+  """
   send_json(response, {'code': code, 'error': msg}, callback)
 
 
 class HomePage(webapp.RequestHandler):
-
+  """HomePage handler"""
   def get(self):
+    """Get method handler"""
     template_values = {
       'before_head_end': config.before_head_end,
       'after_footer': config.after_footer,
@@ -79,6 +90,7 @@ class StatsPage(webapp.RequestHandler):
   """Statistics Page"""
 
   def get(self):
+    """Get method handler"""
     blogs = (memcache.get('blogs') or {}).values()
     blogs.sort()
     template_values = {
@@ -98,13 +110,18 @@ class GetPage(webapp.RequestHandler):
   """Serves relates posts"""
 
   def get(self):
+    """Get method handler"""
     callback = self.request.get('callback')
     try:
       blog_id = int(self.request.get('blog'))
       if blog_id in config.blocked_blog_ids:
         # Blocked blog
         logging.debug('Blocked blog: %d' % blog_id)
-        json_error(self.response, 4, 'This blog is blocked from using <a href="http://brps.appspot.com/">Blogger Related Posts Service</a> because of %s. If you are the blog owner and believe this blocking is a mistake, please contact the author of BRPS.' % config.blocked_blog_ids[blog_id], callback)
+        json_error(self.response, 4, 'This blog is blocked from using \
+<a href="http://brps.appspot.com/">Blogger Related Posts Service</a> \
+because of %s. If you are the blog owner and believe this blocking is \
+a mistake, please contact the author of BRPS.' % \
+            config.blocked_blog_ids[blog_id], callback)
         return
       post_id = int(self.request.get('post'))
     except ValueError:
@@ -118,7 +135,9 @@ class GetPage(webapp.RequestHandler):
           p = post.add(blog_id, post_id)
         except CapabilityDisabledError:
           logging.debug('Caught CapabilityDisabledError')
-          json_error(self.response, 2, 'Unable to process, Google App Engine may be under maintenance.', callback)
+          json_error(self.response, 2,
+              'Unable to process, Google App Engine may be under maintenance.',
+              callback)
           return
       if p:
         send_json(self.response, p.relates, callback)
@@ -132,7 +151,7 @@ class GetPage(webapp.RequestHandler):
           memcache.set('blogs_reset', util.now() + timedelta(days=1), 86400)
         if blog_id not in blogs:
           try:
-            f = fetch('http://www.blogger.com/feeds/%s/posts/default?v=2&alt=json&max-results=0' % blog_id)
+            f = fetch(BLOG_POSTS_FEED % blog_id)
             if f.status_code == 200:
               p_json = json.loads(f.content.replace('\t', '\\t'))
               blog_name = p_json['feed']['title']['$t'].strip()
@@ -144,15 +163,20 @@ class GetPage(webapp.RequestHandler):
               blogs[blog_id] = (blog_name, blog_uri)
               memcache.set('blogs', blogs)
             else:
-              logging.warning('Unable to fetch blog info %s, %d.' % (blog_id, f.status_code))
+              logging.warning('Unable to fetch blog info %s, %d.' % \
+                  (blog_id, f.status_code))
           except Exception, e:
-            logging.warning('Unable to add blog %s, %s: %s' % (blog_id, type(e), e))
+            logging.warning('Unable to add blog %s, %s: %s' % \
+                (blog_id, type(e), e))
       else:
         json_error(self.response, 99, 'Unable to get related posts', callback)
     except (DownloadError, DeadlineExceededError, Timeout), e:
       # Should be a timeout, just tell client to retry in a few seconds
-      logging.warning('Timeout on b%sp%s, %s: %s' % (blog_id, post_id, type(e), e))
-      json_error(self.response, 3, '<a href="http://brps.appspot.com/">Blogger Related Posts Service</a> is processing for this post... will retry in a few seconds...', callback)
+      logging.warning('Timeout on b%sp%s, %s: %s' % \
+          (blog_id, post_id, type(e), e))
+      json_error(self.response, 3, '\
+<a href="http://brps.appspot.com/">Blogger Related Posts Service</a> \
+is processing for this post... will retry in a few seconds...', callback)
 
 
 application = webapp.WSGIApplication(
@@ -164,6 +188,7 @@ application = webapp.WSGIApplication(
 
 
 def main():
+  """Main function"""
   run_wsgi_app(application)
 
 
