@@ -16,7 +16,7 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
-google.load('jquery', '1.3.0');
+google.load('jquery', '1.3');
 google.setOnLoadCallback(function() {
   BRPS_get();
   });
