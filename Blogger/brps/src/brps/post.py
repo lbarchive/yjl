@@ -41,9 +41,11 @@ LABEL_QUERY_RESULT_CACHE_TIME = 86400
 UPDATE_INTERVAL = 86400
 
 
-BASE_API_URL = 'http://www.blogger.com/feeds/%d/posts/default'
+# The summary endpoint is revealed in this post
+# http://groups.google.com/group/bloggerDev/t/214ac9a9f8800935
+BASE_API_URL = 'http://www.blogger.com/feeds/%d/posts/summary'
 POST_FETCH_URL = BASE_API_URL + '/%d?alt=json&v=2'
-POST_QUERY_URL = BASE_API_URL + '?category=%s&max-results=20&alt=json&v=2'
+POST_QUERY_URL = BASE_API_URL + '?category=%s&max-results=100&alt=json&v=2'
 
 
 class Post(db.Model):
