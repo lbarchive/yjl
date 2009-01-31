@@ -16,10 +16,21 @@
 // along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 
+var brps_options;
+
+
 google.load('jquery', '1.3');
 google.setOnLoadCallback(function() {
   BRPS_get();
   });
+
+function BRPS_render_widget_title() {
+  var $ = jQuery;
+  if (brps_options && brps_options.title)
+    $(brps_options.title).appendTo('#related_posts');
+  else
+    $('<h2>Related Posts</h2>').appendTo('#related_posts');
+  }
 
 function BRPS_get() {
   var $ = jQuery;
@@ -40,13 +51,13 @@ function BRPS_get() {
     }
   if (blog_id != '' && post_id != '') {
     $('#related_posts').empty()
-    $('<h2>Related Posts</h2>').appendTo('#related_posts');
+    BRPS_render_widget_title();
     $('<i>Loading...</i>').appendTo('#related_posts');
     $.getJSON("http://brps.appspot.com/get?blog=" + blog_id + "&post=" + post_id + "&callback=?",
         function(data){
 	    	  var $ = jQuery;
           $('#related_posts').empty()
-          $('<h2>Related Posts</h2>').appendTo('#related_posts');
+          BRPS_render_widget_title();
           if (data.error) {
             $('<p>' + data.error + '</p>').appendTo('#related_posts');
             if (data.code == 3)
@@ -57,7 +68,7 @@ function BRPS_get() {
             if (data.entry.length > 0) {
               $('<ul></ul>').appendTo('#related_posts');
               $.each(data.entry, function(i, entry){
-                $('<li><a hr' + 'ef="' + entry.link + '">' + entry.title + '</a></li>').appendTo('#related_posts ul');
+                $('<li><a hr' + 'ef="' + entry.link + '" title="Score: ' + entry.score.toString() + '">' + entry.title + '</a></li>').appendTo('#related_posts ul');
                 });
               }
             else {

@@ -158,6 +158,8 @@ def get_relates(blog_id, post_id, labels):
           urllib.quote(label.encode('utf-8'))))
       if f.status_code == 200:
         json_content = f.content
+        # TODO Process it before storing in memecache, there are many
+        # unnecessary stuff in JSON.
         memcache.set('b%dl%s' % (blog_id, label), json_content,
             LABEL_QUERY_RESULT_CACHE_TIME)
       else:
