@@ -2,7 +2,7 @@
 #
 # g - Quick Directory Switcher
 #
-# Copyright (C) 2008 Yu-Jie Lin
+# Copyright (C) 2008, 2009 Yu-Jie Lin
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -28,6 +28,7 @@ G_DIRS=~/.g_dirs
 # Shows help information
 G_ShowHelp() {
 	echo "Commands:
+  g #          : change working directory to dir#
   g dir        : change working directory to dir
   g (-g|g)     : get a list of directories
   g (-a|a)     : add current directory
@@ -102,6 +103,13 @@ g() {
 			-g|--go|g|go)
 				;;
 			*)
+				if [[ $(egrep "^[0-9]$" <<< $1) ]]; then
+					G_ShowDirs > /dev/null
+					if [[ $1 -ge 0 && $1 -lt ${#dir[@]} ]]; then
+						cd ${dir[$1]}
+						return 0
+					fi
+				fi
 				echo "Wrong command!"
 				echo;
 				G_ShowHelp
