@@ -24,7 +24,7 @@
 /*
 Author   : Yu-Jie Lin
 Website  : http://sites.google.com/site/livibetter/
-Demo page: TBD
+Demo page: http://yjl.googlecode.com/svn/trunk/JavaScript/falling_hearts.html
 */
 
 // Load jQuery
