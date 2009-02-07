@@ -103,7 +103,7 @@ g() {
 			-g|--go|g|go)
 				;;
 			*)
-				if [[ $(egrep "^[0-9]$" <<< $1) ]]; then
+				if [[ $(egrep "^[0-9]+$" <<< $1) ]]; then
 					G_ShowDirs > /dev/null
 					if [[ $1 -ge 0 && $1 -lt ${#dir[@]} ]]; then
 						cd ${dir[$1]}
