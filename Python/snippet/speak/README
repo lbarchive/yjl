@@ -1,0 +1,13 @@
+speak.py
+========
+
+This program just a simple program for trying out Qt4 and PyQt4.
+
+Dependencies
+------------
+ * Qt4, PyQt4
+ * SpeechDispatcher and its python binding library
+
+License
+-------
+ GPLv3
