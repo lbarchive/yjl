@@ -53,7 +53,10 @@ function BRPS_get() {
     $('#related_posts').empty()
     BRPS_render_widget_title();
     $('<i>Loading...</i>').appendTo('#related_posts');
-    $.getJSON("http://brps.appspot.com/get?blog=" + blog_id + "&post=" + post_id + "&callback=?",
+    max_results = (brps_options && brps_options.max_results)
+        ? '&max_results=' + brps_options.max_results.toString()
+        : '';
+    $.getJSON("http://brps.appspot.com/get?blog=" + blog_id + "&post=" + post_id + max_results + "&callback=?",
         function(data){
 	    	  var $ = jQuery;
           $('#related_posts').empty()

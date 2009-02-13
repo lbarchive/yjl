@@ -124,6 +124,11 @@ a mistake, please contact the author of BRPS.' % \
             config.blocked_blog_ids[blog_id], callback)
         return
       post_id = int(self.request.get('post'))
+      max_results = int(self.request.get('max_results', post.MAX_POSTS))
+      if max_results < 1:
+        max_results = 1
+      elif max_results > post.MAX_POSTS:
+        max_results = post.MAX_POSTS
     except ValueError:
       json_error(self.response, 1, 'Missing Ids', callback)
       return
@@ -140,7 +145,8 @@ a mistake, please contact the author of BRPS.' % \
               callback)
           return
       if p:
-        send_json(self.response, p.relates, callback)
+        relates = {'entry': p._relates_['entry'][:max_results]}
+        send_json(self.response, relates, callback)
         Simple24.incr('completed_requests')
         # Add to blog list
         blogs = memcache.get('blogs')
