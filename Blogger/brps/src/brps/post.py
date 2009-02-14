@@ -105,7 +105,7 @@ def add(blog_id, post_id):
   key_name = 'b%dp%d' % (blog_id, post_id)
   # Get labels of post
   labels = get_labels(blog_id, post_id)
-  relates = []
+  relates = {'entry': []}
   if isinstance(labels, list):
     relates = get_relates(blog_id, post_id, labels)
     p = db.run_in_transaction(transaction_add_post, blog_id, post_id, relates)
