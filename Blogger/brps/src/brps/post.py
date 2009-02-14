@@ -132,8 +132,8 @@ def get_labels(blog_id, post_id):
     # Save it for 5 minutes in case of this post has too many labels to query
     memcache.set('b%dp%dlabels' % (blog_id, post_id), labels, 300)
     return labels
-  logging.debug('Unable to fetch labels: %d' % f.status_code)
-  return f.status_code
+  logging.warning('Unable to fetch labels: %d' % f.status_code)
+  return []
 
 
 def get_relates(blog_id, post_id, labels):
