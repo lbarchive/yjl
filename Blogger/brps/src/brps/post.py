@@ -86,7 +86,7 @@ def get(blog_id, post_id):
     # Check if need to update
     if util.td_seconds(p.last_updated) > UPDATE_INTERVAL:
       labels = get_labels(blog_id, post_id)
-      relates = []
+      relates = {'entry': []}
       if labels:
         relates = get_relates(blog_id, post_id, labels)
       p = db.run_in_transaction(transaction_update_relates, blog_id, post_id,
