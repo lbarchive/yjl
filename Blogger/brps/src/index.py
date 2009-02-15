@@ -106,6 +106,14 @@ class StatsPage(webapp.RequestHandler):
     self.response.out.write(template.render(path, template_values))
 
 
+class RedirectToStatsPage(webapp.RequestHandler):
+  """Redirects to Statistics Page"""
+
+  def get(self):
+    """Get method handler"""
+    self.redirect("/stats")
+
+
 class GetPage(webapp.RequestHandler):
   """Serves relates posts"""
 
@@ -188,6 +196,7 @@ is processing for this post... will retry in a few seconds...', callback)
 application = webapp.WSGIApplication(
     [('/', HomePage),
      ('/stats', StatsPage),
+     ('/stats.*', RedirectToStatsPage),
      ('/get', GetPage),
      ],
     debug=True)
