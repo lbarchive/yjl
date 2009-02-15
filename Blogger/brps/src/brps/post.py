@@ -181,7 +181,14 @@ def get_relates(blog_id, post_id, labels):
       logging.warning('Unable to have correct label %s, %s' % (label,
           p_json['details']))
       continue
-        
+
+    if 'feed' not in p_json:
+      logging.warning('Can find key feed in json!')
+      continue
+    if 'entry' not in p_json['feed']:
+      logging.warning('Can find key entry in json[feed]!')
+      continue
+
     for entry in p_json['feed']['entry']:
       if entry['id']['$t'].find(s_post_id) >= 0:
         # Same post skip
