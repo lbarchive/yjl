@@ -1,0 +1,16 @@
+{% load i18n %}
+<html>
+<head>
+  <title>{{ title }}</title>
+</head>
+<body>
+<h1>{{ title }}</h1>
+<p>
+<ul>
+  <li><a href="/i18n?cookie_django_language=en">{% trans "Set Cookie['django_language'] to en" %}</a></li>
+  <li><a href="/i18n?cookie_django_language=zh_TW">{% trans "Set Cookie['django_language'] to zh_TW" %}</a></li>
+  <li><a href="/i18n?cookie_django_language=unset">{% trans "Unset Cookie['django_language']" %}</a></li>
+</ul>
+</p>
+</body>
+</html>

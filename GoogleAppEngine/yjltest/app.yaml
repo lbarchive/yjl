@@ -1,0 +1,8 @@
+application: yjltest
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /i18n
+  script: i18n.py
