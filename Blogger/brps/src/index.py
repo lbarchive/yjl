@@ -142,16 +142,16 @@ a mistake, please contact the author of BRPS.' % \
       return
 
     try:
-      p = post.get(blog_id, post_id)
-      if not p:
-        try:
+      try:
+        p = post.get(blog_id, post_id)
+        if not p:
           p = post.add(blog_id, post_id)
-        except CapabilityDisabledError:
-          logging.debug('Caught CapabilityDisabledError')
-          json_error(self.response, 2,
-              'Unable to process, Google App Engine may be under maintenance.',
-              callback)
-          return
+      except CapabilityDisabledError:
+        logging.debug('Caught CapabilityDisabledError')
+        json_error(self.response, 2,
+            'Unable to process, Google App Engine may be under maintenance.',
+            callback)
+        return
       if p:
         relates = {'entry': p._relates_['entry'][:max_results]}
         send_json(self.response, relates, callback)
