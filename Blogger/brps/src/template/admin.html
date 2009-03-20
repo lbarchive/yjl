@@ -3,7 +3,7 @@
 	"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
 <head>
-  <title>Blogger Related Posts Service: Statistics</title>
+  <title>Blogger Related Posts Service: Admin</title>
   <link href="/css/brps.css" type="text/css" rel="stylesheet"/>
   <link href="/favicon.ico" type="image/x-icon" rel="shortcut icon"/>
 {{ before_head_end }}
@@ -20,6 +20,11 @@ Chart regenerates every 5 minutes.
 </p>
 <h2>{{ blogs|length }} Active Blog{{ blogs|length|pluralize }}</h2>
 {% if blogs %}
+<ul>
+{% for blog in blogs %}
+  <li><a href="{{ blog.1 }}" rel="nofollow">{{ blog.0|escape }}</a><br/><a class="uri" href="{{ blog.1 }}" rel="nofollow">{{ blog.1|escape }}</a></li>
+{% endfor %}
+</ul>
 Resets in {{ blogs_reset|timeuntil }}.
 {% endif %}
 </div>

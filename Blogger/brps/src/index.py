@@ -92,7 +92,6 @@ class StatsPage(webapp.RequestHandler):
   def get(self):
     """Get method handler"""
     blogs = (memcache.get('blogs') or {}).values()
-    blogs.sort()
     template_values = {
       'completed_requests': Simple24.get_count('completed_requests'),
       'chart_uri': Simple24.get_chart_uri('completed_requests'),
