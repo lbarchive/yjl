@@ -132,7 +132,8 @@ def get_labels(blog_id, post_id):
     # Save it for 5 minutes in case of this post has too many labels to query
     memcache.set('b%dp%dlabels' % (blog_id, post_id), labels, 300)
     return labels
-  logging.warning('Unable to fetch labels: %d' % f.status_code)
+  logging.error('Unable to fetch labels: %d' % f.status_code)
+  # FIXME should raise exception and get client a better understanding.
   return []
 
 
