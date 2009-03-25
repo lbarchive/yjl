@@ -69,9 +69,10 @@ function BRPS_get() {
     		  	}
 		      else {
             if (data.entry.length > 0) {
+              src = (brps_options && brps_options.append_src) ? '?src=brps' : '';
               $('<ul></ul>').appendTo('#related_posts');
               $.each(data.entry, function(i, entry){
-                $('<li><a hr' + 'ef="' + entry.link + '" title="Score: ' + entry.score.toString() + '">' + entry.title + '</a></li>').appendTo('#related_posts ul');
+                $('<li><a hr' + 'ef="' + entry.link + src + '" title="Score: ' + entry.score.toString() + '">' + entry.title + '</a></li>').appendTo('#related_posts ul');
                 });
               }
             else {
