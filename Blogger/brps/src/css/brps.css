@@ -32,6 +32,10 @@ a:hover {
   color: #e55c00;
   }
 
+a:visited {
+  font-weight: normal;
+  }
+
 a.uri {
   color: #888;
   font-family: monospace;
