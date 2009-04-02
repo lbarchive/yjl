@@ -45,6 +45,7 @@ import Simple24
 
 BASE_API_URI = 'http://www.blogger.com/feeds/'
 BLOG_POSTS_FEED = BASE_API_URI + '%s/posts/default?v=2&alt=json&max-results=0'
+BLOGS_RESET = 60 * 60 * 6
 
 
 def send_json(response, obj, callback):
@@ -85,6 +86,9 @@ class HomePage(webapp.RequestHandler):
     path = os.path.join(os.path.dirname(__file__), 'template/home.html')
     self.response.out.write(template.render(path, template_values))
 
+  def head(self):
+    pass
+
 
 class StatsPage(webapp.RequestHandler):
   """Statistics Page"""
@@ -92,6 +96,7 @@ class StatsPage(webapp.RequestHandler):
   def get(self):
     """Get method handler"""
     blogs = (memcache.get('blogs') or {}).values()
+    blogs.sort()
     template_values = {
       'completed_requests': Simple24.get_count('completed_requests'),
       'chart_uri': Simple24.get_chart_uri('completed_requests'),
@@ -103,6 +108,9 @@ class StatsPage(webapp.RequestHandler):
       }
     path = os.path.join(os.path.dirname(__file__), 'template/stats.html')
     self.response.out.write(template.render(path, template_values))
+
+  def head(self):
+    pass
 
 
 class RedirectToStatsPage(webapp.RequestHandler):
@@ -161,7 +169,7 @@ a mistake, please contact the author of BRPS.' % \
         if blogs is None or blogs_reset is None:
           blogs = {}
           memcache.set('blogs', blogs)
-          memcache.set('blogs_reset', util.now() + timedelta(days=1), 86400)
+          memcache.set('blogs_reset', util.now() + timedelta(days=1), BLOGS_RESET)
         if blog_id not in blogs:
           try:
             f = fetch(BLOG_POSTS_FEED % blog_id)
