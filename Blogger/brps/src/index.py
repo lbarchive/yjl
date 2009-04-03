@@ -169,7 +169,7 @@ a mistake, please contact the author of BRPS.' % \
         if blogs is None or blogs_reset is None:
           blogs = {}
           memcache.set('blogs', blogs)
-          memcache.set('blogs_reset', util.now() + timedelta(days=1), BLOGS_RESET)
+          memcache.set('blogs_reset', util.now() + timedelta(seconds=BLOGS_RESET), BLOGS_RESET)
         if blog_id not in blogs:
           try:
             f = fetch(BLOG_POSTS_FEED % blog_id)
