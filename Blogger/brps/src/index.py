@@ -40,6 +40,7 @@ except ImportError:
 
 import config
 from brps import post, util
+from brps.post import PrivateBlogError
 import Simple24
 
 
@@ -68,6 +69,7 @@ def json_error(response, code, msg, callback):
   # 2 - GAE problem
   # 3 - Server is processing, try again
   # 4 - Blocked Blog
+  # 5 - Private blog is not supported
   # 99 - Unknown problem
   # TODO sends 500
   """
@@ -159,6 +161,11 @@ a mistake, please contact the author of BRPS.' % \
             'Unable to process, Google App Engine may be under maintenance.',
             callback)
         return
+      except PrivateBlogError:
+        json_error(self.response, 5, '\
+<a href="http://brps.appspot.com/">Blogger Related Posts Service</a> \
+does not support private blog.', callback)
+        return
       if p:
         relates = {'entry': p._relates_['entry'][:max_results]}
         send_json(self.response, relates, callback)
@@ -184,8 +191,11 @@ a mistake, please contact the author of BRPS.' % \
               blogs[blog_id] = (blog_name, blog_uri)
               memcache.set('blogs', blogs)
             else:
-              logging.warning('Unable to fetch blog info %s, %d.' % \
+              logging.info('Unable to fetch blog info %s, %d.' % \
                   (blog_id, f.status_code))
+              json_error(self.response, 5, '\
+<a href="http://brps.appspot.com/">Blogger Related Posts Service</a> \
+does not support private blog.', callback)
           except Exception, e:
             logging.warning('Unable to add blog %s, %s: %s' % \
                 (blog_id, type(e), e))
@@ -199,7 +209,7 @@ a mistake, please contact the author of BRPS.' % \
 <a href="http://brps.appspot.com/">Blogger Related Posts Service</a> \
 is processing for this post... will retry in a few seconds...', callback)
     except ApplicationError, e:
-      logging.warning('ApplicationError on b%sp%s, %s: %s' % \
+      logging.error('ApplicationError on b%sp%s, %s: %s' % \
           (blog_id, post_id, type(e), e))
       json_error(self.response, 3, '\
 <a href="http://brps.appspot.com/">Blogger Related Posts Service</a> \

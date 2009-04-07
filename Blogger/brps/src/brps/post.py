@@ -48,6 +48,10 @@ POST_FETCH_URL = BASE_API_URL + '/%d?alt=json&v=2'
 POST_QUERY_URL = BASE_API_URL + '?category=%s&max-results=100&alt=json&v=2'
 
 
+class PrivateBlogError(Exception):
+  pass
+
+
 class Post(db.Model):
   """Post data model"""
   blog_id = db.IntegerProperty()
@@ -132,6 +136,8 @@ def get_labels(blog_id, post_id):
     # Save it for 5 minutes in case of this post has too many labels to query
     memcache.set('b%dp%dlabels' % (blog_id, post_id), labels, 300)
     return labels
+  elif f.status_code == 401:
+    raise PrivateBlogError
   logging.error('Unable to fetch labels: %d' % f.status_code)
   # FIXME should raise exception and get client a better understanding.
   return []
