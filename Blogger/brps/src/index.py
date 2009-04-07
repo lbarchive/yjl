@@ -30,7 +30,7 @@ from google.appengine.api.urlfetch import DownloadError, fetch
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp import template
 from google.appengine.ext.webapp.util import run_wsgi_app
-from google.appengine.runtime.apiproxy_errors import CapabilityDisabledError
+from google.appengine.runtime.apiproxy_errors import ApplicationError, CapabilityDisabledError
 try:
   # When deployed
   from google.appengine.runtime import DeadlineExceededError
@@ -198,7 +198,12 @@ a mistake, please contact the author of BRPS.' % \
       json_error(self.response, 3, '\
 <a href="http://brps.appspot.com/">Blogger Related Posts Service</a> \
 is processing for this post... will retry in a few seconds...', callback)
-
+    except ApplicationError, e:
+      logging.warning('ApplicationError on b%sp%s, %s: %s' % \
+          (blog_id, post_id, type(e), e))
+      json_error(self.response, 3, '\
+<a href="http://brps.appspot.com/">Blogger Related Posts Service</a> \
+is encountering a small problem... will retry in a few seconds...', callback)
 
 application = webapp.WSGIApplication(
     [('/', HomePage),
