@@ -171,11 +171,12 @@ def process_pkg(pkg_name, pkgs, pkg_pool, options):
 
       if dep_pkg:
         installed = dep_pkg.is_installed()
+        dep_pkg_cpv = dep_pkg.get_cpv()
         if options.only_installed and not installed:
-          if dep_pkg_cpv not in pkgs:
+          p_dbg('%s: dep %s dropped, not installed' % (cpv, dep_pkg_cpv))
+          if dep_pkg_cpv not in pkgs and not options.only_installed:
             pkgs[dep_pkg_cpv] = {'cpv': dep_pkg_cpv, 'deps': [], 'installed': installed, 'found': True}
           continue
-        dep_pkg_cpv = dep_pkg.get_cpv()
         if dep_pkg.get_name() not in options.stop_deps and \
             dep_pkg.get_category() not in options.stop_cats:
           pkg_pool += [dep_pkg_cpv]
