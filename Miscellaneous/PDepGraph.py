@@ -51,6 +51,8 @@ sys.path += ['/usr/lib/gentoolkit/pym']
 
 try:
   from gentoolkit.helpers import find_packages as find_pkgs
+  from gentoolkit.helpers import find_all_packages as find_all_pkgs
+  from gentoolkit.helpers import find_all_installed_packages as find_all_installed_pkgs
   from gentoolkit.helpers import split_package_name
 except ImportError:
   p('You do not seem to have package gentoolkit. Run `emerge gentoolkit` first.')
@@ -118,7 +120,10 @@ def find_pkg(pkg_name):
   
   return pkg
 
-def process_pkg(pkg_name, pkgs, pkg_pool, options):
+
+def process_pkg(pkg_name, pkgs, pkg_pool):
+
+  global options
 
   pkg = find_pkg(pkg_name)
   if not pkg:
@@ -150,6 +155,7 @@ def process_pkg(pkg_name, pkgs, pkg_pool, options):
       # dep = (comparator, [use flags], cpv)
       # Find dependency package with criterion, which is the comparator
       if not (options.show_uses or options.only_used_uses) and len(dep[1]) > 0:
+        p_dbg('%s: dep %s is optional dependency, dropped' % (cpv, dep[2]))
         continue
       
       dep_pkg = find_pkg(dep[0] + dep[2])
@@ -183,13 +189,11 @@ def process_pkg(pkg_name, pkgs, pkg_pool, options):
         elif dep_pkg_cpv not in pkgs:
           pkgs[dep_pkg_cpv] = {'cpv': dep_pkg_cpv, 'deps': [], 'installed': installed, 'found': True}
         p_pkg['deps'] += [(dep, dep_pkg_cpv, check_dep_type, used)]
-        #p_pkg['deps'] += [(dep, dep_pkg_cpv, check_dep_type, True, used, installed)]
         p_dbg('%s: added dep %s' % (cpv, dep_pkg_cpv))
       else:
         if dep[2] not in pkgs:
           pkgs[dep[2]] = {'cpv': dep[2], 'deps': [], 'installed': False, 'found': False}
         p_pkg['deps'] += [(dep, dep[2], check_dep_type, used)]
-        #p_pkg['deps'] += [(dep, dep[2], check_dep_type, False, used, False)]
         p_err('%s: failed to find dep %s' % (cpv, dep[0] + dep[2]))
 
   pkgs[cpv] = p_pkg
@@ -197,6 +201,8 @@ def process_pkg(pkg_name, pkgs, pkg_pool, options):
 
 def generate_DOT(pkgs, out):
 
+  global options
+  
   out('''digraph Portage {
 rankdir=LR
 node [shape=plaintext, fontname=Terminus, fontsize=8.0, fontcolor=black];
@@ -224,7 +230,10 @@ node [shape=plaintext, fontname=Terminus, fontsize=8.0, fontcolor=black];
   for pkg_name in pkgs:
     pkg = pkgs[pkg_name]
     for dep in pkg['deps']:
-      dep_info, dep_pkg_cpv, dep_type, used = dep
+      if options.revdep:
+        dep_info, dep_pkg_cpv, dep_type, used, revdep_pkg_cpv = dep
+      else:
+        dep_info, dep_pkg_cpv, dep_type, used = dep
       dep_attrs = {'fontname': 'Terminus', 'fontsize': '8.0', 'fontcolor': 'black', 'color': DEP_TYPE_COLOR[dep_type]}
       if dep_info[0]:
         # Has comparator
@@ -238,13 +247,121 @@ node [shape=plaintext, fontname=Terminus, fontsize=8.0, fontcolor=black];
       if used:
         # This dependency is enabled by USE flag
         dep_attrs['penwidth'] = '2'
-
-      out('"%s" -> "%s" [%s]' % (pkg_name, dep_pkg_cpv, ','.join(['%s=%s' % (k, v) for k, v in dep_attrs.items()])))
+      if options.revdep:
+        out('"%s" -> "%s" [%s]' % (revdep_pkg_cpv, pkg_name, ','.join(['%s=%s' % (k, v) for k, v in dep_attrs.items()])))
+      else:
+        out('"%s" -> "%s" [%s]' % (pkg_name, dep_pkg_cpv, ','.join(['%s=%s' % (k, v) for k, v in dep_attrs.items()])))
   out('}')
 
 
-if __name__ == '__main__':
+def generate_revdeps(pkg_name):
+  '''Generates reverse dependencies package database with critera in options'''
+
+  global options
+
+  pkg = find_pkg(pkg_name)
+  if not pkg:
+    return {}
+    
+  if options.stop_deps and pkg_name in options.stop_deps:
+    options.stop_deps.remove(pkg_name)
+
+  if options.only_installed:
+    p('Retrieving all installed packages information...', False)
+    found_pkgs = find_all_installed_pkgs()
+  else:
+    p('Retrieving all packages information, should take a quite long time...', False)
+    found_pkgs = find_all_pkgs()
+  p('%d packages' % len(found_pkgs))
+
+  p('Calculating reverse dependencies...')
+  all_pkgs = {}
+  for pkg in found_pkgs:
+    cpv = pkg.get_cpv()
+    all_pkgs[cpv] = {'cpv': cpv, 'deps': [], 'installed': pkg.is_installed(), 'found': True}
+
+  for pkg in found_pkgs:
+    cpv = pkg.get_cpv()
+    # Process dependencies
+    for check_dep_type in options.check_dep_types:
+      if check_dep_type == 'ct':
+        deps = pkg.get_compiletime_deps()
+      elif check_dep_type == 'pm':
+        deps = pkg.get_postmerge_deps()
+      elif check_dep_type == 'rt':
+        deps = pkg.get_runtime_deps()
+
+      for dep in deps:
+        # dep = (comparator, [use flags], cpv)
+        # Find dependency package with criterion, which is the comparator
+        if not (options.show_uses or options.only_used_uses) and len(dep[1]) > 0:
+          p_dbg('%s: dep %s is optional dependency, dropped' % (cpv, dep[2]))
+          continue
+        
+        dep_pkg = find_pkg(dep[0] + dep[2])
+        if dep_pkg and dep_pkg.get_cpv() in all_pkgs:
+          installed = dep_pkg.is_installed()
+          dep_pkg_cpv = dep_pkg.get_cpv()
+          if dep_pkg.get_name() in options.stop_deps or \
+              dep_pkg.get_category() in options.stop_cats:
+            p_dbg('%s: dep %s dropped, no follow' % (cpv, dep_pkg_cpv))
+            continue
+
+          # Check if this dependency is enabled by USE flag
+          used = False
+          uses = pkg.get_use_flags().replace('\n', '').split(' ')
+          for dep_use in dep[1]:
+            neg = False
+            if dep_use[0] == '!':
+              dep_use = dep_use[1:]
+              neg = True
+            if not (dep_use in uses) ^ neg:
+              break
+          else:
+            used = True
+          if options.only_used_uses and not used:
+            p_dbg('%s: dep %s dropped, USEs not satifified' % (cpv, dep_pkg_cpv))
+            continue
+
+          all_pkgs[dep_pkg_cpv]['deps'] += [(dep, dep_pkg_cpv, check_dep_type, used, cpv)]
+          p_dbg('%s: added as revdep to %s' % (cpv, dep_pkg_cpv))
+        else:
+          # In revdeps, unfound dep package is no way to show up in graph. So just drop it.
+          p_dbg('%s: dep %s not existed, dropped' % (cpv, dep[2]))
+  p('Finished calculating reverse dependencies')
+
+  p('Starting to walk for reverse dependencies of %s' % pkg_name)
+  pkg = find_pkg(pkg_name)
+  if not pkg or pkg.get_cpv() not in all_pkgs:
+    return {}
+  cpv = pkg.get_cpv()
+
+  # Store used packages
+  pkgs = {}
+
+  def walker(cpv, pkgs, all_pkgs):
+    
+    if cpv in pkgs:
+      return
+
+    pkgs[cpv] = all_pkgs[cpv]
+    
+    pkg = pkgs[cpv]
+    for dep in pkg['deps']:
+      walker(dep[4], pkgs, all_pkgs)
+
+  walker(cpv, pkgs, all_pkgs)
+
+  return pkgs
+
+
+def parse_args():
+
+  global options, args
+  
   parser = OptionParser(usage='%prog [options] package', )
+  parser.add_option('-n', '--rev-deps', dest='revdep', action='store_true',
+      default=False, help='Reverse dependencies mode, better to use with -i or may result with thousands of packags and could take really long time to process')
   parser.add_option('-c', '--ctdeps', dest='ctdeps', action='store_true',
       default=False, help='Show compile time dependencies')
   parser.add_option('-p', '--pmdeps', dest='pmdeps', action='store_true',
@@ -260,9 +377,9 @@ if __name__ == '__main__':
   parser.add_option('-U', '--only-used-uses', dest='only_used_uses', action='store_true',
       default=False, help='Show dependencies with USE flag attached and acutally used in installing time. This implies -u.')
   parser.add_option('-C', '--stop-cats', dest='stop_cats',
-      default='virtual', help='Do follow dependencies in these categories (default: %default)')
+      default='virtual', help='Do follow dependencies in these categories, currently no use with -n (default: %default)')
   parser.add_option('-D', '--stop-deps', dest='stop_deps',
-      default='openldap', help='Do follow these dependencies (default: %default)')
+      default='alsa-lib,cairo,curl,db,eselect,fontconfig,glib,glibc,gnome-vfs,gtk+,hal,java-config,libglade,libgnome,libgnomeui,libtool,libXft,libxml2,libxslt,openldap,pam,pango,perl,python,qt-gui,udev,vim,XML-Parser,xorg-server', help='Do follow these dependencies, currently no use with -n (default: %default)')
   parser.add_option('-H', '--more-help', dest='help', action='store_true',
       default=False, help='Show more help')
   parser.add_option('-d', '--debug', dest='debug', action='store_true',
@@ -271,7 +388,7 @@ if __name__ == '__main__':
       default=False, help='Quiet mode')
   parser.add_option('-o', '--out', dest='out',
                     help='write Graphviz DOT to FILE. Using standard output if not specifed.', metavar='FILE')
-  (options, args) = parser.parse_args()
+  options, args = parser.parse_args()
 
   if options.help:
     print '''Legend:
@@ -309,20 +426,30 @@ if __name__ == '__main__':
     check_dep_types += ['rt']
   options.check_dep_types = check_dep_types
 
+
+if __name__ == '__main__':
+
+  global options, args
+
+  parse_args()
+
   out = options.out
   if out:
     f_out = open(out, 'w')
   else:
     f_out = sys.stdout
 
-  # Store all packages are needed
-  pkgs = {}
-  # A queue of packages waiting to process
-  pkg_pool = [args[0]]
+  if options.revdep:
+    pkgs = generate_revdeps(args[0])
+  else:
+    # Store all packages are needed
+    pkgs = {}
+    # A queue of packages waiting to process
+    pkg_pool = [args[0]]
 
-  while pkg_pool:
-    pkg_name = pkg_pool.pop()
-    process_pkg(pkg_name, pkgs, pkg_pool, options) 
+    while pkg_pool:
+      pkg_name = pkg_pool.pop()
+      process_pkg(pkg_name, pkgs, pkg_pool) 
 
   p('Result %d packages' % len(pkgs))
 
