@@ -254,17 +254,18 @@ node [shape=plaintext, fontname=Terminus, fontsize=8.0, fontcolor=black];
   out('}')
 
 
-def generate_revdeps(pkg_name):
+def generate_revdeps(pkg_name=None):
   '''Generates reverse dependencies package database with critera in options'''
 
   global options
 
-  pkg = find_pkg(pkg_name)
-  if not pkg:
-    return {}
-    
-  if options.stop_deps and pkg_name in options.stop_deps:
-    options.stop_deps.remove(pkg_name)
+  if not options.find_orphaned:
+    pkg = find_pkg(pkg_name)
+    if not pkg:
+      return {}
+      
+    if options.stop_deps and pkg_name in options.stop_deps:
+      options.stop_deps.remove(pkg_name)
 
   if options.only_installed:
     p('Retrieving all installed packages information...', False)
@@ -302,10 +303,11 @@ def generate_revdeps(pkg_name):
         if dep_pkg and dep_pkg.get_cpv() in all_pkgs:
           installed = dep_pkg.is_installed()
           dep_pkg_cpv = dep_pkg.get_cpv()
-          if dep_pkg.get_name() in options.stop_deps or \
-              dep_pkg.get_category() in options.stop_cats:
-            p_dbg('%s: dep %s dropped, no follow' % (cpv, dep_pkg_cpv))
-            continue
+          if not options.find_orphaned:
+            if dep_pkg.get_name() in options.stop_deps or \
+                dep_pkg.get_category() in options.stop_cats:
+              p_dbg('%s: dep %s dropped, no follow' % (cpv, dep_pkg_cpv))
+              continue
 
           # Check if this dependency is enabled by USE flag
           used = False
@@ -329,6 +331,13 @@ def generate_revdeps(pkg_name):
           # In revdeps, unfound dep package is no way to show up in graph. So just drop it.
           p_dbg('%s: dep %s not existed, dropped' % (cpv, dep[2]))
   p('Finished calculating reverse dependencies')
+
+  if options.find_orphaned:
+    pkgs = {}
+    for cpv in all_pkgs:
+      if not all_pkgs[cpv]['deps']:
+        pkgs[cpv] = all_pkgs[cpv]
+    return pkgs
 
   p('Starting to walk for reverse dependencies of %s' % pkg_name)
   pkg = find_pkg(pkg_name)
@@ -380,6 +389,8 @@ def parse_args():
       default='virtual', help='Do follow dependencies in these categories, currently no use with -n (default: %default)')
   parser.add_option('-D', '--stop-deps', dest='stop_deps',
       default='alsa-lib,cairo,curl,db,eselect,fontconfig,glib,glibc,gnome-vfs,gtk+,hal,java-config,libglade,libgnome,libgnomeui,libtool,libXft,libxml2,libxslt,openldap,pam,pango,perl,python,qt-gui,udev,vim,XML-Parser,xorg-server', help='Do follow these dependencies, currently no use with -n (default: %default)')
+  parser.add_option('-O', '--find-orphaned', dest='find_orphaned', action='store_true',
+      default=False, help='Find orphaned packages, which are not required by others. Should run with -iU')
   parser.add_option('-H', '--more-help', dest='help', action='store_true',
       default=False, help='Show more help')
   parser.add_option('-d', '--debug', dest='debug', action='store_true',
@@ -439,7 +450,9 @@ if __name__ == '__main__':
   else:
     f_out = sys.stdout
 
-  if options.revdep:
+  if options.find_orphaned:
+    pkgs = generate_revdeps()
+  elif options.revdep:
     pkgs = generate_revdeps(args[0])
   else:
     # Store all packages are needed
@@ -456,8 +469,14 @@ if __name__ == '__main__':
   def print_out(msg):
     print >> f_out, msg
 
-  generate_DOT(pkgs, print_out)
+  if options.find_orphaned:
+    cpvs = pkgs.keys()
+    cpvs.sort()
+    print_out('\n'.join(cpvs))
+  else:
+    generate_DOT(pkgs, print_out)
 
   if out:
     f_out.close()
-    p('\nGenerate graph using `dot -T [svg|png|...] -o OUTPUT %s`')
+    if not options.find_orphaned:
+      p('\nGenerate graph using `dot -T [svg|png|...] -o OUTPUT %s`')
