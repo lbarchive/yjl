@@ -158,7 +158,6 @@ class Twitter(Source):
       # FIXME
       d['created_at'] = datetime.strptime(status.created_at, '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
       d['link'] = 'http://twitter.com/%s/status/%d' % (status.user.screen_name, status.id)
-      #d['created_at'] = datetime.strptime(status.created_at, '%a %b %d %H:%M:%S %z %Y').strftime(self.date_fmt)
       d['user_screen_name'] = status.user.screen_name
       # FIXME
       d.update(ANSI)
@@ -252,12 +251,13 @@ class Feed(Source):
   def __init__(self, src):
     
     self.last_accessed = 0
-    #self.username = src['username']
-    #self.api = twitter.Api(username=self.username, password=src['password'])
     self.feed = src['feed']
     # Get the latest id
     try:
-      self.last_id = fp.parse(self.feed).entries[0].id
+      try:
+        self.last_id = fp.parse(self.feed).entries[0].id
+      except:
+        self.last_id = fp.parse(self.feed).entries[0].link
     except:
       self.last_id = None
     self.src_name = src.get('src_name', 'Fd')
@@ -281,8 +281,12 @@ class Feed(Source):
     if feed['entries']:
       # Get entries after last_id
       for entry in feed['entries']:
-        if entry['id'] == self.last_id:
-          break
+        try:
+          if entry['id'] == self.last_id:
+            break
+        except:
+          if entry['link'] == self.last_id:
+            break
         entries += [entry]
     # Update last_id
     if entries:
@@ -291,7 +295,7 @@ class Feed(Source):
     entries.reverse()
     for entry in entries:
       # FIXME
-      entry['updated'] = datetime.strptime(entry['updated'], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
+      entry['updated'] = datetime(*entry['updated_parsed'][:6]).replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
       # FIXME
       entry.update(ANSI)
       entry.update(src_name=self.src_name)
@@ -376,7 +380,7 @@ class GoogleMail(Source):
     for entry in entries:
       entry['author_name'] = entry['author']#['name']
       # FIXME
-      entry['updated'] = datetime.strptime(entry['updated'], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
+      entry['updated'] = datetime(*entry['updated_parsed'][:6]).replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
       # FIXME
       entry.update(ANSI)
       entry.update(src_name=self.src_name)
@@ -432,7 +436,7 @@ class GoogleReader(GoogleBase):
     for entry in entries:
       entry['source_title'] = entry['source']['title']
       # FIXME
-      entry['updated'] = datetime.strptime(entry['updated'], '%Y-%m-%dT%H:%M:%SZ').replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
+      entry['updated'] = datetime(*entry['updated_parsed'][:6]).replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
       # FIXME
       entry.update(ANSI)
       entry.update(src_name=self.src_name)
