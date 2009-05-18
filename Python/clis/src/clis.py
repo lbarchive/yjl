@@ -256,7 +256,7 @@ class Feed(Source):
     try:
       try:
         self.last_id = fp.parse(self.feed).entries[0].id
-      except:
+      except KeyError:
         self.last_id = fp.parse(self.feed).entries[0].link
     except:
       self.last_id = None
@@ -284,13 +284,16 @@ class Feed(Source):
         try:
           if entry['id'] == self.last_id:
             break
-        except:
+        except KeyError:
           if entry['link'] == self.last_id:
             break
         entries += [entry]
     # Update last_id
     if entries:
-      self.last_id = entries[0]['id']
+      try:
+        self.last_id = entries[0]['id']
+      except KeyError:
+        self.last_id = entries[0]['link']
 
     entries.reverse()
     for entry in entries:
