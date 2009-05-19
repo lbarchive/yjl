@@ -144,12 +144,19 @@ class Twitter(Source):
     self.last_accessed = time.time()
 
     msg = '%sAccessing [%s] %s...%s' % (ANSI['ansi_fired'], self.src_name, self.username, ANSI['ansi_freset'])
-    p(msg)
-    if self.since_id:
-      statuses = self.api.GetFriendsTimeline(since_id=self.since_id)
-    else:
-      statuses = self.api.GetFriendsTimeline()
-    p_clr(msg)
+    try:
+      p(msg)
+      if self.since_id:
+        statuses = self.api.GetFriendsTimeline(since_id=self.since_id)
+      else:
+        statuses = self.api.GetFriendsTimeline()
+      p_clr(msg)
+    except urllib2.HTTPError, e:
+      if e.code != 200:
+        d = ANSI.copy()
+        d.update(code=e.code)
+        p(' %(ansi_fiwhite)s%(ansi_bired)sError %(code)d%(ansi_breset)s%(ansi_freset)s\n' % d)
+        return
     if statuses:
       self.since_id = statuses[0].id
     statuses.reverse()
@@ -298,7 +305,11 @@ class Feed(Source):
     entries.reverse()
     for entry in entries:
       # FIXME
-      entry['updated'] = datetime(*entry['updated_parsed'][:6]).replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
+      try:
+        entry['updated'] = datetime(*entry['updated_parsed'][:6]).replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
+      except KeyError:
+        # TODO show warning or other way to deal with
+        entry['updated'] = datetime.now().strftime(self.date_fmt)
       # FIXME
       entry.update(ANSI)
       entry.update(src_name=self.src_name)
