@@ -57,6 +57,11 @@ int main(int argc, char** argv) {
 	if ((elem = snd_mixer_find_selem(h_mixer, sid)) == NULL)
 		error_close_exit("Cannot find simple element\n", 0, h_mixer);
 
+	snd_mixer_selem_get_playback_volume(elem, CHANNEL, &vol);
+	snd_mixer_selem_get_playback_volume_range(elem, &vol_min, &vol_max);
+	snd_mixer_selem_get_playback_switch(elem, CHANNEL, &switch_value);
+	printf("%3.0f%%${alignr}%s$color", 100.0 * vol / vol_max, (switch_value == 1) ? "${color blue}ON" : "${color red}OFF");
+/*
 	if (argc != 2)
 		error_close_exit("Missing (switch|volume) as argument\n", 0, NULL);
 
@@ -79,7 +84,7 @@ int main(int argc, char** argv) {
 		}
 	else
 		error_close_exit("Invalid argument. Using (switch|volume)\n", 0, NULL);
-
+*/
 	snd_mixer_close(h_mixer);
 	return 0;
 	}
