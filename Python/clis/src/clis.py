@@ -35,6 +35,18 @@ def p_clr(msg):
   sys.stdout.flush()
 
 
+def safe_update(func):
+  
+  def deco(*args, **kwds):
+    try:
+      func(*args, **kwds)
+    except Exception, e:
+      d = ANSI.copy()
+      d.update(error=repr(e))
+      p(' %(ansi_fiwhite)s%(ansi_bired)sError %(error)s%(ansi_breset)s%(ansi_freset)s\n' % d)
+  return deco
+
+
 ##################
 # ANSI escape code
 
@@ -118,8 +130,9 @@ local_tz = LOCAL_TZ()
 # Source class
 
 class Source(object):
-  pass
 
+  pass
+     
 
 class Twitter(Source):
 
@@ -137,6 +150,7 @@ class Twitter(Source):
     if 'date_fmt' in src:
       self.date_fmt = src['date_fmt']
 
+  @safe_update
   def update(self):
 
     if time.time() < self.interval + self.last_accessed:
@@ -152,6 +166,8 @@ class Twitter(Source):
         statuses = self.api.GetFriendsTimeline()
       p_clr(msg)
     except urllib2.HTTPError, e:
+      # TODO for 503 should follow this:
+      # http://apiwiki.twitter.com/Rate-limiting
       if e.code != 200:
         d = ANSI.copy()
         d.update(code=e.code)
@@ -193,6 +209,7 @@ class FriendFeed(Source):
     if 'date_fmt' in src:
       self.date_fmt = src['date_fmt']
 
+  @safe_update
   def update(self):
 
     if time.time() < self.interval + self.last_accessed:
@@ -262,9 +279,9 @@ class Feed(Source):
     # Get the latest id
     try:
       try:
-        self.last_id = fp.parse(self.feed).entries[0].id
+        self.last_id = fp.parse(self.feed).entries[0]['id']
       except KeyError:
-        self.last_id = fp.parse(self.feed).entries[0].link
+        self.last_id = fp.parse(self.feed).entries[0]['link']
     except:
       self.last_id = None
     self.src_name = src.get('src_name', 'Fd')
@@ -274,6 +291,7 @@ class Feed(Source):
     if 'date_fmt' in src:
       self.date_fmt = src['date_fmt']
 
+  @safe_update
   def update(self):
 
     if time.time() < self.interval + self.last_accessed:
@@ -369,6 +387,7 @@ class GoogleMail(Source):
     feed = fp.parse('https://%s:%s@mail.google.com/mail/feed/atom' % (urllib.quote(self.email), urllib.quote(self.password)))
     return feed
 
+  @safe_update
   def update(self):
 
     if time.time() < self.interval + self.last_accessed:
@@ -425,6 +444,7 @@ class GoogleReader(GoogleBase):
     content = self.get('http://www.google.com/reader/atom/user%2F-%2Fstate%2Fcom.google%2Freading-list')
     return fp.parse(content)
 
+  @safe_update
   def update(self):
 
     if time.time() < self.interval + self.last_accessed:
@@ -466,6 +486,7 @@ SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed, 'g
 def main():
 
   sources = []
+  p('Initializing...\n')
   for src in cfg.sources:
     if 'type' not in src:
       print 'ERROR: Source type unspecified: %s' % repr(src)
@@ -474,6 +495,7 @@ def main():
       sources.append(SOURCE_CLASSES[src['type']](src))
     else:
       print 'ERROR: Unknown source type: %s' % src['type']
+  p('Initialized.\n')
 
   while True:
     for src in sources:
