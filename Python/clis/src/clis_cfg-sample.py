@@ -1,50 +1,82 @@
+# -*- coding: utf-8 -*-
+#
+# You can specify the sources you want to read in this file. All sources must
+# be placed inside of
+#   sources = [
+#       SOURCE1
+#       SOURCE2
+#       ...
+#       ]
+# Each source should look like
+#   {
+#       'setting_name': 'setting_value',
+#        ...
+#   },
+#
+# For output* templating syntax please read
+#   http://www.simple-is-better.org/template/pyratemp.html
+# For date_fmt date format please read
+#   http://docs.python.org/library/datetime.html?highlight=strftime#strftime-behavior
+#
+# All commented out setting are also the defualt values, if you need to
+# customize, then remove the prefixing '#' character.
+
 sources = [
-    {
+   {
         # Twitter: Statuses of you and whom you follow
         'type': 'twitter',
-        'username': 'yourname', 
+        #src_name': 'Twitter',
+        'username': 'username', 
         'password': 'secret', 
-        'interval': 60, 
-        'output': '[%(src_name)s] %(ansi_fgreen)s%(created_at)s%(ansi_freset)s %(user_screen_name)s: %(text)s %(link)s',
-        'date_fmt': '%H:%M:%S',
+        #interval': 90, 
+        #'output': '@!ansi.fgreen!@@!status.created_at!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@http://twitter.com/@!status.user.screen_name!@/status/@!status.id!@@!ansi.freset!@',
+        #'date_fmt': '%H:%M:%S',
         },
-    {
-        # FriendFeed: Entries of you home
+   {
+        # FriendFeed Home Realtime - Only activiies after run, no session data will be stored
+        # Item structure can be found at http://code.google.com/p/friendfeed-api/wiki/ApiDocumentation#Reading_FriendFeed_Feeds
         'type': 'friendfeed',
-        'nickname': 'yourname',
+        #src_name': 'FriendFeed',
+        'nickname': 'nickname',
         'remote_key': 'secret',
-        'interval': 60,
-        'output': '[%(src_name)s] %(ansi_fgreen)s%(updated)s%(ansi_freset)s E %(user_nickname)s: %(room)s%(title)s %(entry_link)s',
-        'output_like': '[%(src_name)s] %(ansi_fgreen)s%(date)s%(ansi_freset)s L %(user_nickname)s: %(title)s %(entry_link)s',
-        'output_comment': '[%(src_name)s] %(ansi_fgreen)s%(date)s%(ansi_freset)s C %(user_nickname)s on %(title)s: %(body)s %(entry_link)s',
-        'show_like': True,
-        'show_comment': True,
-        'date_fmt': '%H:%M:%S',
+        #'interval': 60,
+        # Available object: entry, ansi, src_name
+        #'output': '@!ansi.fgreen!@@!entry["updated"]!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["user"]["nickname"]!@@!ansi.freset!@:<!--(if "room" in entry)--> @!ansi.fiyellow!@[@!entry["room"]["name"]!@]@!ansi.freset!@<!--(end)--> @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@',
+        # Available object: entry, like, ansi, src_name
+        #'output_like': '@!ansi.fgreen!@@!like["date"]!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!like["user"]["nickname"]!@@!ansi.freset!@ @!ansi.fired!@♥@!ansi.freset!@ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@',
+        # Available object: entry, comment, ansi, src_name
+        #'output_comment': '@!ansi.fgreen!@@!comment["date"]!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@',
+        #'show_like': True,
+        #'show_comment': True,
+        #'date_fmt': '%H:%M:%S',
         },
-    {
+   {
         # Feed: Normal feed
         'type': 'feed',
-        'feed': 'http://search.twitter.com/search.atom?q=twitter',
-        'interval': 60,
-        'output': '[%(src_name)s] %(ansi_fgreen)s%(updated)s%(ansi_freset)s %(title)s %(link)s',
-        'date_fmt': '%H:%M:%S',
+        #src_name': 'Feed',
+        'feed': 'http://example.com/feed',
+        #'interval': 60,
+        'output': '@!ansi.fgreen!@@!entry["updated"]!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!entry.link!@@!ansi.freset!@',
+        #'date_fmt': '%H:%M:%S',
         },
-    {
+   {
         # GMail: Mails in inbox
         'type': 'gmail',
-        'email': 'yourname@gmail.com',
+        #'src_name': 'Gmail',
+        'email': 'email@gmail.com',
         'password': 'secret',
-        'interval': 60,
-        'output': '[%(src_name)s] %(ansi_fgreen)s%(updated)s%(ansi_freset)s %(author_name)s: %(title)s %(link)s',
-        'date_fmt': '%H:%M:%S',
+        #'interval': 60,
+        #'output': '@!ansi.fgreen!@@!entry["updated"]!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@',
+        #'date_fmt': '%H:%M:%S',
         },
-    {
+   {
         # Google Reader: Items of subscriptions
         'type': 'greader',
-        'email': 'yourname@gmail.com',
+        #'src_name': 'GReader',
+        'email': 'email@gmail.com',
         'password': 'secret',
-        'interval': 60,
-        'output': '[%(src_name)s] %(ansi_fgreen)s%(updated)s%(ansi_freset)s %(source_title)s: %(title)s %(link)s',
-        'date_fmt': '%H:%M:%S',
+        #'interval': 60,
+        #'output': '@!ansi.fgreen!@@!entry["updated"]!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@',
+        #'date_fmt': '%H:%M:%S',
         },
-    ]
+   ]
