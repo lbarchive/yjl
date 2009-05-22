@@ -1,0 +1,6 @@
+Add url shortening
+Handle stdin
+Add an option to print out configuration without password
+Reduce member resolution, e.g. urllib.quote -> from urllib import quote
+PEP8
+Add LICENSE*, append to head of files

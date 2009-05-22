@@ -1,13 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
 # GPLv3
-# References
-# http://code.google.com/p/python-twitter/
-# http://code.google.com/p/friendfeed-api/
-# http://feedparser.org/
-# Todo
-# TODO Store session data
-# TODO flatten dict or a better templating
 
 from datetime import datetime, timedelta, tzinfo
 from optparse import OptionParser
@@ -117,8 +110,6 @@ class ANSI:
   bimagenta = '\033[105m'
   bicyan = '\033[106m'
   biwhite = '\033[107m'
-  # Default background color
-#  b = bblack
 
 ##########
 # Timezone
@@ -161,7 +152,7 @@ def open_session(loc):
   if not path.exists(s_path):
     os.makedirs(s_path, 0700)
   filename = '%s/%s' % (s_path, hash(loc))
-  __builtin__.session = shelve.open(filename)#, writeback=True)
+  __builtin__.session = shelve.open(filename, writeback=True)
   session['config'] = loc
   session.__dict__['last_sync'] = time.time()
   session.__dict__['interval'] = 60
@@ -175,8 +166,6 @@ def open_session(loc):
     msg = 'Saving session data...'
     p(msg)
     self.sync()
-#    for src in sources:
-#      self[src.session_id] = src.session
     p_clr(msg)
 
   session.__dict__['do_sync'] = new.instancemethod(do_sync, session, dict)
@@ -210,10 +199,10 @@ class Source(object):
 
   def _update_last_id(self, last_id):
 
-    p_dbg('Updating [%s] last_id to %s' % (self.session_id, last_id))
     self.last_id = last_id
     self.session['last_id'] = last_id
     session[self.session_id] = self.session
+    p_dbg('Updating [%s] last_id to %s' % (self.session_id, session[self.session_id]['last_id']))
 
   @staticmethod
   def get_entry_id(entry):
@@ -301,9 +290,9 @@ class Twitter(Source):
 
     statuses.reverse()
     for status in statuses:
+      p_dbg('ID: %s' % status.id)
       # FIXME
       status.created_at = datetime.strptime(status.created_at, '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
-#      status.link = 'http://twitter.com/%s/status/%d' % (status.user.screen_name, status.id)
       print self.output(status=status, ansi=ANSI, src_name=self.src_name)
 
 
