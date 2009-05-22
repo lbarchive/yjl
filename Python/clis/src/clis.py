@@ -9,8 +9,12 @@
 # TODO flatten dict or a better templating
 
 from datetime import datetime, timedelta, tzinfo
+from optparse import OptionParser
+from os import path
+import imp
 import sys
 import time
+import traceback
 import urllib
 import urllib2
 
@@ -18,7 +22,10 @@ import feedparser as fp
 import friendfeed as ff
 import twitter
 
-import clis_cfg as cfg
+##################
+# Global variables
+
+DEBUG = False
 
 ###########
 # Utilities
@@ -35,15 +42,20 @@ def p_clr(msg):
   sys.stdout.flush()
 
 
+def p_err(error):
+  
+  d = ANSI.copy()
+  d.update(error=error)
+  p('%(ansi_fiwhite)s%(ansi_bired)sERROR: %(error)s%(ansi_breset)s%(ansi_freset)s' % d)
+
+
 def safe_update(func):
   
   def deco(*args, **kwds):
     try:
       func(*args, **kwds)
     except Exception, e:
-      d = ANSI.copy()
-      d.update(error=repr(e))
-      p(' %(ansi_fiwhite)s%(ansi_bired)sError %(error)s%(ansi_breset)s%(ansi_freset)s\n' % d)
+      p_err(repr(e))
   return deco
 
 
@@ -480,21 +492,68 @@ class GoogleReader(GoogleBase):
 SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed, 'gmail': GoogleMail, 'greader': GoogleReader}
 
 
+################
+# Option Handler
+
+def parser_args():
+
+  global DEBUG
+
+  parser = OptionParser()
+
+  parser.add_option('-c', '--config', dest='config_file',
+      default='', help='Specify a configuration to use')
+  parser.add_option('-d', '--debug', dest='debug', action='store_true',
+      default=True, help='Show debug messages (default: %default)')
+
+  options, args = parser.parse_args()
+
+  DEBUG = options.debug
+
+  return options, args
+
 ######
 # Main
 
 def main():
 
+  # Provess arguments
+  options, args = parser_args()
+
+  # Load configuration
+  cfg_loc = filter(path.exists, ['clis_cfg.py', 'clis_cfg',
+      path.expanduser('~/.clis_cfg.py'), path.expanduser('~/.clis_cfg')])
+  if options.config_file:
+    cfg_loc = [options.config_file] + cfg_loc
+  cfg = None
+  for loc in cfg_loc:
+    f = None
+    try:
+      f = open(loc, 'U')
+      cfg = imp.load_module('cfg', f, loc, ('.py', 'U', imp.PY_SOURCE))
+      p('Initializing configuration from %s...\n' % loc)
+    except IOError:
+      p_err('Unable to open configuration from %s\n' % loc)
+    except (ImportError, SyntaxError):
+      # TODO print out necessary parts
+      p_err('Unable to load configuration from %s\n' % loc)
+      traceback.print_exc()
+    finally:
+      if f:
+        f.close()
+  if not cfg:
+    p_err('No configuration is available, exit.\n')
+    sys.exit(1)
+
   sources = []
-  p('Initializing...\n')
   for src in cfg.sources:
     if 'type' not in src:
-      print 'ERROR: Source type unspecified: %s' % repr(src)
+      p_err('Source type unspecified: %s\n' % repr(src))
       continue
     if src['type'] in SOURCE_CLASSES:
       sources.append(SOURCE_CLASSES[src['type']](src))
     else:
-      print 'ERROR: Unknown source type: %s' % src['type']
+      p_err('Unknown source type: %s' % src['type'])
   p('Initialized.\n')
 
   while True:
