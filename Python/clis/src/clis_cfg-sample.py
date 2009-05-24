@@ -27,7 +27,7 @@
 # remove the prefixing '#' character.
 
 sources = [
-   {
+    {
         # Twitter: Statuses of you and whom you follow
         'type': 'twitter',
         #src_name': 'Twitter',
@@ -37,7 +37,7 @@ sources = [
         # status.tweet_link - URL of Tweet
         #'output': '@!ansi.fgreen!@@!ftime(status.created_at, "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@@!surl(status.tweet_link)!@@!ansi.freset!@',
         },
-   {
+    {
         # FriendFeed Home Realtime - Only activiies after run, no session data will be stored
         # Item structure can be found at http://code.google.com/p/friendfeed-api/wiki/ApiDocumentation#Reading_FriendFeed_Feeds
         'type': 'friendfeed',
@@ -55,7 +55,7 @@ sources = [
         #'show_like': True,
         #'show_comment': True,
         },
-   {
+    {
         # Feed: Normal feed
         'type': 'feed',
         #src_name': 'Feed',
@@ -63,7 +63,7 @@ sources = [
         #'interval': 60,
         #'output': '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry.link)!@@!ansi.freset!@',
         },
-   {
+    {
         # GMail: Mails in inbox
         'type': 'gmail',
         #'src_name': 'Gmail',
@@ -72,7 +72,7 @@ sources = [
         #'interval': 60,
         #'output': '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!surl(entry["link"])!@',
         },
-   {
+    {
         # Google Reader: Items of subscriptions
         'type': 'greader',
         #'src_name': 'GReader',
@@ -81,4 +81,11 @@ sources = [
         #'interval': 60,
         #'output': '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!surl(entry["link"])!@',
         },
-   ]
+    ]
+
+# The setting of local url shortening server
+#server = {
+#    'name': 'localhost',
+#    'port': 8080,
+#    }
+  }

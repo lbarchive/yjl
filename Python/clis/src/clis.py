@@ -101,7 +101,10 @@ def surl(url):
   if not options.local_shortening:
     return url
 
-  new_url = 'http://%s:%s/%d' % (options.local_server, options.local_port, lurls['count'])
+  if options.local_port == 80:
+    new_url = 'http://%s/%d' % (options.local_server, lurls['count'])
+  else:
+    new_url = 'http://%s:%d/%d' % (options.local_server, options.local_port, lurls['count'])
 
   if len(new_url) >= len(url):
     return url
@@ -538,6 +541,11 @@ class ShorteningHandler(BaseHTTPRequestHandler):
     self.send_header('Location', lurls[id])
     self.end_headers()
 
+  def log_message(self, *args):
+
+    pass
+
+
 class HTTPThread(threading.Thread):
 
   def run(self):
@@ -560,12 +568,14 @@ def parser_args():
   parser.add_option('-l', '--no-local-shortening', dest='local_shortening', action='store_false',
       default=True, help='Disable local shortening')
   parser.add_option('-s', '--local-server', dest='local_server',
-      default='localhost', help='Address of local shortening server (Default: %default)')
+      default=None, help='Address of local shortening server (Default: localhost)')
   parser.add_option('-p', '--local-port', dest='local_port',
-      default='8080', help='Which port to listen (Default: %default)')
+      default=None, help='Which port to listen (Default: 8080)')
 
   options, args = parser.parse_args()
 
+  if options.local_port:
+    options.local_port = int(options.local_port)
   __builtin__.DEBUG = options.debug
 
   return options, args
@@ -577,7 +587,7 @@ def main():
 
   global options
 
-  # Provess arguments
+  # Process arguments
   options, args = parser_args()
 
   # Load configuration
@@ -606,6 +616,16 @@ def main():
   if not cfg:
     p_err('No configuration is available, exit.\n')
     sys.exit(1)
+  # Configure server parameter
+  if hasattr(cfg, 'server'):
+    if options.local_server is None:
+      options.local_server = cfg.server['name']
+    if options.local_port is None:
+      options.local_port = cfg.server['port']
+  if options.local_server is None:
+    options.local_server = 'localhost' 
+  if options.local_port is None:
+    options.local_port = 8080
   # Prepare session
   open_session(loc)
 
@@ -618,6 +638,8 @@ def main():
       sources.append(SOURCE_CLASSES[src['type']](src))
     else:
       p_err('Unknown source type: %s' % src['type'])
+  # cfg is no need to stay
+  del cfg
   p('Initialized.\n')
 
   try:
