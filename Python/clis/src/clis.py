@@ -64,6 +64,15 @@ def safe_update(func):
       traceback.print_exc()
   return deco
 
+
+class DummyDate:
+
+  @staticmethod
+  def strftime(_):
+
+    return '!NODATE!'
+
+
 ##################
 # ANSI escape code
 
@@ -213,6 +222,11 @@ class Source(object):
     # TODO More?
     return entry['title'] + entry['link']
 
+  @staticmethod
+  def to_localtime(d):
+    
+    return datetime(*d[:6]).replace(tzinfo=utc).astimezone(local_tz)
+
   @safe_update
   def update(self):
 
@@ -239,10 +253,10 @@ class Source(object):
     for entry in entries:
       p_dbg('ID: %s' % self.get_entry_id(entry))
       try:
-        entry['updated'] = datetime(*entry['updated_parsed'][:6]).replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
+        entry['updated'] = self.to_localtime(entry['updated_parsed'])
       except KeyError:
-        entry['updated'] = 'NOUPDATE'
-      print self.output(entry=entry, ansi=ANSI, src_name=self.src_name)
+        entry['updated'] = DummyDate
+      print self.output(entry=entry, ansi=ANSI, src_name=self.src_name, time=time)
 
 
 class Twitter(Source):
@@ -257,11 +271,15 @@ class Twitter(Source):
     self.src_id = self.username
     self.src_name = src.get('src_name', 'Twitter')
     self.interval = src.get('interval', 90)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!status.created_at!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@http://twitter.com/@!status.user.screen_name!@/status/@!status.id!@@!ansi.freset!@'), escape=None)
-    self.date_fmt = src.get('date_fmt', '%H:%M:%S')
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!status.created_at.strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@http://twitter.com/@!status.user.screen_name!@/status/@!status.id!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
+
+  @staticmethod
+  def to_localtime(d):
+
+    return datetime.strptime(d, '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=utc).astimezone(local_tz)
 
   @safe_update
   def update(self):
@@ -292,8 +310,8 @@ class Twitter(Source):
     for status in statuses:
       p_dbg('ID: %s' % status.id)
       # FIXME
-      status.created_at = datetime.strptime(status.created_at, '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
-      print self.output(status=status, ansi=ANSI, src_name=self.src_name)
+      status.created_at = self.to_localtime(status.created_at)
+      print self.output(status=status, ansi=ANSI, src_name=self.src_name, time=time)
 
 
 class FriendFeed(Source):
@@ -309,12 +327,16 @@ class FriendFeed(Source):
     self.src_id = self.nickname
     self.src_name = src.get('src_name', 'FriendFeed')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"]!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["user"]["nickname"]!@@!ansi.freset!@:<!--(if "room" in entry)--> @!ansi.fiyellow!@[@!entry["room"]["name"]!@]@!ansi.freset!@<!--(end)--> @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
-    self.output_like = tpl(src.get('output_like', '@!ansi.fgreen!@@!like["date"]!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!like["user"]["nickname"]!@@!ansi.freset!@ @!ansi.fired!@♥@!ansi.freset!@ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
-    self.output_comment = tpl(src.get('output_comment', '@!ansi.fgreen!@@!comment["date"]!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["user"]["nickname"]!@@!ansi.freset!@:<!--(if "room" in entry)--> @!ansi.fiyellow!@[@!entry["room"]["name"]!@]@!ansi.freset!@<!--(end)--> @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
+    self.output_like = tpl(src.get('output_like', '@!ansi.fgreen!@@!like["date"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!like["user"]["nickname"]!@@!ansi.freset!@ @!ansi.fired!@♥@!ansi.freset!@ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
+    self.output_comment = tpl(src.get('output_comment', '@!ansi.fgreen!@@!comment["date"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
     self.show_like = src.get('show_like', True)
     self.show_comment = src.get('show_comment', True)
-    self.date_fmt = src.get('date_fmt', '%H:%M:%S')
+
+  @staticmethod
+  def to_localtime(d):
+    
+    return d.replace(tzinfo=utc).astimezone(local_tz)
 
   @safe_update
   def update(self):
@@ -336,22 +358,21 @@ class FriendFeed(Source):
     for entry in entries:
       if entry['is_new']:
         # FIXME
-        entry['updated'] = entry['updated'].replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
-        print self.output(entry=entry, ansi=ANSI, src_name=self.src_name)
+        entry['updated'] = self.to_localtime(entry['updated'])
+        print self.output(entry=entry, ansi=ANSI, src_name=self.src_name, time=time)
 
       if self.show_like:
         for like in entry['likes']:
           if like['is_new']:
             # FIXME
-            like['date'] = like['date'].replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
-            print self.output_like(like=like, entry=entry, ansi=ANSI, src_name=self.src_name)
+            like['date'] = self.to_localtime(like['date'])
+            print self.output_like(like=like, entry=entry, ansi=ANSI, src_name=self.src_name, time=time)
 
       if self.show_comment:
         for comment in entry['comments']:
           if comment['is_new']:
-            # FIXME
-            comment['date'] = comment['date'].replace(tzinfo=utc).astimezone(local_tz).strftime(self.date_fmt)
-            print self.output_comment(comment=comment, entry=entry, ansi=ANSI, src_name=self.src_name)
+            comment['date'] = self.to_localtime(comment['date'])
+            print self.output_comment(comment=comment, entry=entry, ansi=ANSI, src_name=self.src_name, time=time)
 
 
 class Feed(Source):
@@ -366,8 +387,7 @@ class Feed(Source):
     self.src_id = self.feed
     self.src_name = src.get('src_name', 'Feed')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"]!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!entry.link!@@!ansi.freset!@'), escape=None)
-    self.date_fmt = src.get('date_fmt', '%H:%M:%S')
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!entry.link!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
@@ -418,8 +438,7 @@ class GoogleMail(Source):
     self.src_id = self.email
     self.src_name = src.get('src_name', 'Gmail')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"]!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@'), escape=None)
-    self.date_fmt = src.get('date_fmt', '%H:%M:%S')
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
@@ -443,8 +462,7 @@ class GoogleReader(GoogleBase):
     self.src_id = self.email
     self.src_name = src.get('src_name', 'GR')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"]!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@'), escape=None)
-    self.date_fmt = src.get('date_fmt', '%H:%M:%S')
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@'), escape=None)
     
     self._init_session()
     self._load_last_id()
