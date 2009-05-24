@@ -6,3 +6,10 @@ api_version: 1
 handlers:
 - url: /i18n
   script: i18n.py
+
+- url: /gentoo/updateforumsfeed.*
+  script: gentoo.py
+  login: admin
+
+- url: /gentoo/.*
+  script: gentoo.py

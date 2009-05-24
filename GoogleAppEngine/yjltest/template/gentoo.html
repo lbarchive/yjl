@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <title>Stuff for Gentoo</title>
+</head>
+<body>
+<h1>Stuff for Gentoo</h1>
+<h2>Gentoo Forums Feed</h2>
+<div>
+<p>
+Code: <a href="http://code.google.com/p/yjl/source/browse/trunk/GoogleAppEngine/yjltest/gentoo.py">http://code.google.com/p/yjl/source/browse/trunk/GoogleAppEngine/yjltest/gentoo.py</a><br/>
+Feed: <a href="{{ feed_uri }} ">{{ feed_uri }}</a><br/>
+Feedburner: <a href="http://feeds2.feedburner.com/GentooForumsLastest">http://feeds2.feedburner.com/GentooForumsLastest</a>
+</p>
+<p>
+Requests in last 24 hours: {{ requests }}.
+</p>
+<p>
+<img src="{{ requests_chart|escape }}" alt="Chart of completed requests in last 24 hours" title="Chart of completed requests in last 24 hours"/>
+</p>
+</div>
+</body>
+</html>
