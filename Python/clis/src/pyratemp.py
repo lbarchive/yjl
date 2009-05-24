@@ -815,8 +815,10 @@ class PseudoSandbox:
     Note that this is no real sandbox!
     Don't use it for untrusted code!!
     """
-
-    eval_allowed_globals = {
+    def __init__(self):
+        self._compile_cache = {}
+        self.locals = None
+        self.eval_allowed_globals = {
             "True"      : __builtin__.True,
             "False"     : __builtin__.False,
             "None"      : __builtin__.None,
@@ -856,10 +858,7 @@ class PseudoSandbox:
             #TODO: ? __builtin__.frozenset, .set, .slice
             #      ? .filter, .iter, .map, .reduce
             }
-
-    def __init__(self):
-        self._compile_cache = {}
-        self.locals = None
+        self.register("__import__", self._dummyimport)
 
     def register(self, name, obj):
         """Add an object to the "allowed eval-globals".
@@ -897,6 +896,34 @@ class PseudoSandbox:
         compiled = self._compile_cache[expr]
 
         return eval(compiled, {"__builtins__":self.eval_allowed_globals}, locals)
+
+    def _dummyimport(self, name, *args, **kwargs):
+        """Dummy-import.
+
+        Since "import" is insecure, the PseudoSandbox does not allow to
+        import other modules. But since some functions need to import
+        other modules (e.g. "datetime.datetime.strftime" imports "time"),
+        this function replaces the builtin "import" and allows to use
+        already imported modules.
+
+        Note that this probably only works for rather simple imports.
+
+        :Example:
+            
+            >>> from datetime import datetime
+            >>> import pyratemp
+            >>> t = pyratemp.Template('@!updatetime.strftime("%H:%M:%S")!@')
+            >>> print t(updatetime=datetime.now())
+            ImportError: import not allowed in pseudo-sandbox; try to import 'time' yourself and pass it to the sandbox/template
+            >>> import time
+            >>> print t(updatetime=datetime.now(), time=time)
+            13:40:54
+        """
+        import types
+        if self.locals is not None  and  name in self.locals  and  isinstance(self.locals[name], types.ModuleType):
+            return self.locals[name]
+        else:
+            raise ImportError("import not allowed in pseudo-sandbox; try to import '%s' yourself and pass it to the sandbox/template" % name)
 
 
 
