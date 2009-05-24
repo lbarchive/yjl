@@ -401,8 +401,8 @@ class FriendFeed(Source):
 
     entries = home['entries']
     for entry in entries:
+      entry['_link'] = 'http://friendfeed.com/e/' + entry["id"]
       if entry['is_new']:
-        entry['_link'] = 'http://friendfeed.com/e/' + entry["id"]
         entry['updated'] = self.to_localtime(entry['updated'])
         print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
 
