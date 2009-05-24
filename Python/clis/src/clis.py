@@ -6,11 +6,13 @@ from datetime import datetime, timedelta, tzinfo
 from optparse import OptionParser
 from os import path
 import __builtin__
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 import imp
 import new
 import os
 import shelve
 import sys
+import threading
 import time
 import traceback
 import urllib
@@ -73,6 +75,43 @@ def ftime(d, fmt):
     return '!NODATE!'
 
 
+# 45 <= (http://u.nu/9v57 + http://u.nu/2w57) / 2
+#def surl(url, min=45):
+#
+#  if len(url) <= min:
+#    return url
+#
+#  UNU = 'http://u.nu/unu-api-simple?url='
+#  f = urllib2.urlopen(UNU + urllib.quote(url))
+#  content = f.read()
+#  f.close()
+#  if content.startswith('http'):
+#    return content
+#  log.error('Unable to shorten "%s": %s' % (url, content))
+#  return url
+
+
+lurls = {}
+lurls['count'] = 0
+# TODO limit the numbers
+def surl(url):
+
+  global options
+
+  if not options.local_shortening:
+    return url
+
+  new_url = 'http://%s:%s/%d' % (options.local_server, options.local_port, lurls['count'])
+
+  if len(new_url) >= len(url):
+    return url
+
+  # Shorter, store it
+  lurls[lurls['count']] = url
+  lurls['count'] += 1
+  return new_url
+
+
 ##################
 # ANSI escape code
 
@@ -119,6 +158,9 @@ class ANSI:
   bimagenta = '\033[105m'
   bicyan = '\033[106m'
   biwhite = '\033[107m'
+
+
+common_tpl_opts = {'ansi': ANSI, 'ftime': ftime, 'surl': surl, 'lurls': lurls}
 
 ##########
 # Timezone
@@ -256,7 +298,7 @@ class Source(object):
         entry['updated'] = self.to_localtime(entry['updated_parsed'])
       except KeyError:
         entry['updated'] = None
-      print self.output(entry=entry, ansi=ANSI, src_name=self.src_name, ftime=ftime)
+      print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
 
 
 class Twitter(Source):
@@ -271,7 +313,7 @@ class Twitter(Source):
     self.src_id = self.username
     self.src_name = src.get('src_name', 'Twitter')
     self.interval = src.get('interval', 90)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(status.created_at, "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@http://twitter.com/@!status.user.screen_name!@/status/@!status.id!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(status.created_at, "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@@!surl(status.tweet_link)!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
@@ -309,9 +351,9 @@ class Twitter(Source):
     statuses.reverse()
     for status in statuses:
       p_dbg('ID: %s' % status.id)
-      # FIXME
+      status.__dict__['tweet_link'] = 'http://twitter.com/%s/status/%s' % (status.user.screen_name, status.id)
       status.created_at = self.to_localtime(status.created_at)
-      print self.output(status=status, ansi=ANSI, src_name=self.src_name, ftime=ftime)
+      print self.output(status=status, src_name=self.src_name, **common_tpl_opts)
 
 
 class FriendFeed(Source):
@@ -327,9 +369,9 @@ class FriendFeed(Source):
     self.src_id = self.nickname
     self.src_name = src.get('src_name', 'FriendFeed')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["user"]["nickname"]!@@!ansi.freset!@:<!--(if "room" in entry)--> @!ansi.fiyellow!@[@!entry["room"]["name"]!@]@!ansi.freset!@<!--(end)--> @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
-    self.output_like = tpl(src.get('output_like', '@!ansi.fgreen!@@!ftime(like["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!like["user"]["nickname"]!@@!ansi.freset!@ @!ansi.fired!@♥@!ansi.freset!@ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
-    self.output_comment = tpl(src.get('output_comment', '@!ansi.fgreen!@@!ftime(comment["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["user"]["nickname"]!@@!ansi.freset!@:<!--(if "room" in entry)--> @!ansi.fiyellow!@[@!entry["room"]["name"]!@]@!ansi.freset!@<!--(end)--> @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@@!surl(entry["_link"])!@@!ansi.freset!@'), escape=None)
+    self.output_like = tpl(src.get('output_like', '@!ansi.fgreen!@@!ftime(like["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!like["user"]["nickname"]!@@!ansi.freset!@ @!ansi.fired!@♥@!ansi.freset!@ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@@!surl(entry["_link"])!@@!ansi.freset!@'), escape=None)
+    self.output_comment = tpl(src.get('output_comment', '@!ansi.fgreen!@@!ftime(comment["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@@!surl(entry["_link"])!@@!ansi.freset!@'), escape=None)
     self.show_like = src.get('show_like', True)
     self.show_comment = src.get('show_comment', True)
 
@@ -357,22 +399,21 @@ class FriendFeed(Source):
     entries = home['entries']
     for entry in entries:
       if entry['is_new']:
-        # FIXME
+        entry['_link'] = 'http://friendfeed.com/e/' + entry["id"]
         entry['updated'] = self.to_localtime(entry['updated'])
-        print self.output(entry=entry, ansi=ANSI, src_name=self.src_name, ftime=ftime)
+        print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
 
       if self.show_like:
         for like in entry['likes']:
           if like['is_new']:
-            # FIXME
             like['date'] = self.to_localtime(like['date'])
-            print self.output_like(like=like, entry=entry, ansi=ANSI, src_name=self.src_name, ftime=ftime)
+            print self.output_like(like=like, entry=entry, src_name=self.src_name, **common_tpl_opts)
 
       if self.show_comment:
         for comment in entry['comments']:
           if comment['is_new']:
             comment['date'] = self.to_localtime(comment['date'])
-            print self.output_comment(comment=comment, entry=entry, ansi=ANSI, src_name=self.src_name, ftime=ftime)
+            print self.output_comment(comment=comment, entry=entry, src_name=self.src_name, **common_tpl_opts)
 
 
 class Feed(Source):
@@ -387,7 +428,7 @@ class Feed(Source):
     self.src_id = self.feed
     self.src_name = src.get('src_name', 'Feed')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!entry.link!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry.link)!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
@@ -438,7 +479,7 @@ class GoogleMail(Source):
     self.src_id = self.email
     self.src_name = src.get('src_name', 'Gmail')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!surl(entry["link"])!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
@@ -462,7 +503,7 @@ class GoogleReader(GoogleBase):
     self.src_id = self.email
     self.src_name = src.get('src_name', 'GR')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!surl(entry["link"])!@'), escape=None)
     
     self._init_session()
     self._load_last_id()
@@ -475,6 +516,35 @@ class GoogleReader(GoogleBase):
 
 SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed, 'gmail': GoogleMail, 'greader': GoogleReader}
 
+##################
+# Local shortening
+
+# Not really do shorten in the server, it is only do redirection
+class ShorteningHandler(BaseHTTPRequestHandler):
+
+  def do_GET(self):
+
+    p_dbg('HTTP Req: %s' % self.path)
+    try:
+      id = int(self.path[1:])
+      if id not in lurls:
+        raise ValueError
+    except ValueError:
+      self.send_error(400, 'Invalid code')
+      return
+    p_dbg('HTTP Redirecting to %s' % lurls[id])
+    self.send_response(307)
+    self.send_header('Content-Type', 'text/html')
+    self.send_header('Location', lurls[id])
+    self.end_headers()
+
+class HTTPThread(threading.Thread):
+
+  def run(self):
+
+    httpd = HTTPServer((options.local_server, int(options.local_port)), ShorteningHandler)
+    p_dbg('Local shortening server started')
+    httpd.serve_forever()
 
 ################
 # Option Handler
@@ -486,7 +556,13 @@ def parser_args():
   parser.add_option('-c', '--config', dest='config_file',
       default='', help='Specify a configuration to use')
   parser.add_option('-d', '--debug', dest='debug', action='store_true',
-      default=False, help='Show debug messages (default: %default)')
+      default=False, help='Show debug messages')
+  parser.add_option('-l', '--no-local-shortening', dest='local_shortening', action='store_false',
+      default=True, help='Disable local shortening')
+  parser.add_option('-s', '--local-server', dest='local_server',
+      default='localhost', help='Address of local shortening server (Default: %default)')
+  parser.add_option('-p', '--local-port', dest='local_port',
+      default='8080', help='Which port to listen (Default: %default)')
 
   options, args = parser.parse_args()
 
@@ -498,6 +574,8 @@ def parser_args():
 # Main
 
 def main():
+
+  global options
 
   # Provess arguments
   options, args = parser_args()
@@ -543,6 +621,11 @@ def main():
   p('Initialized.\n')
 
   try:
+    if options.local_shortening:
+      http_thread = HTTPThread()
+      # Make it exit with main
+      http_thread.setDaemon(True)
+      http_thread.start()
     while True:
       for src in sources:
         src.update()
