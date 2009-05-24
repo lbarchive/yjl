@@ -98,13 +98,23 @@ def surl(url):
 
   global options
 
+  def fmt_url(id):
+
+    if options.local_port == 80:
+      new_url = 'http://%s/%d' % (options.local_server, id)
+    else:
+      new_url = 'http://%s:%d/%d' % (options.local_server, options.local_port, id)
+    return new_url
+
   if not options.local_shortening:
     return url
 
-  if options.local_port == 80:
-    new_url = 'http://%s/%d' % (options.local_server, lurls['count'])
-  else:
-    new_url = 'http://%s:%d/%d' % (options.local_server, options.local_port, lurls['count'])
+  # Alredy shortened?
+  for id, val in lurls.iteritems():
+    if val == url:
+      return fmt_url(id)
+
+  new_url = fmt_url(lurls['count'])
 
   if len(new_url) >= len(url):
     return url
@@ -431,7 +441,7 @@ class Feed(Source):
     self.src_id = self.feed
     self.src_name = src.get('src_name', 'Feed')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry.link)!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry.link)!@@!ansi.fmagenta!@@!ansi.freset!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
@@ -482,7 +492,7 @@ class GoogleMail(Source):
     self.src_id = self.email
     self.src_name = src.get('src_name', 'Gmail')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!surl(entry["link"])!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry["link"])!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
@@ -506,7 +516,7 @@ class GoogleReader(GoogleBase):
     self.src_id = self.email
     self.src_name = src.get('src_name', 'GR')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!surl(entry["link"])!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@: @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry["link"])!@@!ansi.freset!@'), escape=None)
     
     self._init_session()
     self._load_last_id()
