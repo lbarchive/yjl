@@ -15,8 +15,12 @@
 #
 # For output* templating syntax please read
 #   http://www.simple-is-better.org/template/pyratemp.html
-# For date format of strftime method, please read
-#   http://docs.python.org/library/datetime.html?highlight=strftime#strftime-behavior
+#
+# Available functions:
+#   * http://www.simple-is-better.org/template/pyratemp.html#expressions
+#   * ftime(date, format)
+#       For format of strftime method, please read
+#         http://docs.python.org/library/time.html#time.strftime
 #
 # All commented settings are the defualt values, if you need to customize, then
 # remove the prefixing '#' character.
@@ -29,7 +33,7 @@ sources = [
         'username': 'username', 
         'password': 'secret', 
         #interval': 90, 
-        #'output': '@!ansi.fgreen!@@!status.created_at.strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@http://twitter.com/@!status.user.screen_name!@/status/@!status.id!@@!ansi.freset!@',
+        #'output': '@!ansi.fgreen!@@!ftime(status.created_at, "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@http://twitter.com/@!status.user.screen_name!@/status/@!status.id!@@!ansi.freset!@',
         },
    {
         # FriendFeed Home Realtime - Only activiies after run, no session data will be stored
@@ -40,11 +44,11 @@ sources = [
         'remote_key': 'secret',
         #'interval': 60,
         # Available object: entry, ansi, src_name
-        #'output': '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["user"]["nickname"]!@@!ansi.freset!@:<!--(if "room" in entry)--> @!ansi.fiyellow!@[@!entry["room"]["name"]!@]@!ansi.freset!@<!--(end)--> @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@',
+        #'output': '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["user"]["nickname"]!@@!ansi.freset!@:<!--(if "room" in entry)--> @!ansi.fiyellow!@[@!entry["room"]["name"]!@]@!ansi.freset!@<!--(end)--> @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@',
         # Available object: entry, like, ansi, src_name
-        #'output_like': '@!ansi.fgreen!@@!like["date"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!like["user"]["nickname"]!@@!ansi.freset!@ @!ansi.fired!@♥@!ansi.freset!@ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@',
+        #'output_like': '@!ansi.fgreen!@@!ftime(like["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!like["user"]["nickname"]!@@!ansi.freset!@ @!ansi.fired!@♥@!ansi.freset!@ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@',
         # Available object: entry, comment, ansi, src_name
-        #'output_comment': '@!ansi.fgreen!@@!comment["date"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@',
+        #'output_comment': '@!ansi.fgreen!@@!ftime(comment["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@',
         #'show_like': True,
         #'show_comment': True,
         },
@@ -54,7 +58,7 @@ sources = [
         #src_name': 'Feed',
         'feed': 'http://example.com/feed',
         #'interval': 60,
-        #'output': '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!entry.link!@@!ansi.freset!@',
+        #'output': '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!entry.link!@@!ansi.freset!@',
         },
    {
         # GMail: Mails in inbox
@@ -63,7 +67,7 @@ sources = [
         'email': 'email@gmail.com',
         'password': 'secret',
         #'interval': 60,
-        #'output': '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@',
+        #'output': '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@',
         },
    {
         # Google Reader: Items of subscriptions
@@ -72,6 +76,6 @@ sources = [
         'email': 'email@gmail.com',
         'password': 'secret',
         #'interval': 60,
-        #'output': '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@',
+        #'output': '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@',
         },
    ]

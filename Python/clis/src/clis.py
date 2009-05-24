@@ -65,11 +65,11 @@ def safe_update(func):
   return deco
 
 
-class DummyDate:
+def ftime(d, fmt):
 
-  @staticmethod
-  def strftime(_):
-
+  if d:
+    return time.strftime(fmt, d.timetuple())
+  else:
     return '!NODATE!'
 
 
@@ -255,8 +255,8 @@ class Source(object):
       try:
         entry['updated'] = self.to_localtime(entry['updated_parsed'])
       except KeyError:
-        entry['updated'] = DummyDate
-      print self.output(entry=entry, ansi=ANSI, src_name=self.src_name, time=time)
+        entry['updated'] = None
+      print self.output(entry=entry, ansi=ANSI, src_name=self.src_name, ftime=ftime)
 
 
 class Twitter(Source):
@@ -271,7 +271,7 @@ class Twitter(Source):
     self.src_id = self.username
     self.src_name = src.get('src_name', 'Twitter')
     self.interval = src.get('interval', 90)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!status.created_at.strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@http://twitter.com/@!status.user.screen_name!@/status/@!status.id!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(status.created_at, "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@http://twitter.com/@!status.user.screen_name!@/status/@!status.id!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
@@ -311,7 +311,7 @@ class Twitter(Source):
       p_dbg('ID: %s' % status.id)
       # FIXME
       status.created_at = self.to_localtime(status.created_at)
-      print self.output(status=status, ansi=ANSI, src_name=self.src_name, time=time)
+      print self.output(status=status, ansi=ANSI, src_name=self.src_name, ftime=ftime)
 
 
 class FriendFeed(Source):
@@ -327,9 +327,9 @@ class FriendFeed(Source):
     self.src_id = self.nickname
     self.src_name = src.get('src_name', 'FriendFeed')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["user"]["nickname"]!@@!ansi.freset!@:<!--(if "room" in entry)--> @!ansi.fiyellow!@[@!entry["room"]["name"]!@]@!ansi.freset!@<!--(end)--> @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
-    self.output_like = tpl(src.get('output_like', '@!ansi.fgreen!@@!like["date"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!like["user"]["nickname"]!@@!ansi.freset!@ @!ansi.fired!@♥@!ansi.freset!@ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
-    self.output_comment = tpl(src.get('output_comment', '@!ansi.fgreen!@@!comment["date"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["user"]["nickname"]!@@!ansi.freset!@:<!--(if "room" in entry)--> @!ansi.fiyellow!@[@!entry["room"]["name"]!@]@!ansi.freset!@<!--(end)--> @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
+    self.output_like = tpl(src.get('output_like', '@!ansi.fgreen!@@!ftime(like["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!like["user"]["nickname"]!@@!ansi.freset!@ @!ansi.fired!@♥@!ansi.freset!@ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
+    self.output_comment = tpl(src.get('output_comment', '@!ansi.fgreen!@@!ftime(comment["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@http://friendfeed.com/e/@!entry["id"]!@@!ansi.freset!@'), escape=None)
     self.show_like = src.get('show_like', True)
     self.show_comment = src.get('show_comment', True)
 
@@ -359,20 +359,20 @@ class FriendFeed(Source):
       if entry['is_new']:
         # FIXME
         entry['updated'] = self.to_localtime(entry['updated'])
-        print self.output(entry=entry, ansi=ANSI, src_name=self.src_name, time=time)
+        print self.output(entry=entry, ansi=ANSI, src_name=self.src_name, ftime=ftime)
 
       if self.show_like:
         for like in entry['likes']:
           if like['is_new']:
             # FIXME
             like['date'] = self.to_localtime(like['date'])
-            print self.output_like(like=like, entry=entry, ansi=ANSI, src_name=self.src_name, time=time)
+            print self.output_like(like=like, entry=entry, ansi=ANSI, src_name=self.src_name, ftime=ftime)
 
       if self.show_comment:
         for comment in entry['comments']:
           if comment['is_new']:
             comment['date'] = self.to_localtime(comment['date'])
-            print self.output_comment(comment=comment, entry=entry, ansi=ANSI, src_name=self.src_name, time=time)
+            print self.output_comment(comment=comment, entry=entry, ansi=ANSI, src_name=self.src_name, ftime=ftime)
 
 
 class Feed(Source):
@@ -387,7 +387,7 @@ class Feed(Source):
     self.src_id = self.feed
     self.src_name = src.get('src_name', 'Feed')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!entry.link!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!entry.link!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
@@ -438,7 +438,7 @@ class GoogleMail(Source):
     self.src_id = self.email
     self.src_name = src.get('src_name', 'Gmail')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@'), escape=None)
 
     self._init_session()
     self._load_last_id()
@@ -462,7 +462,7 @@ class GoogleReader(GoogleBase):
     self.src_id = self.email
     self.src_name = src.get('src_name', 'GR')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!entry["updated"].strftime("%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@@!ansi.freset!@: @!ansi.bold!@@!entry["title"]!@@!ansi.reset!@ @!entry["link"]!@'), escape=None)
     
     self._init_session()
     self._load_last_id()
