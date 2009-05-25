@@ -72,7 +72,7 @@ def safe_update(func):
   def deco(*args, **kwds):
     try:
       func(*args, **kwds)
-    except system.error:
+    except select.error:
       pass
     except Exception:
       p_err('\n')
