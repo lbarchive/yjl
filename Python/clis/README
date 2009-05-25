@@ -8,3 +8,10 @@ The default locations of configuration are (in order):
  4) ~/clis_cfg.py
 
 If clis is run with `-c <configuration>`, then clis will try to load it first.
+
+Keys
+====
+
+ Enter  : Print a seperator
+ q      : Quit
+ Ctrl+C : Quit

@@ -13,11 +13,15 @@ import imp
 import new
 import os
 import re
+import select
 import shelve
+import signal
 import sys
+import termios
 import threading
 import time
 import traceback
+import tty
 import urllib
 import urllib2
 
@@ -68,6 +72,8 @@ def safe_update(func):
   def deco(*args, **kwds):
     try:
       func(*args, **kwds)
+    except system.error:
+      pass
     except Exception:
       p_err('\n')
       traceback.print_exc()
@@ -298,6 +304,68 @@ class object_dict(dict):
 
   def __setattr__(self, item, value):
     self.__setitem__(item, value)
+
+####################
+# non-blocking stdin
+
+def getch():
+  
+  global p_stdin
+
+  if p_stdin.poll(1000):
+    return sys.stdin.read(1)
+  else:
+    return None
+
+def ttywidth():
+
+  f = os.popen('tput cols', 'r')
+  width = int(f.read())
+  f.close()
+  return width
+
+
+def update_width(signum, frame):
+  
+  global width
+  
+  width = ttywidth()
+
+
+def sigexit(signum, frame):
+
+  if session:
+    session.close()
+  p('\033[?25h')
+  termios.tcsetattr(fd, termios.TCSANOW, old_settings)
+
+
+class STDOUT_R:
+
+  @staticmethod
+  def write(s):
+
+    s = s.replace('\n', '\r\n')
+    sys.__stdout__.write(s.encode('utf-8'))
+
+  @staticmethod
+  def flush():
+
+    return sys.__stdout__.flush()
+
+
+class STDERR_R:
+
+  @staticmethod
+  def write(s, *args, **kwds):
+
+    s = s.replace('\n', '\r\n')
+    sys.__stderr__.write(s.encode('utf-8'))
+
+  @staticmethod
+  def flush():
+
+    return sys.__stderr__.flush()
 
 #########
 # Session
@@ -826,21 +894,56 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
   del cfg
   p('Initialized.\n')
 
-  try:
-    if options.local_shortening:
-      http_thread = HTTPThread()
-      # Make it exit with main
-      http_thread.setDaemon(True)
-      http_thread.start()
-    while True:
+  if options.local_shortening:
+    http_thread = HTTPThread()
+    # Make it exit with main
+    http_thread.setDaemon(True)
+    http_thread.start()
+  while True:
+    try:
       for src in sources:
         src.update()
       session.do_sync(sources)
-      time.sleep(1)
-  except KeyboardInterrupt:
-    pass
-  session.close()
+      ch = getch()
+      if ch:
+        if ch == 'q':
+          break
+        if ch == "\x03":
+          # Ctrl+C
+          break
+        if ch == "\x0d":
+          # Entry key
+          p('\033[97;101m' + '-' * width + '\n\033[39;49m')
+    except select.error:
+      # Conflict with signal
+      # select.error: (4, 'Interrupted system call') on p.poll(1)
+      pass
+
 
 if __name__ == '__main__':
-  main()
-  p('\x08\x08Bye!\n')
+  
+  p('\033[?25l')
+  width = ttywidth()
+  signal.signal(signal.SIGWINCH, update_width)
+
+  # Get stdin file descriptor
+  fd = sys.stdin.fileno()         
+  # Backup, important!
+  old_settings = termios.tcgetattr(fd)
+  tty.setraw(sys.stdin.fileno())
+
+  p_stdin = select.poll()
+  # Register for data-in
+  p_stdin.register(sys.stdin, select.POLLIN)
+
+  sys.stdout = STDOUT_R
+  sys.stderr = STDERR_R
+
+  try:
+    main()
+  except Exception, e:
+    sigexit(None, None)
+    traceback.print_exc()
+    raise e
+  p('Bye!\n')
+  sigexit(None, None)

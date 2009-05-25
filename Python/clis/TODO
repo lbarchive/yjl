@@ -3,7 +3,6 @@ Shorten urls in content
 (Sound) notification
 Weather with Forcast
 tail source
-Handle stdin & print seperator
 filter (to block whole entry, or not showing own stuff)
 trim function
 Add an option to print out configuration without password
