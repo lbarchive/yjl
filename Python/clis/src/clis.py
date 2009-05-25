@@ -2,14 +2,17 @@
 # -*- coding: utf-8 -*-
 # GPLv3
 
+from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
 from datetime import datetime, timedelta, tzinfo
 from optparse import OptionParser
 from os import path
+from StringIO import StringIO
 import __builtin__
-from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
+import elementtree.ElementTree as ET
 import imp
 import new
 import os
+import re
 import shelve
 import sys
 import threading
@@ -39,7 +42,11 @@ def p(msg):
 
 def p_clr(msg):
 
-  sys.stdout.write('\x0d' + ' ' * len(msg) + '\x0d')
+  for k, v in ANSI.__dict__.iteritems():
+    if not k.startswith('_'):
+      msg = msg.replace(v, '')
+  
+  sys.stdout.write('\b \b' * len(msg))
   sys.stdout.flush()
 
 
@@ -206,6 +213,91 @@ class LOCAL_TZ(tzinfo):
 
 utc = UTC()
 local_tz = LOCAL_TZ()
+
+####################################
+# xml2dict (modified by me)
+# http://code.google.com/p/xml2dict/
+
+class XML2Dict(object):
+
+  @classmethod
+  def _parse_node(cls, node):
+    node_tree = object_dict()
+    # Save attrs and text, hope there will not be a child with same name
+    if node.text:
+      node_tree.value = node.text
+    for (k,v) in node.attrib.items():
+      k,v = cls._namespace_split(k, object_dict({'value':v}))
+      node_tree[k] = v
+    #Save childrens
+    for child in node.getchildren():
+      tag, tree = cls._namespace_split(child.tag, cls._parse_node(child))
+      if  tag not in node_tree: # the first time, so store it in dict
+        node_tree[tag] = tree
+        continue
+      old = node_tree[tag]
+      if not isinstance(old, list):
+        node_tree.pop(tag)
+        node_tree[tag] = [old] # multi times, so change old dict to a list       
+      node_tree[tag].append(tree) # add the new one      
+
+    return  node_tree
+
+  @classmethod
+  def _namespace_split(cls, tag, value):
+    """
+    Split the tag  '{http://cs.sfsu.edu/csc867/myscheduler}patients'
+       ns = http://cs.sfsu.edu/csc867/myscheduler
+       name = patients
+    """
+    result = re.compile("\{(.*)\}(.*)").search(tag)
+    if result:
+      value.namespace, tag = result.groups()    
+    return (tag, value)
+
+  @classmethod
+  def parse(cls, file):
+    """parse a xml file to a dict"""
+    f = open(file, 'r')
+    return cls.fromstring(f.read()) 
+
+  @classmethod
+  def fromstring(cls, s):
+    """parse a string"""
+    t = ET.fromstring(s)
+    root_tag, root_tree = cls._namespace_split(t.tag, cls._parse_node(t))
+    return object_dict({root_tag: root_tree})
+
+
+class object_dict(dict):
+  """object view of dict, you can 
+  >>> a = object_dict()
+  >>> a.fish = 'fish'
+  >>> a['fish']
+  'fish'
+  >>> a['water'] = 'water'
+  >>> a.water
+  'water'
+  >>> a.test = {'value': 1}
+  >>> a.test2 = object_dict({'name': 'test2', 'value': 2})
+  >>> a.test, a.test2.name, a.test2.value
+  (1, 'test2', 2)
+  """
+  def __init__(self, initd=None):
+    if initd is None:
+      initd = {}
+    dict.__init__(self, initd)
+
+  def __getattr__(self, item):
+    d = self.__getitem__(item)
+    # if value is the only key in object, you can omit it
+    if isinstance(d, dict) and 'value' in d and len(d) == 1:
+      return d['value']
+    else:
+      return d
+
+  def __setattr__(self, item, value):
+    self.__setitem__(item, value)
 
 #########
 # Session
@@ -527,7 +619,83 @@ class GoogleReader(GoogleBase):
     return fp.parse(content)
 
 
-SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed, 'gmail': GoogleMail, 'greader': GoogleReader}
+class Weather(Source):
+
+  TYPE = 'weather'
+  COUNT = 0
+  PARTNER_ID = '1118660757'
+  LICENSE_KEY = '26ae171b4be6178b'
+  XOAP_URI = 'http://xoap.weather.com/weather/local/%%s?cc=*&unit=%%s&link=xoap&prod=xoap&par=%s&key=%s' % (PARTNER_ID, LICENSE_KEY)
+
+  def __init__(self, src):
+
+    if self.COUNT >= 3:
+      # display weather data for no more than three (3) locations at a time;
+      # Because of "at a time", I think the term doesn't really can restrict
+      # clis, but I just limit for that.
+      p_err('You can only use upto three Weather sources')
+      return None
+
+    self.last_accessed = 0
+    self.locid = src['locid']
+    self.unit = src.get('unit', 'm')
+    self.src_id = self.locid
+    self.src_name = src.get('src_name', 'Weather')
+    # in minutes
+    # TODO add forcast interval
+    self.interval = src.get('interval', 30) * 60
+    if self.interval < 25:
+      p_err('Weather update interval must longer than or equal to 25 minutes, forced to 30 minutes')
+      self.interval = 30
+    # provide four (4) promotional links, selected by TWCi and provided through
+    # the Service on each data call, back to www.weather.com for additional
+    # weather information in close proximity to the TWCi Content as set forth
+    # in Exhibit B of the Agreement;
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(weather["cc"]["lsup"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!weather["cc"]["obst"]!@@!ansi.freset!@ Temperature: @!weather["cc"]["tmp"]!@°@!weather["head"]["ut"]!@ Feels like: @!weather["cc"]["flik"]!@°@!weather["head"]["ut"]!@ Conditions: @!weather["cc"]["t"]!@ Wind: @!weather["cc"]["wind"]["s"]!@@!weather["head"]["us"]!@ (@!int(float(weather["cc"]["wind"]["s"]) * 0.6214)!@mph) (@!weather["cc"]["wind"]["t"]!@) (@!weather["lnks"]["link"][0]["t"]!@: @!surl(weather["lnks"]["link"][0]["l"])!@ @!weather["lnks"]["link"][1]["t"]!@: @!surl(weather["lnks"]["link"][1]["l"])!@ @!weather["lnks"]["link"][2]["t"]!@: @!surl(weather["lnks"]["link"][2]["l"])!@ @!weather["lnks"]["link"][3]["t"]!@: @!surl(weather["lnks"]["link"][3]["l"])!@)'), escape=None)
+    self.COUNT += 1
+
+  @staticmethod
+  def to_localtime(d):
+
+    return datetime.strptime(d, '%m/%d/%y %I:%M %p Local Time')
+
+  def get(self):
+
+    f = urllib2.urlopen(self.XOAP_URI % (self.locid, self.unit))
+    d = XML2Dict.fromstring(f.read())['weather']
+    f.close()
+    # make {"a" : {"value": "abc"} be {"a": "value"}
+    def _simplify(d):
+      for k, v in d.iteritems():
+        if isinstance(d[k], dict):
+          if len(v) == 1 and 'value' in v:
+            d[k] = v['value']
+          else:
+            _simplify(d[k])
+        elif isinstance(d[k], list):
+          for item in d[k]:
+            _simplify(item)
+    _simplify(d)
+
+    return d
+
+  @safe_update
+  def update(self):
+
+    if time.time() < self.interval + self.last_accessed:
+      return
+    self.last_accessed = time.time()
+
+    msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id=self.src_id)
+    p(msg)
+    weather = self.get()
+    p_clr(msg)
+    
+    weather['cc']['lsup'] = self.to_localtime(weather['cc']['lsup'])
+    print self.output(weather=weather, src_name=self.src_name, **common_tpl_opts)
+
+
+SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed, 'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather}
 
 ##################
 # Local shortening
@@ -596,6 +764,12 @@ def parser_args():
 def main():
 
   global options
+
+  p('''clis (C) 2009 Yu-Jie Lin
+The code is licensed under the terms of the GNU General Public License (GPL).
+
+For running the code, you must agree with all limitations which are denoted in
+clis_cfg-sample.py, read the file for more information.\n\n''')
 
   # Process arguments
   options, args = parser_args()

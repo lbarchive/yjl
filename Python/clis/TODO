@@ -1,4 +1,11 @@
-Handle stdin
+Do not print out querying parameters in source id, that may contain sensitive contain, such as password
+Shorten urls in content
+(Sound) notification
+Weather with Forcast
+tail source
+Handle stdin & print seperator
+filter (to block whole entry, or not showing own stuff)
+trim function
 Add an option to print out configuration without password
 Reduce member resolution, e.g. urllib.quote -> from urllib import quote
 PEP8
