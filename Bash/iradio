@@ -46,26 +46,76 @@ stations=(\
 'mplayer mms://citadelcc-wjbq-fm.wm.llnwd.net/citadelcc_WJBQ_FM?MSWMExt=.asf' \
 )
 
+function sigint {
+	kill $p_pid
+	# Show cursor
+	echo -e "\033[?25h"
+	# Echo for stdin
+	stty echo
+	exit 0
+	}
+
+function sigwinch {
+	# Get host name
+	raw=$(wget -q http://wjbq.com/ -O -)
+	hostname=$(grep "hostName" <<< "$raw" | head -1 | sed -e 's/^[^<]*//' -e 's/<[^>]*>//g')
+	hosttime=$(grep "hostTime" <<< "$raw" | head -1 | sed -e 's/^[^<]*//' -e 's/<[^>]*>//g')
+	clear
+	echo -ne "\033[1;35m"
+	echo -n "WJBQ" | figlet -t -c -f 5lineoblique
+	echo -ne "\033[0;39m\n\033[1;31m"
+	echo -n "$title" | figlet -t -c -f cosmic
+	echo -ne "\033[0;39m\n\033[1;32m"
+	echo -n "$artist" | figlet -t -c -f cosmic
+	echo -ne "\033[0;39m\n\033[1;34m"
+	echo -n "$hostname" | figlet -t -c -f script
+	echo -n "$hosttime" | figlet -t -c -f script
+	echo -ne "\033[0;39m\n"
+	(( space_length=($(stty size | cut -f 2 -d ' ') - 16) / 2 ))
+	echo -ne "\033[${space_length}G"
+	echo -ne "\033[1;35mhttp://wjbq.com/\033[0;39m"
+	_title=$title
+	_artist=$artist
+	}
+
 let "count = ${#stations[@]} / 2"
 
 # List stations
 index=0
 
-while [ "$index" -lt "$count" ]
-do    # List all the elements in the array.
-	let "i = $index*2"
+while [[ $index -lt $count ]]; do
+	# List all the elements in the array.
+	(( i=$index * 2 ))
 	echo "$index: ${stations[$i]}"
-    let "index = $index + 1"
+    (( index=$index + 1 ))
 done
 
-echo;
-echo -n "Which station? "
-read radio
+read -p "Which station? " radio
+[[ "$radio" == "" ]] && exit 1
+(( i=$radio * 2 + 1 ))
 
-if [ "$radio" == "" ]; then
-	exit
+if [[ "${stations[$((i - 1))]}" == "WJBQ" ]]; then
+	${stations[$i]} &> /dev/null &
+	p_pid=$!
+	# No echo for stdin
+	stty -echo
+	# Hide cursor
+	echo -ne "\033[?25l"
+	trap sigint INT EXIT
+	trap sigwinch WINCH
+	while true; do
+		raw=$(wget -q http://ipex.citcomm.com/NowPlaying/WJBQFM.xml -O - | sed -e 's/<[^>]*>/|/g' -e 's/||*/|/g')
+		# |Bad Girlfriend|Theory Of A Deadman|03:03|5/25/2009 8:21:34 AM|
+		# TODO do timezome conversion? "%m/%d/%Y %l:%M:%S %p"
+		artist=$(cut -d \| -f 2 <<< $raw)
+		title=$(cut -d \| -f 3 <<< $raw)
+		[[ "$title" != "$_title" || "$artist" != "$_artist" ]] && sigwinch
+		read -n 1 -t 15 ch
+		[[ $? -gt 0 ]] && continue
+		case "$ch" in
+			q)	break ;;
+		esac
+	done
+else
+	${stations[$i]}
 fi
-
-let "i = $radio*2 + 1"
-
-${stations[$i]}
