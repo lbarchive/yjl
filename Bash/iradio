@@ -107,8 +107,8 @@ if [[ "${stations[$((i - 1))]}" == "WJBQ" ]]; then
 		raw=$(wget -q http://ipex.citcomm.com/NowPlaying/WJBQFM.xml -O - | sed -e 's/<[^>]*>/|/g' -e 's/||*/|/g')
 		# |Bad Girlfriend|Theory Of A Deadman|03:03|5/25/2009 8:21:34 AM|
 		# TODO do timezome conversion? "%m/%d/%Y %l:%M:%S %p"
-		artist=$(cut -d \| -f 2 <<< $raw)
-		title=$(cut -d \| -f 3 <<< $raw)
+		artist=$(cut -d \| -f 3 <<< $raw)
+		title=$(cut -d \| -f 2 <<< $raw)
 		[[ "$title" != "$_title" || "$artist" != "$_artist" ]] && sigwinch
 		read -n 1 -t 15 ch
 		[[ $? -gt 0 ]] && continue
