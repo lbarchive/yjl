@@ -1,87 +1,61 @@
 // Small utility to colorify the track information
 //
-// Shell.FM doesn't seem to be able to update the remaining second information.
-//
 // Using the following in shell-fm
-//   np-file = /tmp/shell-fm-nowplaying
 //   np-file-format = %t|%l|%a
+// and run with -i host -p port
 //
 // Using the following in conky
 //   ${if_running shell-fm}${execp ~/bin/conky-shell-fm}$endif
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <dirent.h>
+#include <netdb.h>
+#include <netinet/in.h>
+#include <sys/socket.h>
 
-// For shell-fm
-/*
-const char *proc_path = "/proc/";
-const char *cmdline = "/cmdline";
-const size_t proc_len = 6;
-const size_t cmdline_len = 8;
-*/
-const char *nowplaying_path = "/tmp/shell-fm-nowplaying";
 const char *sep = "|";
+const char *cmd_info = "info\n";
 
-/*
-char *get_path_to_cmdline(char *pid) {
-	size_t result_len = proc_len + strlen(pid) + cmdline_len;
-	char *result;
+#define DEFAULT_HOST "localhost"  
+#define DEFAULT_PORT "54311"
 
-	result = malloc((result_len + 1) * sizeof *result);
-	strcpy(result, proc_path);
-	strcat(result, pid);
-	strcat(result, cmdline);
-	result[result_len] = '\0';
-	return result;
+#define MAXDATASIZE 100 // max number of bytes we can get at once 
+
+// get sockaddr, IPv4 or IPv6:
+void *get_in_addr(struct sockaddr *sa)
+{
+    if (sa->sa_family == AF_INET) {
+        return &(((struct sockaddr_in*)sa)->sin_addr);
+    }
+
+    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+}
+
+char *fmt_time(int seconds, char * time) {
+	int mm;
+	int ss;
+
+	mm = seconds / 60;
+	ss = seconds - mm * 60;
+
+	sprintf(time, "%02d:%02d", mm, ss);
+	return time;
 	}
 
-bool shellfm_running() {
-	struct dirent *dp;
-	DIR *dir = opendir(proc_path);
-	int i;
-	char *cmdline_path;
+void do_shellfm(char *buffer) {
 	FILE *f;
-	char cmdline[9];
-	bool found = false;
-
-	while ((dp=readdir(dir)) != NULL && !found) {
-		// Find directory name is in all numbers
-		for (i=0; i<strlen(dp->d_name); i++)
-			if (dp->d_name[i] < '0' || dp->d_name[i] > '9')
-				break;
-		if (i < strlen(dp->d_name))
-			continue;
-		cmdline_path = get_path_to_cmdline(dp->d_name);
-		// Check if this is shell-fm
-		if ((f = fopen(cmdline_path, "r")) != (FILE *) 0)
-			if (fgets(cmdline, sizeof(cmdline), f) != NULL)
-				if (strcmp(cmdline, "shell-fm") == 0)
-					found = true;
-		fclose(f);
-		free(cmdline_path);
-		cmdline_path = NULL;
-		}
-	closedir(dir);
-	return found;
-	}
-*/
-void do_shellfm() {
-	FILE *f;
-	char buffer[300];
 	char *bufp = buffer;
 	char **bp = &bufp;
 	char *tok;
-	const int info_len = 3;
+	const int info_len = 5;
 	char *info[info_len];
 	int i;
-
-	if ((f = fopen(nowplaying_path, "r")) == (FILE *) 0)
-		return;
-	if (fgets(buffer, 300, f) == NULL)
-		goto f_close;
+	int rm_time;
+	int length;
+	int el_time;
+	char mmtime[7];
+	char sstime[7];
 
 	i = -1;
 	while (tok = strsep(bp, sep), ++i < info_len)
@@ -90,12 +64,79 @@ void do_shellfm() {
 	printf("${alignc}${color red}%s$color\n", info[0]);
 	printf("${alignc}${color green}%s$color\n", info[1]);
 	printf("${alignc}${color cyan}%s$color\n", info[2]);
-f_close:
-	fclose(f);
+	rm_time = atoi(info[3]);
+	length = atoi(info[4]);
+	el_time = length - rm_time;
+	printf("${alignc}${color #ccddff}%s / %s$color\n", fmt_time(el_time, mmtime), fmt_time(length, sstime));
 	}
 
-int main () {
-//	if (shellfm_running())
-		do_shellfm();
+int main(int argc, char *argv[]) {
+    int sockfd, numbytes;  
+    char buf[MAXDATASIZE];
+    struct addrinfo hints, *servinfo, *p;
+    int rv;
+    char s[INET6_ADDRSTRLEN];
+
+    if (argc == 2 && strcmp(argv[1], "-h") == 0) {
+        fprintf(stderr,"usage: conky-shell-fm [hostname [port]]\ndefault: conky-shell-fm %s %s\n", DEFAULT_HOST, DEFAULT_PORT);
+        exit(0);
+    }
+
+    memset(&hints, 0, sizeof hints);
+    hints.ai_family = AF_UNSPEC;
+    hints.ai_socktype = SOCK_STREAM;
+
+    if ((rv = getaddrinfo((argc >= 2) ? argv[1] : DEFAULT_HOST,
+			(argc == 3) ? argv[2] : DEFAULT_PORT, &hints, &servinfo)) != 0) {
+        fprintf(stderr, "getaddrinfo: %s\n", gai_strerror(rv));
+        return 1;
+    }
+
+    // loop through all the results and connect to the first we can
+    for(p = servinfo; p != NULL; p = p->ai_next) {
+        if ((sockfd = socket(p->ai_family, p->ai_socktype,
+                p->ai_protocol)) == -1) {
+            perror("conky-shell-fm: socket");
+            continue;
+        }
+
+        if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+            close(sockfd);
+            perror("conky-shell-fm: connect");
+            continue;
+        }
+
+        break;
+    }
+
+    if (p == NULL) {
+        fprintf(stderr, "conky-shell-fm: failed to connect\n");
+        return 2;
+    }
+
+    inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr),
+            s, sizeof s);
+    fprintf(stderr, "conky-shell-fm: connecting to %s\n", s);
+
+    if ((numbytes = send(sockfd, cmd_info, strlen(cmd_info), 0)) == -1) {
+        perror("conky-shell-fm: send");
+        exit(1);
+    }
+
+    freeaddrinfo(servinfo); // all done with this structure
+
+    if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1) {
+        perror("recv");
+        exit(1);
+    }
+
+    buf[numbytes] = '\0';
+
+    fprintf(stderr, "conky-shell-fm: received '%s'\n", buf);
+
+    close(sockfd);
+
+	do_shellfm(buf);
+
 	return 0;
 	}
