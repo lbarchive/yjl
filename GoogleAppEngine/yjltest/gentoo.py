@@ -49,15 +49,16 @@ import Simple24 as s24
 URI_BASE = 'http://forums.gentoo.org/'
 L24_URI = URI_BASE + 'search.php?search_id=last'
 CACHE_TIME = 60 * 10
-URI_TOPIC = URI_BASE + 'viewtopic-t-%s-highlight-.html'
+URI_LATEST_POST = URI_BASE + 'viewtopic-p-%s.html#%s'
 
 #####
 # REs
 
-RE_SID = re.compile('\??sid=[0-9a-f]+')
-RE_FORUM = re.compile('<a href="viewforum-f-(\d+)\.html" class="forumlink">(.*?)</a>')
-RE_TOPIC = re.compile('<a href="viewtopic-t-(\d+)-highlight-\.html" class="topictitle">(.*?)</a>')
-RE_AUTHOR_DATE = re.compile('<span class="postdetails">(.*?)<br /><a href="profile\.php.*?">(.*?)</a>')
+RE_SID = re.compile(r'\??sid=[0-9a-f]+')
+RE_FORUM = re.compile(r'<a href="viewforum-f-(\d+)\.html" class="forumlink">(.*?)</a>')
+RE_TOPIC = re.compile(r'<a href="viewtopic-t-(\d+)-highlight-\.html" class="topictitle">(.*?)</a>')
+RE_AUTHOR_DATE = re.compile(r'<span class="postdetails">(.*?)<br /><a href="profile\.php.*?">(.*?)</a>')
+RE_LATEST_POST = re.compile(r'<a href="viewtopic-p-(\d+)\.html#\1">.*?</a>')
 
 ##########
 # Timezone
@@ -164,6 +165,7 @@ class UpdateForumsFeed(webapp.RequestHandler):
     l_forum = 0
     l_topic = 0
     l_author_date = 0
+    l_latest_post = 0
     while True:
       matches = RE_FORUM.search(raw, l_forum)
       if not matches:
@@ -184,18 +186,18 @@ class UpdateForumsFeed(webapp.RequestHandler):
       date = datetime.strptime(date, '%a %b %d, %Y %I:%M %p').replace(tzinfo=local_tz).astimezone(utc)
       author = urllib.unquote(author)
 
+      matches = RE_LATEST_POST.search(raw, l_latest_post)
+      l_latest_post = matches.end() + 1
+      post_id = matches.groups()[0]
+      
       # Put them all together
-      entries += [(forum_id, forum_name, topic_id, topic_title, date, author)]
+      entries += [(forum_id, forum_name, topic_id, topic_title, date, author, post_id)]
 
     if not entries:
       # Got thing!?
       log.error('Found nothing in last 24 hours page')
       self.error(500)
       return
-
-    # Memcache the list
-    #memcache.set('gentoo_forums_l24', entries)
-    #memcache.set('gentoo_forums_l24_updated', time.time())
 
     # Generating the feed
     feed = fg.Rss201rev2Feed(
@@ -208,12 +210,12 @@ class UpdateForumsFeed(webapp.RequestHandler):
     for entry in entries:
       feed.add_item(
           title='[%s] %s' % (entry[1], entry[3]),
-          link=URI_TOPIC % entry[2],
+          link=URI_LATEST_POST % (entry[6], entry[6]),
           description='',
           author_name=entry[5],
           author_email='noreply@yjltest.appspot.com',
           pubdate=entry[4],
-          unique_id=URI_TOPIC % entry[2],
+          unique_id=URI_LATEST_POST % (entry[6], entry[6]),
           categories=[entry[1]],
           )
 
