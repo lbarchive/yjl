@@ -719,7 +719,7 @@ class Weather(Source):
     # the Service on each data call, back to www.weather.com for additional
     # weather information in close proximity to the TWCi Content as set forth
     # in Exhibit B of the Agreement;
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(weather["cc"]["lsup"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!weather["cc"]["obst"]!@@!ansi.freset!@ Temperature: @!weather["cc"]["tmp"]!@°@!weather["head"]["ut"]!@ Feels like: @!weather["cc"]["flik"]!@°@!weather["head"]["ut"]!@ Conditions: @!weather["cc"]["t"]!@ Wind: @!weather["cc"]["wind"]["s"]!@@!weather["head"]["us"]!@ (@!int(float(weather["cc"]["wind"]["s"]) * 0.6214)!@mph) (@!weather["cc"]["wind"]["t"]!@) (@!weather["lnks"]["link"][0]["t"]!@: @!surl(weather["lnks"]["link"][0]["l"])!@ @!weather["lnks"]["link"][1]["t"]!@: @!surl(weather["lnks"]["link"][1]["l"])!@ @!weather["lnks"]["link"][2]["t"]!@: @!surl(weather["lnks"]["link"][2]["l"])!@ @!weather["lnks"]["link"][3]["t"]!@: @!surl(weather["lnks"]["link"][3]["l"])!@)'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(weather["cc"]["lsup"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!weather["cc"]["obst"]!@@!ansi.freset!@ Temperature: @!weather["cc"]["tmp"]!@°@!weather["head"]["ut"]!@ Feels like: @!weather["cc"]["flik"]!@°@!weather["head"]["ut"]!@ Conditions: @!weather["cc"]["t"]!@ Wind: <!--(if weather["cc"]["wind"]["s"] == "calm")-->calm<!--(else)-->@!weather["cc"]["wind"]["s"]!@@!weather["head"]["us"]!@ (@!int(float(weather["cc"]["wind"]["s"]) * 0.6214)!@mph) (@!weather["cc"]["wind"]["t"]!@)<!--(end)--> (Provided by weather.com; @!weather["lnks"]["link"][0]["t"]!@: @!surl(weather["lnks"]["link"][0]["l"])!@ @!weather["lnks"]["link"][1]["t"]!@: @!surl(weather["lnks"]["link"][1]["l"])!@ @!weather["lnks"]["link"][2]["t"]!@: @!surl(weather["lnks"]["link"][2]["l"])!@ @!weather["lnks"]["link"][3]["t"]!@: @!surl(weather["lnks"]["link"][3]["l"])!@)'), escape=None)
     self.COUNT += 1
 
   @staticmethod
@@ -760,7 +760,12 @@ class Weather(Source):
     p_clr(msg)
     
     weather['cc']['lsup'] = self.to_localtime(weather['cc']['lsup'])
-    print self.output(weather=weather, src_name=self.src_name, **common_tpl_opts)
+    try:
+      print self.output(weather=weather, src_name=self.src_name, **common_tpl_opts)
+    except:
+      from pprint import pprint
+      pprint(weather)
+      traceback.print_exc()
 
 
 SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed, 'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather}
