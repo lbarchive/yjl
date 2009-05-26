@@ -547,6 +547,7 @@ class FriendFeed(Source):
     self.output_comment = tpl(src.get('output_comment', '@!ansi.fgreen!@@!ftime(comment["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@@!surl(entry["_link"])!@@!ansi.freset!@'), escape=None)
     self.show_like = src.get('show_like', True)
     self.show_comment = src.get('show_comment', True)
+    self.show_hidden = src.get('show_hidden', False)
 
   @staticmethod
   def to_localtime(d):
@@ -571,6 +572,8 @@ class FriendFeed(Source):
 
     entries = home['entries']
     for entry in entries:
+      if entry['hidden'] and not self.show_hidden:
+        continue
       entry['_link'] = 'http://friendfeed.com/e/' + entry["id"]
       if entry['is_new']:
         entry['updated'] = self.to_localtime(entry['updated'])

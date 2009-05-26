@@ -61,6 +61,9 @@ sources = [
         #'output_comment': '@!ansi.fgreen!@@!ftime(comment["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!comment["user"]["nickname"]!@@!ansi.freset!@ ✎ @!ansi.fcyan!@@!entry["title"]!@@!ansi.freset!@: @!comment["body"]!@ @!ansi.fmagenta!@@!surl(entry["_link"])!@@!ansi.freset!@',
         #'show_like': True,
         #'show_comment': True,
+        # You may have set hidding some people's item, you can decide if you
+        # still want to see them.
+        #'show_hidden': False,
         },
     {
         # Feed: Normal feed
