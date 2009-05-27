@@ -488,12 +488,11 @@ class Source(object):
       return entry['updated']
     return max(dates)
 
-  @classmethod
-  def datetimeize(cls, entry):
+  def datetimeize(self, entry):
     '''Convert all date to datetime in localtime'''
     for key in ['updated', 'published', 'created', 'expired']:
       if key in entry:
-        entry[key] = cls.to_localtime(entry[key])
+        entry[key] = self.to_localtime(entry[key])
 
   @staticmethod
   def to_localtime(d):
@@ -669,14 +668,13 @@ class Feed(Source):
     self._init_session()
     self._load_check_list()
 
-  @classmethod
-  def datetimeize(cls, entry):
+  def datetimeize(self, entry):
     '''Replace date with parsed date then do Source.datetimeize'''
     for key in ['updated', 'published', 'created', 'expired']:
-      if key in entry:
+      if key + '_parsed' in entry:
         entry[key] = entry[key + '_parsed']
         del entry[key + '_parsed']
-    Source.datetimeize(entry)
+    Source.datetimeize(self, entry)
 
   def get_list(self):
 
@@ -840,7 +838,23 @@ class Weather(Source):
       traceback.print_exc()
 
 
-SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed, 'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather}
+class PunBB12(Feed):
+
+  TYPE = 'punbb12'
+  RE_PUBLISHED = re.compile(r'Posted: (.*?)<br />')
+  RE_UPDATED = re.compile(r'Last post: (.*?)$')
+
+  def get_list(self):
+
+    feed = fp.parse(self.feed)
+    for entry in feed['entries']:
+      # TODO parse category
+      entry['published_parsed'] = fp._parse_date(self.RE_PUBLISHED.search(entry['description']).groups()[0])
+      entry['updated_parsed'] = fp._parse_date(self.RE_UPDATED.search(entry['description']).groups()[0])
+    return feed
+
+SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed,
+    'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather, 'punbb12': PunBB12}
 
 ##################
 # Local shortening
