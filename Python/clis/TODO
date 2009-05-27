@@ -3,6 +3,7 @@ Shorten urls in content
 (Sound) notification
 Weather with Forcast
 tail source
+highlighting
 filter (to block whole entry, or not showing own stuff)
 trim function
 Add an option to print out configuration without password
@@ -11,3 +12,4 @@ PEP8
 Add LICENSE*, append to head of files
 OPML
 Securely load configuration
+Use auth without password as much as possible

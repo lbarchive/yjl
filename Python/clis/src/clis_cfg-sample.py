@@ -45,6 +45,17 @@ sources = [
         #'output': '@!ansi.fgreen!@@!ftime(status.created_at, "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@@!surl(status.tweet_link)!@@!ansi.freset!@',
         },
     {
+        'type': 'twittersearch',
+        #'src_name': 'TwitterSearch',
+        # You can make one easier at http://search.twitter.com/advanced
+        'q': 'the search term',
+        # How many returned result in one query, upto 100
+        #'rpp': 15,
+        # A valid ISO 639-1 code (http://en.wikipedia.org/wiki/ISO_639-1)
+        #'lang': 'en',
+        #'interval': 60,
+        },
+    {
         # FriendFeed Home Realtime - Only activiies after run, no session data will be stored
         # Item structure can be found at http://code.google.com/p/friendfeed-api/wiki/ApiDocumentation#Reading_FriendFeed_Feeds
         'type': 'friendfeed',

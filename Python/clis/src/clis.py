@@ -88,22 +88,6 @@ def ftime(d, fmt):
     return '!NODATE!'
 
 
-# 45 <= (http://u.nu/9v57 + http://u.nu/2w57) / 2
-#def surl(url, min=45):
-#
-#  if len(url) <= min:
-#    return url
-#
-#  UNU = 'http://u.nu/unu-api-simple?url='
-#  f = urllib2.urlopen(UNU + urllib.quote(url))
-#  content = f.read()
-#  f.close()
-#  if content.startswith('http'):
-#    return content
-#  log.error('Unable to shorten "%s": %s' % (url, content))
-#  return url
-
-
 lurls = {}
 lurls['count'] = 0
 # TODO limit the numbers
@@ -553,7 +537,11 @@ class Twitter(Source):
   @staticmethod
   def to_localtime(d):
 
-    return datetime.strptime(d, '%a %b %d %H:%M:%S +0000 %Y').replace(tzinfo=utc).astimezone(local_tz)
+    return datetime(*fp._parse_date(d)[:6]).replace(tzinfo=utc).astimezone(local_tz)
+
+  def get_list(self):
+
+    return self.api.GetFriendsTimeline(since_id=self.last_id)
 
   @safe_update
   def update(self):
@@ -565,20 +553,18 @@ class Twitter(Source):
     msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id=self.src_id)
     try:
       p(msg)
-      if self.last_id:
-        statuses = self.api.GetFriendsTimeline(since_id=self.last_id)
-      else:
-        statuses = self.api.GetFriendsTimeline()
+      statuses = self.get_list()
       p_clr(msg)
     except urllib2.HTTPError, e:
       # TODO for 503 should follow this:
       # http://apiwiki.twitter.com/Rate-limiting
       if e.code != 200:
-        p_err(' CODE %d' % e.code)
+        p_err('CODE %d' % e.code)
         return
 
-    if statuses:
-      self._update_last_id(statuses[0].id)
+    if not statuses:
+      return
+    self._update_last_id(statuses[0].id)
 
     statuses.reverse()
     for status in statuses:
@@ -679,6 +665,90 @@ class Feed(Source):
   def get_list(self):
 
     return fp.parse(self.feed)
+
+
+class TwitterSearch(Feed):
+
+  TYPE = 'twittersearch'
+  SEARCH_URL = 'http://search.twitter.com/search.atom'
+  RE_LINK = re.compile('(.*?)<a href="(.*?)">(.*?)</a>(.*)', re.DOTALL)
+
+  def __init__(self, src):
+    
+    self.last_accessed = 0
+    self.src_name = src.get('src_name', 'TwitterSearch')
+    self.interval = src.get('interval', 60)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["published"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["author"]["screen_name"]!@@!ansi.freset!@: @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry["link"])!@@!ansi.freset!@'), escape=None)
+    self.q = src['q']
+    self.lang = src.get('lang', 'en')
+    self.src_id = '%s:%s' % (self.lang, self.q)
+    self.rpp = src.get('rpp', 15)
+    self.hl_words = self.q.split(' ')
+
+    self._init_session()
+    self._load_last_id()
+
+  # Copied from my old code, twitter-tracker. 
+  def cleanup_links(self, s):
+
+    m = self.RE_LINK.match(s)
+    while m:
+      if m.group(2) == str(m.group(3)).replace('<b>', '').replace('</b>', '') or \
+          m.group(2).find(m.group(3)) >= 0:
+        # Other links metioned in tweets
+        s = "%s\033[1:33m%s\033[0m%s" % (m.group(1), surl(m.group(2)), m.group(4))
+      else:
+        if m.group(2)[0] == '/':
+          # A hashtag has uri /search?q=%23... 
+          s = "%s\033[1:32m%s\033[0m%s" % (m.group(1), surl(m.group(3)), m.group(4))
+        else:
+          # User
+          s = "%s%s[\033[1:34m%s\033[0m]%s" % (m.group(1), m.group(3), surl(m.group(2)), m.group(4))
+      m = self.RE_LINK.match(s)
+    return s
+
+  def get_list(self):
+
+    parameters = {'q': self.q, 'lang': self.lang, 'rpp': self.rpp}
+    if self.last_id:
+      parameters['since_id'] = self.last_id
+    feed = fp.parse(self.SEARCH_URL + '?' + urllib.urlencode(parameters))
+
+    for link in feed.feed.links:
+      if link.rel == 'refresh':
+        self._update_last_id(link.href.rsplit('=', 1)[1])
+        break
+    
+    for entry in feed['entries']:
+      entry['title'] = self.cleanup_links(entry['content'][0]['value']).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
+      screen_name, name = entry['author'].split(' ', 1)
+      entry['author'] = {'screen_name': screen_name, 'name': name[1:-1]}
+
+    return feed
+
+  @safe_update
+  def update(self):
+
+    if time.time() < self.interval + self.last_accessed:
+      return
+    self.last_accessed = time.time()
+
+    msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id=self.src_id)
+    p(msg)
+    feed = self.get_list()
+    p_clr(msg)
+    if not feed['entries']:
+      return
+      
+    entries = feed['entries']
+    # Get entries after last_id
+    for entry in entries:
+      self.datetimeize(entry)
+
+    entries.reverse()
+    for entry in entries:
+      p_dbg('ID: %s' % self.get_entry_id(entry))
+      print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
 
 
 # http://stackoverflow.com/questions/52880/google-reader-api-unread-count
@@ -854,7 +924,8 @@ class PunBB12(Feed):
     return feed
 
 SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed,
-    'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather, 'punbb12': PunBB12}
+    'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather,
+    'punbb12': PunBB12, 'twittersearch': TwitterSearch}
 
 ##################
 # Local shortening
