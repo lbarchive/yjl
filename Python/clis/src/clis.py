@@ -706,6 +706,14 @@ class TwitterSearch(Feed):
           s = "%s%s[\033[1:34m%s\033[0m]%s" % (m.group(1), m.group(3), surl(m.group(2)), m.group(4))
       m = self.RE_LINK.match(s)
     return s
+  
+  def unescape(self, s):
+    # Feedparser does first two.
+    #s = s.replace("&lt;", "<")
+    #s = s.replace("&gt;", ">")
+    s = s.replace("&quot;", '"')
+    s = s.replace("&amp;", "&")
+    return s
 
   def get_list(self):
 
@@ -720,7 +728,7 @@ class TwitterSearch(Feed):
         break
     
     for entry in feed['entries']:
-      entry['title'] = self.cleanup_links(entry['content'][0]['value']).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
+      entry['title'] = self.cleanup_links(self.unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
       screen_name, name = entry['author'].split(' ', 1)
       entry['author'] = {'screen_name': screen_name, 'name': name[1:-1]}
 
