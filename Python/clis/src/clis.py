@@ -708,9 +708,9 @@ class TwitterSearch(Feed):
     return s
   
   def unescape(self, s):
-    # Feedparser does first two.
-    #s = s.replace("&lt;", "<")
-    #s = s.replace("&gt;", ">")
+    
+    s = s.replace("&lt;", "<")
+    s = s.replace("&gt;", ">")
     s = s.replace("&quot;", '"')
     s = s.replace("&amp;", "&")
     return s
@@ -722,11 +722,17 @@ class TwitterSearch(Feed):
       parameters['since_id'] = self.last_id
     feed = fp.parse(self.SEARCH_URL + '?' + urllib.urlencode(parameters))
 
-    for link in feed.feed.links:
-      if link.rel == 'refresh':
-        self._update_last_id(link.href.rsplit('=', 1)[1])
-        break
-    
+    # FIXME
+    try:
+      for link in feed.feed.links:
+        if link.rel == 'refresh':
+          self._update_last_id(link.href.rsplit('=', 1)[1])
+          break
+    except AttributeError, e:
+      print feed.feed
+      traceback.print_exc()
+      raise e
+
     for entry in feed['entries']:
       entry['title'] = self.cleanup_links(self.unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
       screen_name, name = entry['author'].split(' ', 1)
