@@ -334,10 +334,10 @@ def update_width(signum, frame):
 
 def sigexit(signum, frame):
 
-  if session:
+  if 'session' in __builtin__.__dict__:
     session.close()
-  p('\033[?25h')
   termios.tcsetattr(fd, termios.TCSANOW, old_settings)
+  p('\033[?25h')
 
 
 class STDOUT_R:
@@ -402,6 +402,7 @@ class Source(object):
 
   TYPE = 'unknown'
   TPL_ACCESS = tpl('@!ansi.fired!@Accessing [@!src_name!@] @!src_id!@...@!ansi.freset!@', escape=None)
+  CHECK_LIST_SIZE = 20
 
   def _init_session(self):
     
@@ -413,6 +414,8 @@ class Source(object):
     self.session = session[session_id]
     self.session_id = session_id
 
+  # The following two functions simplely use last entry's id to check, usually
+  # helpful source can query with parameter like since_id or starting date.
   def _load_last_id(self):
 
     if 'last_id' in self.session:
@@ -428,18 +431,73 @@ class Source(object):
     session[self.session_id] = self.session
     p_dbg('Updating [%s] last_id to %s' % (self.session_id, session[self.session_id]['last_id']))
 
+  # The following three functions store a list of entries' id and updated, then
+  # use the list to compare. The length of the list should be larger than the
+  # amount of entries in feed. Default is 20.
+  def is_new_item(self, entry):
+    '''Check if entry is new and also update check_list if it is new'''
+    e_id = self.get_entry_id(entry)
+    e_updated = self.get_entry_updated(entry)
+    if e_id in self.check_list:
+      if e_updated <= self.check_list[e_id]:
+        return False
+    self.check_list[e_id] = e_updated
+    return True
+
+  def _load_check_list(self):
+
+    if 'check_list' in self.session:
+      self.check_list = self.session['check_list']
+      p_dbg('Session [%s] checklist loaded' % self.session_id)
+    else:
+      self.check_list = {}
+      p_dbg('Session [%s] checklist initialized' % self.session_id)
+
+  def _update_check_list(self):
+    '''Limit items in check_list'''
+    
+    lst = self.check_list.items()
+    lst.sort(key=lambda x: x[1], reverse=True)
+    # Limit the size
+    lst = lst[:self.CHECK_LIST_SIZE]
+    self.check_list = dict(lst)
+    self.session['check_list'] = self.check_list
+    session[self.session_id] = self.session
+    p_dbg('Updated [%s] check_list' % self.session_id)
+
   @staticmethod
   def get_entry_id(entry):
 
-    # TODO hash?
+    if 'guid' in entry:
+      return entry['guid']
     if 'id' in entry:
       return entry['id']
-    # TODO More?
     return entry['title'] + entry['link']
 
   @staticmethod
+  def get_entry_updated(entry):
+    '''Decide the last updated of the entry
+    The date object must be a datetime. If none date is found, then it assign
+    the current local time to key updated.'''
+    dates = []
+    for key in ['updated', 'published', 'created']:
+      if key in entry:
+        dates += [entry[key]]
+    if not dates:
+      entry['updated'] = datetime.now()
+      return entry['updated']
+    return max(dates)
+
+  @classmethod
+  def datetimeize(cls, entry):
+    '''Convert all date to datetime in localtime'''
+    for key in ['updated', 'published', 'created', 'expired']:
+      if key in entry:
+        entry[key] = cls.to_localtime(entry[key])
+
+  @staticmethod
   def to_localtime(d):
-    
+    '''Convert UTC datetime to localtime datetime'''
     return datetime(*d[:6]).replace(tzinfo=utc).astimezone(local_tz)
 
   @safe_update
@@ -453,24 +511,26 @@ class Source(object):
     p(msg)
     feed = self.get_list()
     p_clr(msg)
+    if not feed['entries']:
+      return
+      
     entries = []
-    if feed['entries']:
-      # Get entries after last_id
-      for entry in feed['entries']:
-        if self.last_id == self.get_entry_id(entry):
-           break
-        entries += [entry]
+    if self.CHECK_LIST_SIZE < len(feed['entries'] * 2):
+      self.CHECK_LIST_SIZE = len(feed['entries'] * 2)
+      p_dbg('Changed CHECK_LIST_SIZE to %d' % self.CHECK_LIST_SIZE)
+    # Get entries after last_id
+    for entry in feed['entries']:
+      self.datetimeize(entry)
+      if not self.is_new_item(entry):
+         continue
+      entries += [entry]
     # Update last_id
     if entries:
-      self._update_last_id(self.get_entry_id(entries[0]))
+      self._update_check_list()
 
     entries.reverse()
     for entry in entries:
       p_dbg('ID: %s' % self.get_entry_id(entry))
-      try:
-        entry['updated'] = self.to_localtime(entry['updated_parsed'])
-      except KeyError:
-        entry['updated'] = None
       print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
 
 
@@ -607,7 +667,16 @@ class Feed(Source):
     self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry.link)!@@!ansi.fmagenta!@@!ansi.freset!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
-    self._load_last_id()
+    self._load_check_list()
+
+  @classmethod
+  def datetimeize(cls, entry):
+    '''Replace date with parsed date then do Source.datetimeize'''
+    for key in ['updated', 'published', 'created', 'expired']:
+      if key in entry:
+        entry[key] = entry[key + '_parsed']
+        del entry[key + '_parsed']
+    Source.datetimeize(entry)
 
   def get_list(self):
 
@@ -615,7 +684,7 @@ class Feed(Source):
 
 
 # http://stackoverflow.com/questions/52880/google-reader-api-unread-count
-class GoogleBase(Source):
+class GoogleBase(Feed):
 
   def __init__(self, src):
 
@@ -643,7 +712,7 @@ class GoogleBase(Source):
     return content
 
 
-class GoogleMail(Source):
+class GoogleMail(Feed):
 
   TYPE = 'gmail'
 
@@ -658,7 +727,7 @@ class GoogleMail(Source):
     self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ @!ansi.fred!@[@!src_name!@]@!ansi.freset!@ @!ansi.fyellow!@@!entry["author"]!@@!ansi.freset!@: @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry["link"])!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
-    self._load_last_id()
+    self._load_check_list()
 
   def get_list(self):
 
@@ -682,7 +751,7 @@ class GoogleReader(GoogleBase):
     self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["source"]["title"]!@@!ansi.freset!@: @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry["link"])!@@!ansi.freset!@'), escape=None)
     
     self._init_session()
-    self._load_last_id()
+    self._load_check_list()
 
   def get_list(self):
 
@@ -875,8 +944,10 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
         break
   if not cfg:
     p_err('No configuration is available, exit.\n')
+    sigexit(None, None)
     sys.exit(1)
   # Configure server parameter
+  # FIXME this is ugly
   if hasattr(cfg, 'server'):
     if options.local_server is None:
       options.local_server = cfg.server['name']
@@ -900,13 +971,16 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
       p_err('Unknown source type: %s' % src['type'])
   # cfg is no need to stay
   del cfg
-  p('Initialized.\n')
-
+  
   if options.local_shortening:
     http_thread = HTTPThread()
     # Make it exit with main
     http_thread.setDaemon(True)
     http_thread.start()
+  # Give some time for server, better looking output
+  time.sleep(0.1)
+  p('Initialized.\n')
+
   while True:
     try:
       for src in sources:
