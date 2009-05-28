@@ -9,16 +9,24 @@
 <h1>Stuff for Gentoo</h1>
 <h2>Gentoo Forums Feed</h2>
 <div>
+Code: <a href="http://code.google.com/p/yjl/source/browse/trunk/GoogleAppEngine/yjltest/gentoo.py">http://code.google.com/p/yjl/source/browse/trunk/GoogleAppEngine/yjltest/gentoo.py</a>
+<h3>New posts</h3>
 <p>
-Code: <a href="http://code.google.com/p/yjl/source/browse/trunk/GoogleAppEngine/yjltest/gentoo.py">http://code.google.com/p/yjl/source/browse/trunk/GoogleAppEngine/yjltest/gentoo.py</a><br/>
-Feed: <a href="{{ feed_uri }} ">{{ feed_uri }}</a><br/>
-Feedburner: <a href="http://feeds2.feedburner.com/GentooForumsLastest">http://feeds2.feedburner.com/GentooForumsLastest</a>
+<a href="{{ feed_uri }} ">direct feed</a> or <a href="http://feeds2.feedburner.com/GentooForumsLastest">Feedburner</a>
 </p>
 <p>
 Requests in last 24 hours: {{ requests }}.
 </p>
 <p>
 <img src="{{ requests_chart|escape }}" alt="Chart of completed requests in last 24 hours" title="Chart of completed requests in last 24 hours"/>
+</p>
+<h3>New topics</h3>
+<a href="{{ t_feed_uri }} ">direct feed</a>
+<p>
+Requests in last 24 hours: {{ t_requests }}.
+</p>
+<p>
+<img src="{{ t_requests_chart|escape }}" alt="Chart of completed requests in last 24 hours" title="Chart of completed requests in last 24 hours"/>
 </p>
 </div>
 </body>

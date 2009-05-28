@@ -50,6 +50,8 @@ URI_BASE = 'http://forums.gentoo.org/'
 L24_URI = URI_BASE + 'search.php?search_id=last'
 CACHE_TIME = 60 * 10
 URI_LATEST_POST = URI_BASE + 'viewtopic-p-%s.html#%s'
+# Used to limit entries in new topics feed
+MAX_ENTRIES = 50
 
 #####
 # REs
@@ -57,6 +59,7 @@ URI_LATEST_POST = URI_BASE + 'viewtopic-p-%s.html#%s'
 RE_SID = re.compile(r'\??sid=[0-9a-f]+')
 RE_FORUM = re.compile(r'<a href="viewforum-f-(\d+)\.html" class="forumlink">(.*?)</a>')
 RE_TOPIC = re.compile(r'<a href="viewtopic-t-(\d+)-highlight-\.html" class="topictitle">(.*?)</a>')
+RE_REPLIES = re.compile(r'<td class="row2" align="center" valign="middle"><span class="postdetails">(\d+)</span></td>')
 RE_AUTHOR_DATE = re.compile(r'<span class="postdetails">(.*?)<br /><a href="profile\.php.*?">(.*?)</a>')
 RE_LATEST_POST = re.compile(r'<a href="viewtopic-p-(\d+)\.html#\1">.*?</a>')
 
@@ -117,12 +120,16 @@ class HomePage(webapp.RequestHandler):
       'feed_uri': self.request.uri + 'forumsfeed',
       'requests': s24.get_count('gentoo_forums_l24_feed'),
       'requests_chart': s24.get_chart_uri('gentoo_forums_l24_feed', barcolor='006699'),
+      't_feed_uri': self.request.uri + 'forumsnewtopics',
+      't_requests': s24.get_count('gentoo_forums_new_topics'),
+      't_requests_chart': s24.get_chart_uri('gentoo_forums_new_topics', barcolor='006699'),
       }
 
     path = os.path.join(os.path.dirname(__file__), 'template/gentoo.html')
     self.response.out.write(template.render(path, template_values))
 
 
+# New posts
 class ForumsFeed(webapp.RequestHandler):
 
   def get(self):
@@ -140,7 +147,39 @@ class ForumsFeed(webapp.RequestHandler):
     s24.incr('gentoo_forums_l24_feed')
 
 
+class ForumsNewTopics(webapp.RequestHandler):
+
+  def get(self):
+    
+    feed = memcache.get('gentoo_forums_new_topics_feed')
+
+    if not feed:
+      log.error('Data is not available')
+      self.error(500)
+      return
+
+    self.response.headers.add_header('Content-Type', 'application/rss+xml')
+    self.response.out.write(feed)
+
+    s24.incr('gentoo_forums_new_topics')
+
+
 class UpdateForumsFeed(webapp.RequestHandler):
+
+  @staticmethod
+  def _gen_feed(feed, entries):
+
+    for entry in entries:
+      feed.add_item(
+          title='[%s] %s' % (entry['f_name'], entry['t_title']),
+          link=URI_LATEST_POST % (entry['p_id'], entry['p_id']),
+          description='',
+          author_name=entry['author'],
+          author_email='noreply@yjltest.appspot.com',
+          pubdate=entry['date'],
+          unique_id=URI_LATEST_POST % (entry['p_id'], entry['p_id']),
+          categories=[entry['f_name']],
+          )
 
   def get(self):
 
@@ -164,6 +203,7 @@ class UpdateForumsFeed(webapp.RequestHandler):
     entries = []
     l_forum = 0
     l_topic = 0
+    l_replies = 0
     l_author_date = 0
     l_latest_post = 0
     while True:
@@ -180,6 +220,10 @@ class UpdateForumsFeed(webapp.RequestHandler):
       topic_id, topic_title = matches.groups()
       topic_title = urllib.unquote(topic_title)
 
+      matches = RE_REPLIES.search(raw, l_replies)
+      l_replies = matches.end() + 1
+      replies = int(matches.groups()[0])
+
       matches = RE_AUTHOR_DATE.search(raw, l_author_date)
       l_author_date = matches.end() + 1
       date, author = matches.groups()
@@ -191,43 +235,65 @@ class UpdateForumsFeed(webapp.RequestHandler):
       post_id = matches.groups()[0]
       
       # Put them all together
-      entries += [(forum_id, forum_name, topic_id, topic_title, date, author, post_id)]
+      entries += [{'f_id': forum_id, 'f_name': forum_name, 't_id': topic_id,
+          't_title': topic_title, 'date': date, 'author': author,
+          'p_id': post_id, 'replies': replies}]
 
     if not entries:
       # Got thing!?
       log.error('Found nothing in last 24 hours page')
       self.error(500)
       return
-
-    # Generating the feed
+    
+    # Generating the new posts feed
     feed = fg.Rss201rev2Feed(
-        title='Gentoo Forums: Lastest',
-        description='Unofficial feed of Gentoo Forums',
+        title='Gentoo Forums: Lastest posts',
+        description='Unofficial feed of Gentoo Forums New Posts',
         link=L24_URI,
-        feed_url=self.request.uri,
+        feed_url='http://yjltest.appspot.com/gentoo/forumsfeed',
         )
+    self._gen_feed(feed, entries)
+    memcache.set('gentoo_forums_l24_feed', feed.writeString('utf-8'))
 
+    # Generating the new topics feed
+    # new_topics: newest to older
+    new_topics = memcache.get('gentoo_forums_new_topics')
+    if new_topics is None:
+      new_topics = []
+
+    # Checking if entries are new, stop at first repeating entry in new_topics
+    new_entries = []
     for entry in entries:
-      feed.add_item(
-          title='[%s] %s' % (entry[1], entry[3]),
-          link=URI_LATEST_POST % (entry[6], entry[6]),
-          description='',
-          author_name=entry[5],
-          author_email='noreply@yjltest.appspot.com',
-          pubdate=entry[4],
-          unique_id=URI_LATEST_POST % (entry[6], entry[6]),
-          categories=[entry[1]],
-          )
+      if new_topics and entry['t_id'] == new_topics[0]['t_id']:
+        break
+      # FIXME New topic? replies may not be 100% precise to decide, views? It's
+      # possible to have at least one reply within 10 minutes.
+      if entry['replies'] > 0:
+        continue
+      log.debug('%s: %d' % (entry['t_title'], entry['replies']))
+      new_entries += [entry]
 
-    raw_feed = feed.writeString('utf8')
-    memcache.set('gentoo_forums_l24_feed', raw_feed)
-    # GAE already handles this
-    # memcache.set('gentoo_forums_l24_feed_gzip', zlib.compress(raw_feed))
+    # Merge into new_topics, and truncat
+    new_topics = (new_entries + new_topics)[:MAX_ENTRIES]
+    del new_entries
+    memcache.set('gentoo_forums_new_topics', new_topics)
+    log.debug(repr(new_topics))
+    feed = fg.Rss201rev2Feed(
+        title='Gentoo Forums: New topics',
+        description='Unofficial feed of Gentoo Forums New Topics',
+        link='http://forums.gentoo.org/',
+        feed_url='http://yjltest.appspot.com/gentoo/forumsnewtopics',
+        )
+    self._gen_feed(feed, new_topics)
+    memcache.set('gentoo_forums_new_topics_feed', feed.writeString('utf-8'))
+ 
+    self.response.out.write('Feeds generated successfully.')
 
 
 application = webapp.WSGIApplication([
     ('/gentoo/', HomePage),
     ('/gentoo/forumsfeed', ForumsFeed),
+    ('/gentoo/forumsnewtopics', ForumsNewTopics),
     ('/gentoo/updateforumsfeed', UpdateForumsFeed),
     ],
     debug=True)
