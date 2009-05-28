@@ -20,7 +20,7 @@ const char *cmd_info = "info\n";
 #define DEFAULT_HOST "localhost"  
 #define DEFAULT_PORT "54311"
 
-#define MAXDATASIZE 100 // max number of bytes we can get at once 
+#define MAXDATASIZE 300 // max number of bytes we can get at once 
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa)
