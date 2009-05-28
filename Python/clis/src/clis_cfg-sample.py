@@ -132,6 +132,16 @@ sources = [
         #'interval': 60,
         #'output': '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry.link)!@@!ansi.freset!@',
         },
+    {
+        # Tail: tail -F
+        'type': 'tail',
+        #src_name': 'Tail',
+        # The file you want to tail
+        'file': '~/test.txt',
+        #'output': '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry.link)!@@!ansi.freset!@',
+        # How many last lines to be print when firstly runs
+        #'last_lines': 0,
+        },
     ]
 
 # The setting of local url shortening server

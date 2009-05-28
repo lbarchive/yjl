@@ -16,6 +16,7 @@ import re
 import select
 import shelve
 import signal
+import stat
 import sys
 import termios
 import threading
@@ -937,9 +938,67 @@ class PunBB12(Feed):
       entry['updated_parsed'] = fp._parse_date(self.RE_UPDATED.search(entry['description']).groups()[0])
     return feed
 
+
+class Tail(Source):
+
+  TYPE = 'tail'
+  # How many lines printed in one update()
+  MAX_LINES = 100
+
+  def __init__(self, src):
+    
+    self.filename = path.expanduser(src['file'])
+    self.src_id = self.filename
+    self.src_name = src.get('src_name', 'Tail')
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(line["date"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!line["text"]!@'), escape=None)
+
+    self.openfile(src.get('last_lines', 0))
+
+  def __del__(self):
+
+    self.f.close()
+
+  def openfile(self, last_lines=0):
+
+    try:
+      self.f = open(self.src_id, 'r')
+      if last_lines:
+        self.f.seek(-last_lines, os.SEEK_END)
+      self.fstat = os.stat(self.filename)[stat.ST_INO:stat.ST_DEV + 1]
+      p_dbg('[%s] file opened' % self.src_id)
+    except IOError:
+      p_dbg('[%s] Unable to open file' % self.src_id)
+      self.f = None
+      self.fstat = None
+      return False
+    return True
+
+  @safe_update
+  def update(self):
+
+    try:
+      fstat = os.stat(self.filename)[stat.ST_INO:stat.ST_DEV + 1]
+    except OSError:
+      return
+
+    if fstat != self.fstat:
+      # File has been recreated
+      if not self.openfile():
+        # Failed to open
+        return
+
+    i = self.MAX_LINES
+    while i:
+      line = self.f.readline()
+      if not line:
+        break
+      p(self.output(line={'date': datetime.now(), 'text': line}, src_name=self.src_name, **common_tpl_opts))
+      i -= 1
+
+
 SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed,
     'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather,
-    'punbb12': PunBB12, 'twittersearch': TwitterSearch}
+    'punbb12': PunBB12, 'twittersearch': TwitterSearch, 'tail': Tail}
 
 ##################
 # Local shortening
