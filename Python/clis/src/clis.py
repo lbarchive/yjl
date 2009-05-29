@@ -516,6 +516,15 @@ class Source(object):
     for entry in entries:
       p_dbg('ID: %s' % self.get_entry_id(entry))
       print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
+      if hasattr(self, 'say'):
+        self.sayit(self.say(entry=entry, src_name=self.src_name, **common_tpl_opts))
+
+  def sayit(self, text):
+
+    # XXX !!!Experimental!!! Should have no quotation mark in text
+    # TODO: Use pipe and/or speechd
+    #os.system('echo "%s" | festival --tts &' % text.replace('"', ''))
+    os.system('echo "%s" | festival --tts' % text.replace('"', ''))
 
 
 class Twitter(Source):
@@ -651,6 +660,9 @@ class Feed(Source):
     self.src_name = src.get('src_name', 'Feed')
     self.interval = src.get('interval', 60)
     self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry.link)!@@!ansi.fmagenta!@@!ansi.freset!@@!ansi.freset!@'), escape=None)
+    # XXX
+    if 'say' in src:
+      self.say = tpl(src['say'])
 
     self._init_session()
     self._load_check_list()
@@ -822,6 +834,9 @@ class GoogleMail(Feed):
 class GoogleReader(GoogleBase):
 
   TYPE = 'greader'
+  # Google Reader has this attribute to entry entitiy, this is a reliable
+  # source to check if item is new.
+  RE_CRAWL_TIME = re.compile(r'gr:crawl-timestamp-msec="(\d+)"')
 
   def __init__(self, src):
     
@@ -837,9 +852,20 @@ class GoogleReader(GoogleBase):
     self._load_check_list()
 
   def get_list(self):
-
-    content = self.get('http://www.google.com/reader/atom/user%2F-%2Fstate%2Fcom.google%2Freading-list')
-    return fp.parse(content)
+    '''Retrieve Google Reader feed, and replace published date with crawl
+    time'''
+    # Get the last 50 items
+    content = self.get('http://www.google.com/reader/atom/user%2F-%2Fstate%2Fcom.google%2Freading-list?n=50')
+    feed = fp.parse(content)
+    # TODO use last_id with this crawl_times, no need to use long check_list
+    crawl_times = self.RE_CRAWL_TIME.findall(content)
+    if len(crawl_times) != len(feed.entries):
+      p_err('Lengths did not match, crawl times are not processed.')
+      return feed
+    
+    for i in xrange(len(crawl_times)):
+      feed.entries[i].published_parsed = datetime.utcfromtimestamp(float(crawl_times[i]) / 1000.0).timetuple()
+    return feed
 
 
 class Weather(Source):
