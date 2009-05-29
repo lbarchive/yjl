@@ -471,18 +471,23 @@ class Source(object):
     the current local time to key updated.'''
     dates = []
     for key in ['updated', 'published', 'created']:
-      if key in entry:
+      if key in entry and entry[key]:
         dates += [entry[key]]
     if not dates:
-      entry['updated'] = datetime.now()
+      entry['updated'] = datetime.utcnow().replace(tzinfo=utc)
       return entry['updated']
     return max(dates)
 
   def datetimeize(self, entry):
     '''Convert all date to datetime in localtime'''
     for key in ['updated', 'published', 'created', 'expired']:
-      if key in entry:
-        entry[key] = self.to_localtime(entry[key])
+      if key in entry and entry[key]:
+        # XXX
+        try:
+          entry[key] = self.to_localtime(entry[key])
+        except Exception, e:
+          print entry
+          raise e
 
   @staticmethod
   def to_localtime(d):
@@ -495,6 +500,7 @@ class Source(object):
       for key, excludes in self.exclude:
         #XXX
         try:
+          # TODO make it can access attributes or by keys
           if key in entry and any([exclude.lower() in entry[key].lower() for exclude in excludes]):
             p_dbg('Excluded: entry["%s"]' % key)
             return True
@@ -713,7 +719,7 @@ class TwitterSearch(Feed):
 
   TYPE = 'twittersearch'
   SEARCH_URL = 'http://search.twitter.com/search.atom'
-  RE_LINK = re.compile('(.*?)<a href="(.*?)">(.*?)</a>(.*)', re.DOTALL)
+  RE_LINK = re.compile(u'(.*?)<a href="(.*?)">(.*?)</a>(.*)', re.DOTALL)
 
   def __init__(self, src):
     
@@ -736,17 +742,17 @@ class TwitterSearch(Feed):
 
     m = self.RE_LINK.match(s)
     while m:
-      if m.group(2) == str(m.group(3)).replace('<b>', '').replace('</b>', '') or \
+      if m.group(2) == str(m.group(3)).replace(u'<b>', u'').replace(u'</b>', u'') or \
           m.group(2).find(m.group(3)) >= 0:
         # Other links metioned in tweets
-        s = "%s\033[1:33m%s\033[0m%s" % (m.group(1), surl(m.group(2)), m.group(4))
+        s = u"%s\033[1:33m%s\033[0m%s" % (m.group(1), surl(m.group(2)), m.group(4))
       else:
         if m.group(2)[0] == '/':
           # A hashtag has uri /search?q=%23... 
-          s = "%s\033[1:32m%s\033[0m%s" % (m.group(1), surl(m.group(3)), m.group(4))
+          s = u"%s\033[1:32m%s\033[0m%s" % (m.group(1), surl(m.group(3)), m.group(4))
         else:
           # User
-          s = "%s%s[\033[1:34m%s\033[0m]%s" % (m.group(1), m.group(3), surl(m.group(2)), m.group(4))
+          s = u"%s%s[\033[1:34m%s\033[0m]%s" % (m.group(1), m.group(3), surl(m.group(2)), m.group(4))
       m = self.RE_LINK.match(s)
     return s
   
@@ -850,8 +856,9 @@ class GoogleMail(Feed):
   TYPE = 'gmail'
 
   def __init__(self, src):
-    
-    super(GoogleMail, self).__init__(src)
+   
+    # Skip Feed
+    super(Feed, self).__init__(src)
     
     self.email = src['email']
     self.password = src['password']
@@ -879,7 +886,7 @@ class GoogleReader(GoogleBase):
 
   def __init__(self, src):
     
-    super(GoogleBase, self).__init__(src)
+    super(GoogleReader, self).__init__(src)
 
     self.src_id = self.email
     self.src_name = src.get('src_name', 'GR')
