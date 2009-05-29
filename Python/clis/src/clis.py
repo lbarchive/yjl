@@ -771,16 +771,14 @@ class TwitterSearch(Feed):
       parameters['since_id'] = self.last_id
     feed = fp.parse(self.SEARCH_URL + '?' + urllib.urlencode(parameters))
 
-    # FIXME
-    try:
-      for link in feed.feed.links:
-        if link.rel == 'refresh':
-          self._update_last_id(link.href.rsplit('=', 1)[1])
-          break
-    except AttributeError, e:
-      print feed.feed
-      traceback.print_exc()
-      raise e
+    if not feed.feed:
+      # The feed (since_id) is expired, feed.entries is [], so just return
+      return feed
+    
+    for link in feed.feed.links:
+      if link.rel == 'refresh':
+        self._update_last_id(link.href.rsplit('=', 1)[1])
+        break
 
     for entry in feed['entries']:
       entry['title'] = self.cleanup_links(self.unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
