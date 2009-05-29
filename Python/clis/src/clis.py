@@ -389,6 +389,11 @@ class Source(object):
   TPL_ACCESS = tpl('@!ansi.fired!@Accessing [@!src_name!@] @!src_id!@...@!ansi.freset!@', escape=None)
   CHECK_LIST_SIZE = 20
 
+  def __init__(self, src):
+
+    self.last_accessed = 0
+    self.exclude = src.get('exclude', [])
+
   def _init_session(self):
     
     session_id = '%s:%s' % (self.TYPE, self.src_id)
@@ -484,6 +489,20 @@ class Source(object):
     '''Convert UTC datetime to localtime datetime'''
     return datetime(*d[:6]).replace(tzinfo=utc).astimezone(local_tz)
 
+  def is_excluded(self, entry):
+
+    if self.exclude:
+      for key, excludes in self.exclude:
+        #XXX
+        try:
+          if key in entry and any([exclude.lower() in entry[key].lower() for exclude in excludes]):
+            p_dbg('Excluded: entry["%s"]' % key)
+            return True
+        except Exception, e:
+          print entry[key]
+          raise e
+    return False
+
   @safe_update
   def update(self):
 
@@ -515,9 +534,16 @@ class Source(object):
     entries.reverse()
     for entry in entries:
       p_dbg('ID: %s' % self.get_entry_id(entry))
-      print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
-      if hasattr(self, 'say'):
-        self.sayit(self.say(entry=entry, src_name=self.src_name, **common_tpl_opts))
+      if self.is_excluded(entry):
+        continue
+      # XXX
+      try:
+        print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
+        if hasattr(self, 'say'):
+          self.sayit(self.say(entry=entry, src_name=self.src_name, **common_tpl_opts))
+      except Exception, e:
+        print entry
+        raise e
 
   def sayit(self, text):
 
@@ -533,7 +559,8 @@ class Twitter(Source):
 
   def __init__(self, src):
     
-    self.last_accessed = 0
+    super(Twitter, self).__init__(src)
+    
     self.username = src['username']
     self.api = twitter.Api(username=self.username, password=src['password'])
     self.src_id = self.username
@@ -590,7 +617,8 @@ class FriendFeed(Source):
 
   def __init__(self, src):
 
-    self.last_accessed = 0
+    super(FriendFeed, self).__init__(src)
+    
     self.token = None
     self.nickname = src['nickname']
     self.api = ff.FriendFeed(self.nickname, src['remote_key'])
@@ -653,7 +681,8 @@ class Feed(Source):
 
   def __init__(self, src):
     
-    self.last_accessed = 0
+    super(Feed, self).__init__(src)
+    
     self.feed = src['feed']
     # Used as key to store session data
     self.src_id = self.feed
@@ -688,7 +717,9 @@ class TwitterSearch(Feed):
 
   def __init__(self, src):
     
-    self.last_accessed = 0
+    # Skip feed
+    super(Feed, self).__init__(src)
+
     self.src_name = src.get('src_name', 'TwitterSearch')
     self.interval = src.get('interval', 60)
     self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["published"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["author"]["screen_name"]!@@!ansi.freset!@: @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry["link"])!@@!ansi.freset!@'), escape=None)
@@ -696,7 +727,6 @@ class TwitterSearch(Feed):
     self.lang = src.get('lang', 'en')
     self.src_id = '%s:%s' % (self.lang, self.q)
     self.rpp = src.get('rpp', 15)
-    self.hl_words = self.q.split(' ')
 
     self._init_session()
     self._load_last_id()
@@ -750,6 +780,8 @@ class TwitterSearch(Feed):
       entry['title'] = self.cleanup_links(self.unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
       screen_name, name = entry['author'].split(' ', 1)
       entry['author'] = {'screen_name': screen_name, 'name': name[1:-1]}
+      entry['screen_name'] = screen_name
+      entry['author_name'] = name[1:-1]
 
     return feed
 
@@ -775,6 +807,9 @@ class TwitterSearch(Feed):
     entries.reverse()
     for entry in entries:
       p_dbg('ID: %s' % self.get_entry_id(entry))
+      # XXX make this a method and move to base class, and also should support re
+      if self.is_excluded(entry):
+        continue
       print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
 
 
@@ -782,6 +817,9 @@ class TwitterSearch(Feed):
 class GoogleBase(Feed):
 
   def __init__(self, src):
+    
+    # Skip Feed
+    super(Feed, self).__init__(src)
 
     auth_url = 'https://www.google.com/accounts/ClientLogin'
     self.email = src['email']
@@ -813,7 +851,8 @@ class GoogleMail(Feed):
 
   def __init__(self, src):
     
-    self.last_accessed = 0
+    super(GoogleMail, self).__init__(src)
+    
     self.email = src['email']
     self.password = src['password']
     self.src_id = self.email
@@ -840,9 +879,8 @@ class GoogleReader(GoogleBase):
 
   def __init__(self, src):
     
-    GoogleBase.__init__(self, src)
+    super(GoogleBase, self).__init__(src)
 
-    self.last_accessed = 0
     self.src_id = self.email
     self.src_name = src.get('src_name', 'GR')
     self.interval = src.get('interval', 60)
@@ -885,7 +923,8 @@ class Weather(Source):
       p_err('You can only use upto three Weather sources')
       return None
 
-    self.last_accessed = 0
+    super(Weather, self).__init__(src)
+
     self.locid = src['locid']
     self.unit = src.get('unit', 'm')
     self.src_id = self.locid
@@ -973,6 +1012,8 @@ class Tail(Source):
 
   def __init__(self, src):
     
+    super(Tail, self).__init__(src)
+
     self.filename = path.expanduser(src['file'])
     self.src_id = self.filename
     self.src_name = src.get('src_name', 'Tail')
