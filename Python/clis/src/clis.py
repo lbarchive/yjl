@@ -654,9 +654,14 @@ class FriendFeed(Source):
       self.token = self.api.fetch_updates()['update']['token']
 
     msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id=self.src_id)
-    p(msg)
-    home = self.api.fetch_updates_home(token=self.token, timeout=0)
-    p_clr(msg)
+    try:
+      p(msg)
+      home = self.api.fetch_updates_home(token=self.token, timeout=0)
+      p_clr(msg)
+    except urllib2.HTTPError, e:
+      p_err('[%s] %s' % (self.src_id, repr(e)))
+      return
+
     self.token = home['update']['token']
 
     entries = home['entries']
@@ -1133,21 +1138,9 @@ def parser_args():
 
   return options, args
 
-######
-# Main
-
-def main():
-
+def load_config():
+  
   global options
-
-  p('''clis (C) 2009 Yu-Jie Lin
-The code is licensed under the terms of the GNU General Public License (GPL).
-
-For running the code, you must agree with all limitations which are denoted in
-clis_cfg-sample.py, read the file for more information.\n\n''')
-
-  # Process arguments
-  options, args = parser_args()
 
   # Load configuration
   cfg_loc = filter(path.exists, [path.abspath('clis_cfg.py'), path.abspath('clis_cfg'),
@@ -1176,17 +1169,7 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
     p_err('No configuration is available, exit.\n')
     sigexit(None, None)
     sys.exit(1)
-  # Configure server parameter
-  # FIXME this is ugly
-  if hasattr(cfg, 'server'):
-    if options.local_server is None:
-      options.local_server = cfg.server['name']
-    if options.local_port is None:
-      options.local_port = cfg.server['port']
-  if options.local_server is None:
-    options.local_server = 'localhost' 
-  if options.local_port is None:
-    options.local_port = 8080
+
   # Prepare session
   open_session(loc)
 
@@ -1199,6 +1182,39 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
       sources.append(SOURCE_CLASSES[src['type']](src))
     else:
       p_err('Unknown source type: %s' % src['type'])
+
+  return sources, cfg
+
+######
+# Main
+
+def main():
+
+  global options, session
+
+  p('''clis (C) 2009 Yu-Jie Lin
+The code is licensed under the terms of the GNU General Public License (GPL).
+
+For running the code, you must agree with all limitations which are denoted in
+clis_cfg-sample.py, read the file for more information.\n\n''')
+
+  # Process arguments
+  options, args = parser_args()
+  
+  sources, cfg = load_config()
+
+  # Configure server parameter
+  # FIXME this is ugly
+  if hasattr(cfg, 'server'):
+    if options.local_server is None:
+      options.local_server = cfg.server['name']
+    if options.local_port is None:
+      options.local_port = cfg.server['port']
+  if options.local_server is None:
+    options.local_server = 'localhost' 
+  if options.local_port is None:
+    options.local_port = 8080
+
   # cfg is no need to stay
   del cfg
   
@@ -1218,6 +1234,14 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
       session.do_sync(sources)
       ch = getch()
       if ch:
+        if ch == 'r':
+          session.close()
+          sources, cfg = load_config()
+          del cfg
+          p('Configuration reloaded.\n')
+        if ch == 'c':
+          # Clear screen
+          p('\033[2J\033[H')
         if ch == 'q':
           break
         if ch == "\x03":
