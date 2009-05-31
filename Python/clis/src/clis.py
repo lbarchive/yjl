@@ -500,12 +500,12 @@ class Source(object):
       for key, excludes in self.exclude:
         #XXX
         try:
-          # TODO make it can access attributes or by keys
-          if key in entry and any([exclude.lower() in entry[key].lower() for exclude in excludes]):
-            p_dbg('Excluded: entry["%s"]' % key)
+          entry_key = tpl('@!entry%s.lower()!@' % key)(entry=entry)
+          if any([exclude.lower() in entry_key for exclude in excludes]):
+            p_dbg('Excluded: %s of %s' % (entry_key, key))
             return True
         except Exception, e:
-          print entry[key]
+          p_err('[%s] %s' % (self.session_id, repr(e)))
           raise e
     return False
 
@@ -598,12 +598,11 @@ class Twitter(Source):
       p(msg)
       statuses = self.get_list()
       p_clr(msg)
-    except urllib2.HTTPError, e:
+    except (urllib2.HTTPError, urllib2.URLError), e:
       # TODO for 503 should follow this:
       # http://apiwiki.twitter.com/Rate-limiting
-      if e.code != 200:
-        p_err('CODE %d' % e.code)
-        return
+      p_err('[%s] %s\n' % (self.session_id, repr(e)))
+      return
 
     if not statuses:
       return
@@ -659,7 +658,7 @@ class FriendFeed(Source):
       home = self.api.fetch_updates_home(token=self.token, timeout=0)
       p_clr(msg)
     except urllib2.HTTPError, e:
-      p_err('[%s] %s' % (self.src_id, repr(e)))
+      p_err('[%s] %s\n' % (self.session_id, repr(e)))
       return
 
     self.token = home['update']['token']
@@ -785,12 +784,15 @@ class TwitterSearch(Feed):
         self._update_last_id(link.href.rsplit('=', 1)[1])
         break
 
+    new_entries = []
     for entry in feed['entries']:
-      entry['title'] = self.cleanup_links(self.unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
       screen_name, name = entry['author'].split(' ', 1)
       entry['author'] = {'screen_name': screen_name, 'name': name[1:-1]}
-      entry['screen_name'] = screen_name
-      entry['author_name'] = name[1:-1]
+      if self.is_excluded(entry):
+        continue
+      entry['title'] = self.cleanup_links(self.unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
+      new_entries += [entry]
+    feed['entries'] = new_entries
 
     return feed
 
