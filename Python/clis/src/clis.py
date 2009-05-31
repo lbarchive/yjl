@@ -611,6 +611,8 @@ class Twitter(Source):
     statuses.reverse()
     for status in statuses:
       p_dbg('ID: %s' % status.id)
+      if self.is_excluded(status):
+        continue
       status.__dict__['tweet_link'] = 'http://twitter.com/%s/status/%s' % (status.user.screen_name, status.id)
       status.created_at = self.to_localtime(status.created_at)
       print self.output(status=status, src_name=self.src_name, **common_tpl_opts)
