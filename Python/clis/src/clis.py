@@ -123,6 +123,14 @@ def surl(url):
   return new_url
 
 
+def unescape(s):
+  
+  s = s.replace("&lt;", "<")
+  s = s.replace("&gt;", ">")
+  s = s.replace("&quot;", '"')
+  s = s.replace("&amp;", "&")
+  return s
+
 ##################
 # ANSI escape code
 
@@ -171,7 +179,7 @@ class ANSI:
   biwhite = '\033[107m'
 
 
-common_tpl_opts = {'ansi': ANSI, 'ftime': ftime, 'surl': surl, 'lurls': lurls}
+common_tpl_opts = {'ansi': ANSI, 'ftime': ftime, 'surl': surl, 'lurls': lurls, 'unescape': unescape}
 
 ##########
 # Timezone
@@ -762,14 +770,6 @@ class TwitterSearch(Feed):
       m = self.RE_LINK.match(s)
     return s
   
-  def unescape(self, s):
-    
-    s = s.replace("&lt;", "<")
-    s = s.replace("&gt;", ">")
-    s = s.replace("&quot;", '"')
-    s = s.replace("&amp;", "&")
-    return s
-
   def get_list(self):
 
     parameters = {'q': self.q, 'lang': self.lang, 'rpp': self.rpp}
@@ -792,7 +792,7 @@ class TwitterSearch(Feed):
       entry['author'] = {'screen_name': screen_name, 'name': name[1:-1]}
       if self.is_excluded(entry):
         continue
-      entry['title'] = self.cleanup_links(self.unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
+      entry['title'] = self.cleanup_links(unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
       new_entries += [entry]
     feed['entries'] = new_entries
 
