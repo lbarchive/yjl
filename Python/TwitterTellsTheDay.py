@@ -9,7 +9,10 @@
 
 from sys import exit
 from urllib import urlopen
-import simplejson as json
+try:
+  import simplejson as json
+except ImportError:
+  import json
 
 
 TREND_API = 'http://search.twitter.com/trends/current.json'
