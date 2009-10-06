@@ -253,7 +253,7 @@ class Status(object):
       A human readable string representing the posting time
     '''
     fudge = 1.25
-    delta  = int(self.now) - int(self.created_at_in_seconds)
+    delta  = long(self.now) - long(self.created_at_in_seconds)
 
     if delta < (1 * fudge):
       return 'about a second ago'
@@ -1429,9 +1429,9 @@ class Api(object):
     '''
     try:
       if id:
-        int(id)
+        long(id)
     except:
-      raise TwitterError("id must be an integer")
+      raise TwitterError("id must be an long integer")
     url = 'http://twitter.com/statuses/show/%s.json' % id
     json = self._FetchUrl(url)
     data = simplejson.loads(json)
@@ -1452,7 +1452,7 @@ class Api(object):
     '''
     try:
       if id:
-        int(id)
+        long(id)
     except:
       raise TwitterError("id must be an integer")
     url = 'http://twitter.com/statuses/destroy/%s.json' % id
