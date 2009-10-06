@@ -832,7 +832,7 @@ class TwitterSearch(Feed):
     p(msg)
     feed = self.get_list()
     p_clr(msg)
-    if not feed['entries']:
+    if feed is None or not feed['entries']:
       return
       
     entries = feed['entries']
