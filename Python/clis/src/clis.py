@@ -788,9 +788,9 @@ class TwitterSearch(Feed):
       #if feed.headers['status'].startswith('403') or feed.headers['status'].startswith('404'):
         p_err('last_id reset\n')
         self._update_last_id(None)
-        return feed
+        return
       if feed['status'] == 503:
-        p_err('Error 503')
+        p_err('HTTP Status 503\n')
         return
     except AttributeError, e:
       p_dbg(repr(feed))
@@ -831,8 +831,10 @@ class TwitterSearch(Feed):
     msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id=self.src_id)
     p(msg)
     feed = self.get_list()
+    if feed is None:
+      return
     p_clr(msg)
-    if feed is None or not feed['entries']:
+    if not feed['entries']:
       return
       
     entries = feed['entries']
