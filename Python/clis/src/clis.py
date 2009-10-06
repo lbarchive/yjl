@@ -32,6 +32,7 @@ import feedparser as fp
 import friendfeed as ff
 import twitter
 
+
 ###########
 # Utilities
 
@@ -756,7 +757,13 @@ class TwitterSearch(Feed):
 
     m = self.RE_LINK.match(s)
     while m:
-      if m.group(2) == str(m.group(3)).replace(u'<b>', u'').replace(u'</b>', u'') or \
+      # XXX
+      try:
+        str(m.group(3))
+      except UnicodeEncodeError:
+        p_err('m.group(3): %s' % repr(m.group(3)))
+      #if m.group(2) == str(m.group(3)).replace(u'<b>', u'').replace(u'</b>', u'') or \
+      if m.group(2) == m.group(3).replace(u'<b>', u'').replace(u'</b>', u'') or \
           m.group(2).find(m.group(3)) >= 0:
         # Other links metioned in tweets
         s = u"%s\033[1:33m%s\033[0m%s" % (m.group(1), surl(m.group(2)), m.group(4))
@@ -776,15 +783,31 @@ class TwitterSearch(Feed):
     if self.last_id:
       parameters['since_id'] = self.last_id
     feed = fp.parse(self.SEARCH_URL + '?' + urllib.urlencode(parameters))
+    try:
+      if feed['status'] == 403 or feed['status'] == 404:
+      #if feed.headers['status'].startswith('403') or feed.headers['status'].startswith('404'):
+        p_err('last_id reset\n')
+        self._update_last_id(None)
+        return feed
+      if feed['status'] == 503:
+        p_err('Error 503')
+        return
+    except AttributeError, e:
+      p_dbg(repr(feed))
+      raise e
 
-    if not feed.feed:
+    if not feed['feed']:
       # The feed (since_id) is expired, feed.entries is [], so just return
       return feed
-    
-    for link in feed.feed.links:
-      if link.rel == 'refresh':
-        self._update_last_id(link.href.rsplit('=', 1)[1])
-        break
+    # XXX
+    try:
+      for link in feed.feed.links:
+        if link.rel == 'refresh':
+          self._update_last_id(link.href.rsplit('=', 1)[1])
+          break
+    except AttributeError, e:
+      print feed
+      raise e
 
     new_entries = []
     for entry in feed['entries']:
