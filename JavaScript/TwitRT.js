@@ -43,7 +43,11 @@ eles.each(function(){
 		var rt_ele = $('<a class="retweet" title="retweet this tweet" href="#"><img src="http://yjl.googlecode.com/hg/JavaScript/TwitRT.png"/></a>').click(function(){
 			var ele = $(this);
 			var par = ele.parents('.status');
-			var rt_status = 'RT @' + par.find('.screen-name').text() + ' ' + par.find('.entry-content').text();
+			var rt_status = 'RT @' + par.find('.screen-name').text() + ' '
+				// Home or profile pages
+				+ par.find('.entry-content').text()
+				// Search page
+				+ par.find('.msgtxt').text;
 			var ele_status = $('#status');
 			if (ele_status.length == 0) {
 				// This page has NO status input box such as someone's profile page
