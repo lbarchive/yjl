@@ -23,9 +23,7 @@
 */
 /*
 Bookmarklet URI:
-javascript:void((function(){var%20e=document.createElement('script');e.setAttribute('type','text/javascript');e.setAttribute('src','http://yjl.googlecode.com/hg/JavaScript/TwitRT.js');document.body.appendChild(e)})())
-or
-$.getScript('http://yjl.googlecode.com/hg/JavaScript/TwitRT.js')
+javascript:void((function(){$.getScript('http://yjl.googlecode.com/hg/JavaScript/TwitRT.js')})())
 
 Author   : Yu-Jie Lin
 Website  : http://livibetter.mp/
@@ -34,7 +32,11 @@ Demo page:
 // Make each status holder taller
 $('ol.statuses > li').css('padding-bottom', '1.6em');
 
-$('#timeline > .status > .actions > div').each(function(){
+var eles = $('#timeline > .status > .actions > div');
+if (eles.length == 0)
+	// Search results do not have a div wrapper
+	eles = $('#timeline > .status > .actions')
+eles.each(function(){
 	var ele = $(this);
 	// Make sure this script does not add more than one retweet button to each status
 	if (ele.find('.retweet').length == 0)
