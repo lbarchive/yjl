@@ -47,7 +47,7 @@ eles.each(function(){
 				// Home or profile pages
 				+ par.find('.entry-content').text()
 				// Search page
-				+ par.find('.msgtxt').text;
+				+ par.find('.msgtxt').text();
 			var ele_status = $('#status');
 			if (ele_status.length == 0) {
 				// This page has NO status input box such as someone's profile page
