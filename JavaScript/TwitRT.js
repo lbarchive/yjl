@@ -40,23 +40,35 @@ eles.each(function(){
 	var ele = $(this);
 	// Make sure this script does not add more than one retweet button to each status
 	if (ele.find('.retweet').length == 0)
-		var rt_ele = $('<a class="retweet" title="retweet this tweet" href="#"><img src="http://yjl.googlecode.com/hg/JavaScript/TwitRT.png"/></a>').click(function(){
-			var ele = $(this);
-			var par = ele.parents('.status');
-			var rt_status = 'RT @' + par.find('.screen-name').text() + ' '
-				// Home or profile pages
-				+ par.find('.entry-content').text()
-				// Search page
-				+ par.find('.msgtxt').text();
-			var ele_status = $('#status');
-			if (ele_status.length == 0) {
-				// This page has NO status input box such as someone's profile page
-				window.open('http://twitter.com/?status=' + encodeURIComponent(rt_status));
-				}
-			else {
-				// This page has status input box such as home page
-				ele_status.val(rt_status);
-				}
-			});
+		var rt_ele = $('<a class="retweet" title="retweet this tweet" href="#"><img src="http://yjl.googlecode.com/hg/JavaScript/TwitRT.png"/></a>')
+			.css({
+				'display': 'block',
+				'padding': '3px 8px',
+				'text-align': 'center',
+				})
+			.click(function(){
+				var ele = $(this);
+				var par = ele.parents('.status');
+				var rt_status = 'RT @' + par.find('.screen-name').text() + ' '
+					// Home or profile pages
+					+ par.find('.entry-content').text()
+					// Search page
+					+ par.find('.msgtxt').text();
+				var ele_status = $('#status');
+				if (ele_status.length == 0) {
+					// This page has NO status input box such as someone's profile page
+					window.open('http://twitter.com/?status=' + encodeURIComponent(rt_status));
+					}
+				else {
+					// This page has status input box such as home page
+					ele_status.val(rt_status);
+					}
+				})
+			.hide();
 		ele.append(rt_ele);
+		ele.parents('li').hover(function (){
+			$(this).find('.retweet').show();
+			}, function (){
+			$(this).find('.retweet').hide();
+			});
 	});

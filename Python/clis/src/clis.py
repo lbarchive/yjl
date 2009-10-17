@@ -784,12 +784,15 @@ class TwitterSearch(Feed):
       parameters['since_id'] = self.last_id
     feed = fp.parse(self.SEARCH_URL + '?' + urllib.urlencode(parameters))
     try:
-      if feed['status'] == 403 or feed['status'] == 404:
+      if 'status' not in feed:
+        p_err('No key status in feed: ' + repr(feed))
+        return
       #if feed.headers['status'].startswith('403') or feed.headers['status'].startswith('404'):
+      if feed['status'] == 403 or feed['status'] == 404:
         p_err('last_id reset\n')
         self._update_last_id(None)
         return
-      if feed['status'] == 503:
+      elif feed['status'] == 503:
         p_err('HTTP Status 503\n')
         return
     except AttributeError, e:
