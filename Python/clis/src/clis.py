@@ -818,7 +818,7 @@ class TwitterSearch(Feed):
       entry['author'] = {'screen_name': screen_name, 'name': name[1:-1]}
       if self.is_excluded(entry):
         continue
-      entry['title'] = self.cleanup_links(unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
+#      entry['title'] = self.cleanup_links(unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
       new_entries += [entry]
     feed['entries'] = new_entries
 
