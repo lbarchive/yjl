@@ -730,6 +730,42 @@ class Feed(Source):
     return fp.parse(self.feed)
 
 
+class Craigslist(Feed):
+
+  TYPE = 'cl'
+
+  def __init__(self, src):
+    
+    super(Feed, self).__init__(src)
+    
+    self.feed = src['feed']
+    # Used as key to store session data
+    self.src_id = self.feed
+    self.src_name = src.get('src_name', 'CL')
+    self.interval = src.get('interval', 60)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry.link)!@@!ansi.fmagenta!@@!ansi.freset!@@!ansi.freset!@'), escape=None)
+    # XXX
+    if 'say' in src:
+      self.say = tpl(src['say'])
+
+    self._init_session()
+    self._load_check_list()
+
+  def get_list(self):
+
+    feed = super(Craigslist, self).get_list()
+
+    new_entries = []
+    for entry in feed['entries']:
+      # Some entries didn't have updated or published, they are very old
+      # entries, need to be filtered out.
+      if entry.published:
+        new_entries.append(entry)
+
+    feed['entries'] = new_entries
+    return feed
+
+
 class TwitterSearch(Feed):
 
   TYPE = 'twittersearch'
@@ -1106,6 +1142,7 @@ class Tail(Source):
 
 
 SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed,
+    'cl': Craigslist,
     'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather,
     'punbb12': PunBB12, 'twittersearch': TwitterSearch, 'tail': Tail}
 
