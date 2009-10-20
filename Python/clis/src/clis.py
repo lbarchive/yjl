@@ -10,6 +10,7 @@ from StringIO import StringIO
 import __builtin__
 import elementtree.ElementTree as ET
 import imp
+import json
 import new
 import os
 import re
@@ -770,6 +771,8 @@ class TwitterSearch(Feed):
 
   TYPE = 'twittersearch'
   SEARCH_URL = 'http://search.twitter.com/search.atom'
+  # For reseting only
+  PUBLIC_URL = 'http://twitter.com/statuses/public_timeline.json'
   RE_LINK = re.compile(u'(.*?)<a href="(.*?)">(.*?)</a>(.*)', re.DOTALL)
 
   def __init__(self, src):
@@ -826,7 +829,10 @@ class TwitterSearch(Feed):
       #if feed.headers['status'].startswith('403') or feed.headers['status'].startswith('404'):
       if feed['status'] == 403 or feed['status'] == 404:
         p_err('last_id reset\n')
-        self._update_last_id(None)
+        f = urllib2.urlopen(TwitterSearch.PUBLIC_URL)
+        j = json.load(f)
+        f.close()
+        self._update_last_id(j[0]['id'])
         return
       elif feed['status'] == 503:
         p_err('HTTP Status 503\n')
