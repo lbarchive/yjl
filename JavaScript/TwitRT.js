@@ -32,10 +32,20 @@ Demo page:
 // Make each status holder taller
 $('ol.statuses > li').css('padding-bottom', '1.6em');
 
+// Home or profile or search
 var eles = $('#timeline > .status > .actions > div');
-if (eles.length == 0)
+var page_type;
+if (eles.length == 0) {
 	// Search results do not have a div wrapper
-	eles = $('#timeline > .status > .actions')
+	eles = $('#timeline > .status > .actions');
+	page_type = 'normal';
+	}
+// Status show page?
+if (eles.length == 0) {
+	eles = $('#show .status > .actions > div');
+	page_type = 'show';
+	}
+
 eles.each(function(){
 	var ele = $(this);
 	// Make sure this script does not add more than one retweet button to each status
@@ -43,17 +53,21 @@ eles.each(function(){
 		var rt_ele = $('<a class="retweet" title="retweet this tweet" href="#"><img src="http://yjl.googlecode.com/hg/JavaScript/TwitRT.png"/></a>')
 			.css({
 				'display': 'block',
-				'padding': '3px 8px',
 				'text-align': 'center',
+				'text-indent': 0,
 				})
 			.click(function(){
 				var ele = $(this);
-				var par = ele.parents('.status');
-				var rt_status = 'RT @' + par.find('.screen-name').text() + ' '
-					// Home or profile pages
-					+ par.find('.entry-content').text()
-					// Search page
-					+ par.find('.msgtxt').text();
+				var par = ele.parents('.hentry.status');
+				var rt_status = 'RT @' 
+					// username for home or profile page
+					+ par.find('.screen-name').text()
+					// username for home or tweet page
+					+ $('#show .status .user-info .screen-name').text()
+					// tweet content for home and profile page
+					+ ' ' + par.find('.entry-content').text()
+					// tweet content for search results
+					+ ' ' + par.find('.msgtxt').text();
 				var ele_status = $('#status');
 				if (ele_status.length == 0) {
 					// This page has NO status input box such as someone's profile page
@@ -63,12 +77,18 @@ eles.each(function(){
 					// This page has status input box such as home page
 					ele_status.val(rt_status);
 					}
+				});
+		if (page_type == 'normal')
+			rt_ele.css({
+				'padding': '3px 8px',
 				})
-			.hide();
+				.hide()
+
 		ele.append(rt_ele);
-		ele.parents('li').hover(function (){
-			$(this).find('.retweet').show();
-			}, function (){
-			$(this).find('.retweet').hide();
-			});
+		if (page_type == 'normal')
+			ele.parents('li').hover(function (){
+				$(this).find('.retweet').show();
+				}, function (){
+				$(this).find('.retweet').hide();
+				});
 	});
