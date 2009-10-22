@@ -7,7 +7,6 @@ import matplotlib
 matplotlib.use('GTKAgg') 
 from matplotlib.figure import Figure
 from matplotlib.backends.backend_gtkagg import FigureCanvasGTKAgg as FigureCanvas
-from matplotlib.backends.backend_gtkagg import NavigationToolbar2GTKAgg as NavigationToolbar
 import matplotlib.finance as finance
 import matplotlib.mlab as mlab
 
@@ -26,7 +25,7 @@ import gtk
 # Modified from http://matplotlib.sourceforge.net/examples/pylab_examples/cursor_demo.html
 class SnaptoCursor:
     
-    def __init__(self, ax, x, y, useblit=True, callback=None):
+    def __init__(self, ax, x, y, useblit=True):
         
         self.ax = ax
         self.lx = None
@@ -35,8 +34,6 @@ class SnaptoCursor:
         self.y = y
         self.bg = None
         self.useblit = useblit
-        # callback just for easy to set cursor on the other figure
-        self.callback = callback
 
     def mouse_move(self, event):
 
