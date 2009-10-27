@@ -1,5 +1,19 @@
 #!/usr/bin/env python
-from xss import IdleTracker
+# Copytright 2009 Yu-Jie Lin ( http://livibetter.mp/ )
+#
+# This script is licensed under the GPLv3
+#
+# This script requires one of the follows:
+#   PyXSS  : http://bebop.bigasterisk.com/python
+#     Install this by standard way
+#   pxss.py: http://code.google.com/p/yjl/source/browse/Python/pxss.py
+#     Put pxss.py with this script
+
+try:
+  from pxss import IdleTracker
+except ImportError:
+  from xss import IdleTracker
+
 import os
 import select
 import sys
@@ -32,28 +46,6 @@ QUIT_KEYS = ['x', 'q']
 status = '?'
 # Detecting?
 detect = False
-
-
-class TrackerThread(threading.Thread, IdleTracker):
-
-  def __init__(self, idle_threshold=300000, callback_idle=None,
-      callback_unidle=None):
-
-    threading.Thread.__init__(self)
-    IdleTracker.__init__(self, idle_threshold=idle_threshold)
-
-    self.callback_idle = callback_idle
-    self.callback_unidle = callback_unidle
-
-  def run(self):
-    
-    while True:
-      info = self.check_idle()
-      if info[0] == 'idle' and self.callback_idle:
-        self.callback_idle()
-      elif info[0] == 'unidle' and self.callback_unidle:
-        self.callback_unidle()
-      time.sleep(max(info[1] / 1000, 5))    
 
 
 def p(msg, newline=True):
@@ -121,6 +113,13 @@ def print_status():
   d = '*' if detect else ' '
   p('[%s][%s] %s' % (d, status, MODE_DESC[status]), False)
 
+  # Set up window title
+  if 'TERM' in os.environ:
+    if os.environ['TERM'] == 'screen':
+      os.system('screen -X title "%s"' % MODE_DESC[status])
+    else:
+      p('\033]0;%s\007' % MODE_DESC[status], False)
+
 
 def main():
 
@@ -138,9 +137,9 @@ def main():
   show_help()
   
   # Initialize the tracker
-  tracker_thread = TrackerThread(away_time * 1000, do_idle, do_unidle)
-  tracker_thread.setDaemon(True)
-  tracker_thread.start()
+  tracker = IdleTracker(idle_threshold=away_time * 1000)
+
+  t_mark = time.time()
 
   # Looping
   while True:
@@ -160,6 +159,15 @@ def main():
         print_status()
       elif ch in QUIT_KEYS:
         break
+    else:
+      if time.time() > t_mark:
+        info = tracker.check_idle()
+        if info[0] == 'idle':
+          do_idle()
+        elif info[0] == 'unidle':
+          do_unidle()
+        t_mark = time.time() + max(info[1] / 1000.0, 5)
+
   p('')
   p('Bye!')
 
