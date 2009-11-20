@@ -17,6 +17,7 @@ import re
 import select
 import shelve
 import signal
+import socket
 import stat
 import sys
 import termios
@@ -26,6 +27,7 @@ import traceback
 import tty
 import urllib
 import urllib2
+socket.setdefaulttimeout(10)
 
 from pyratemp import Template as tpl
 
@@ -77,6 +79,8 @@ def safe_update(func):
       func(*args, **kwds)
     except select.error:
       pass
+    except (urllib2.HTTPError, urllib2.URLError), e:
+      p_err('%s\n' % repr(e))
     except Exception:
       p_err('\n')
       traceback.print_exc()
@@ -133,6 +137,12 @@ def unescape(s):
   s = s.replace("&amp;", "&")
   return s
 
+
+def remove_additional_space(s):
+
+  return re.sub('( |\n)+', ' ', s)
+
+
 ##################
 # ANSI escape code
 
@@ -181,7 +191,7 @@ class ANSI:
   biwhite = '\033[107m'
 
 
-common_tpl_opts = {'ansi': ANSI, 'ftime': ftime, 'surl': surl, 'lurls': lurls, 'unescape': unescape}
+common_tpl_opts = {'ansi': ANSI, 'ftime': ftime, 'surl': surl, 'lurls': lurls, 'unescape': unescape, 'remove_additional_space': remove_additional_space}
 
 ##########
 # Timezone
@@ -604,15 +614,9 @@ class Twitter(Source):
     self.last_accessed = time.time()
 
     msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id=self.src_id)
-    try:
-      p(msg)
-      statuses = self.get_list()
-      p_clr(msg)
-    except (urllib2.HTTPError, urllib2.URLError), e:
-      # TODO for 503 should follow this:
-      # http://apiwiki.twitter.com/Rate-limiting
-      p_err('[%s] %s\n' % (self.session_id, repr(e)))
-      return
+    p(msg)
+    statuses = self.get_list()
+    p_clr(msg)
 
     if not statuses:
       return
@@ -661,17 +665,13 @@ class FriendFeed(Source):
       return
     self.last_accessed = time.time()
 
+    msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id=self.src_id)
+    p(msg)
     if not self.token:
       self.token = self.api.fetch_updates()['update']['token']
 
-    msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id=self.src_id)
-    try:
-      p(msg)
-      home = self.api.fetch_updates_home(token=self.token, timeout=0)
-      p_clr(msg)
-    except urllib2.HTTPError, e:
-      p_err('[%s] %s\n' % (self.session_id, repr(e)))
-      return
+    home = self.api.fetch_updates_home(token=self.token, timeout=0)
+    p_clr(msg)
 
     self.token = home['update']['token']
 
