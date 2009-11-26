@@ -413,6 +413,7 @@ class Source(object):
 
     self.last_accessed = 0
     self.exclude = src.get('exclude', [])
+    self.hide_id = src.get('hide_id', False)
 
   def _init_session(self):
     
@@ -536,7 +537,10 @@ class Source(object):
       return
     self.last_accessed = time.time()
 
-    msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id=self.src_id)
+    if self.hide_id:
+      msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id='*Source ID is Hidden*')
+    else:
+      msg = self.TPL_ACCESS(ansi=ANSI, src_name=self.src_name, src_id=self.src_id)
     p(msg)
     feed = self.get_list()
     p_clr(msg)
@@ -751,6 +755,16 @@ class Craigslist(Feed):
 
     self._init_session()
     self._load_check_list()
+
+  def is_new_item(self, entry):
+    '''Check if entry is new and also update check_list if it is new'''
+    ids = self.check_list.keys()
+    if not ids:
+      return True
+    ids.sort()
+    e_id = self.get_entry_id(entry)
+    # This is url comparing
+    return e_id > ids[-1]
 
   def get_list(self):
 
@@ -1329,6 +1343,7 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
       # Conflict with signal
       # select.error: (4, 'Interrupted system call') on p.poll(1)
       pass
+  session.do_sync(sources)
 
 
 if __name__ == '__main__':
