@@ -738,6 +738,7 @@ class Feed(Source):
 class Craigslist(Feed):
 
   TYPE = 'cl'
+  ID_RE = re.compile('.*?(\d+)\.html')
 
   def __init__(self, src):
     
@@ -755,16 +756,31 @@ class Craigslist(Feed):
 
     self._init_session()
     self._load_check_list()
+    if isinstance(self.check_list, dict):
+      self.check_list = 0
+
+  def _update_check_list(self):
+    # It is not a list but a single int
+    self.session['check_list'] = self.check_list
+    session[self.session_id] = self.session
+    p_dbg('Updated [%s] check_list' % self.session_id)
+
+  @staticmethod
+  def get_entry_id(entry):
+
+    m = Craigslist.ID_RE.match(entry['guid'])
+    if not m:
+      raise ValueError('Craiglist should have guid')
+
+    return int(m.group(1))
 
   def is_new_item(self, entry):
     '''Check if entry is new and also update check_list if it is new'''
-    ids = self.check_list.keys()
-    if not ids:
-      return True
-    ids.sort()
     e_id = self.get_entry_id(entry)
-    # This is url comparing
-    return e_id > ids[-1]
+    if e_id > self.check_list:
+      self.check_list = e_id
+      return True
+    return False
 
   def get_list(self):
 
