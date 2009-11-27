@@ -116,7 +116,10 @@ def print_status():
   # Set up window title
   if 'TERM' in os.environ:
     if os.environ['TERM'] == 'screen':
-      os.system('screen -X title "%s"' % MODE_DESC[status])
+      if os.environ.get('TMUX'):
+        os.system('tmux rename-window -t centerim:0 "%s"' % MODE_DESC[status])
+      else:
+        os.system('screen -X title "%s"' % MODE_DESC[status])
     else:
       p('\033]0;%s\007' % MODE_DESC[status], False)
 
