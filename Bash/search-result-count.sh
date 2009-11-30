@@ -1,8 +1,7 @@
 #!/bin/bash
-# search-result-count: Gets the result count from Google AJAX Search API
+# search-result-count: Gets the result count from Search Engines API
 #
 # Author: Yu-Jie Lin [http://livibetter.com/]
-# Last Updated: 2009-11-28T08:04:28+0800
 #
 # This Bash script is put to Public Domain, use at your own risk.
 #
