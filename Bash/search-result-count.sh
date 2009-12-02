@@ -10,9 +10,11 @@
 #   Google AJAX Search API
 #   Yahoo! Search BOSS
 #   Bing API
-# 	Google Visualization API
+#   Google Visualization API
 #
-# Usage: search-result-count keyword [render [width [height]]
+# Usage: search-result-count [-b] keyword [render [width [height]]
+#
+#  -b indicates no render for Bing results.
 #
 # 1) Use cron to run daily:
 #   search-result-count <keyword>
@@ -66,15 +68,18 @@ render() {
 	data=$(cat "$filename" | { data="" ; while read y m d g_count y_count b_count; do
 		[[ "$y" == "Year" ]] && continue
 		(( m -= 1 ))
-		data="$data          [new Date($y, $m, $d), $g_count, "
-		[[ $y_count != "" ]] && data="$data $y_count, " || data="$data undefined,"
-		[[ $b_count != "" ]] && data="$data $b_count" || data="$data undefined"
+		data="$data          [new Date($y, $m, $d), $g_count,"
+		[[ $y_count != "" ]] && data="$data $y_count" || data="$data undefined"
+		if [[ $NO_BING != 1 ]]; then
+			data="$data,"
+			[[ $b_count != "" ]] && data="$data $b_count" || data="$data undefined"
+		fi
 		data="$data],\n"
 		done
 		echo -ne "$data"
 		})
 	IFS=old_IFS
-	echo -n "<html>
+	echo "<html>
   <head>
     <title>Search Result Count for Keyword &#8220$keyword&#8221</title>
     <script type='text/javascript' src='http://www.google.com/jsapi'></script>
@@ -85,12 +90,14 @@ render() {
         var data = new google.visualization.DataTable();
         data.addColumn('date', 'Date');
         data.addColumn('number', 'Google');
-        data.addColumn('number', 'Yahoo');
-        data.addColumn('number', 'Bing');
-        data.addRows([
-$data
-          [undefined, undefined, undefined, undefined]
-        ]);
+        data.addColumn('number', 'Yahoo');" > "$out_filename"
+
+	[[ $NO_BING != 1 ]] && echo "        data.addColumn('number', 'Bing');" >> "$out_filename"
+	echo "        data.addRows([
+$data" >> "$out_filename"
+	[[ $NO_BING != 1 ]] && echo "          [undefined, undefined, undefined, undefined]" >> "$out_filename"
+	[[ $NO_BING == 1 ]] && echo "          [undefined, undefined, undefined]" >> "$out_filename"
+	echo -n "        ]);
 
         var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
         chart.draw(data, {scaleType: '$SCALE_TYPE'});
@@ -101,12 +108,13 @@ $data
     <h1>Keyword &#8220$keyword&#8221</h1>
     <div id='chart_div' style='width: ${width}px; height: ${height}px; margin: 0 auto;'></div>
   </body>
-</html>" > "$out_filename"
+</html>" >> "$out_filename"
 	echo "done."
 	}
 
 # Main
 [[ $1 == "" ]] && exit 1
+[[ $1 == "-b" ]] && NO_BING=1 && shift
 keyword="$1"
 filename="$HOME/.search-result-count-$1"
 
