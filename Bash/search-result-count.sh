@@ -100,7 +100,7 @@ $data" >> "$out_filename"
 	echo -n "        ]);
 
         var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
-        chart.draw(data, {scaleType: '$SCALE_TYPE'});
+        chart.draw(data, {scaleType: '$SCALE_TYPE', fill: 50});
       }
     </script>
   </head>

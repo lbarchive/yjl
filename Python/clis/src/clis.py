@@ -596,7 +596,7 @@ class Twitter(Source):
     self.src_id = self.username
     self.src_name = src.get('src_name', 'Twitter')
     self.interval = src.get('interval', 90)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(status.created_at, "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@@!surl(status.tweet_link)!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(status.created_at, "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!unescape(status.text)!@ @!ansi.fmagenta!@@!surl(status.tweet_link)!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
     self._load_last_id()

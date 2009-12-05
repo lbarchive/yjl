@@ -181,6 +181,8 @@ if __name__ == "__main__":
   fd = sys.stdin.fileno()
   old_settings = termios.tcgetattr(fd)
   try:
+    p('Waiting for 5 seconds...\n')
+    time.sleep(5)
     main()
   except:
     termios.tcsetattr(fd, termios.TCSANOW, old_settings)
