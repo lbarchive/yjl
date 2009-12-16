@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <title>Keyword “livibetter”</title>
+  <script type='text/javascript' src='http://www.google.com/jsapi'></script>
+  <script type='text/javascript'>
+    google.load('visualization', '1', {'packages':['annotatedtimeline']});
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+      var data = new google.visualization.DataTable();
+      data.addColumn('date', 'Date');
+      data.addColumn('number', 'Google');
+      data.addColumn('number', 'Yahoo');
+      data.addRows([{% for r in results %}
+        [new Date({{ r.date.year }}, {{ r.date.month }} - 1, {{ r.date.day }}), {{ r.google }}, {% if r.yahoo %}{{ r.yahoo }}{% else %}undefined{% endif %}]{% if not forloop.last %},{% endif %}{% endfor %}
+        ]);
+
+      var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div'));
+      chart.draw(data, {scaleType: 'maximized', fill: 50});
+
+      data = new google.visualization.DataTable();
+      data.addColumn('date', 'Date');
+      data.addColumn('number', 'Bing');
+      data.addRows([{% for r in results %}
+        [new Date({{ r.date.year }}, {{ r.date.month }} - 1, {{ r.date.day }}), {% if r.bing %}{{ r.bing }}{% else %}undefined{% endif %}]{% if not forloop.last %},{% endif %}{% endfor %}
+        ]);
+
+      var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div_bing'));
+      chart.draw(data, {scaleType: 'maximized', fill: 50});
+    }
+  </script>
+</head>
+<body style='text-align: center;'>
+<h1>Keyword “livibetter”</h1>
+<div id='chart_div' style='width: 1280px; height: 360px; margin: 0 auto;'></div>
+<div id='chart_div_bing' style='width: 1280px; height: 360px; margin: 0 auto;'></div>
+</body>
+</html>

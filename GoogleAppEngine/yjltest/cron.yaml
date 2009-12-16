@@ -2,3 +2,6 @@ cron:
 - description: update Gentoo Forums feed
   url: /gentoo/updateforumsfeed
   schedule: every 10 minutes
+- description: src_lb_cron
+  url: /src_lb_update
+  schedule: every 3 hours
