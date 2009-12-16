@@ -56,7 +56,7 @@ get_count() {
 	b_count=$(wget -q "http://api.bing.net/json.aspx?AppId=$BING_APPID&Version=2.2&Market=en-US&Query=$keyword&Sources=web&Web.Count=1" -O - | egrep -o '"Total":[0-9]+' | cut -d: -f 2)
 	[[ $b_count == "" ]] && echo "$(date) Can get Blog Search result count for $keyword" >> $HOME/search-result-count.error && exit 1
 	
-	[[ ! -f "$filename" ]] && echo "Year,Month,Day,Count" > "$filename"
+	[[ ! -f "$filename" ]] && echo "Year,Month,Day,Google,Yahoo,Bing" > "$filename"
 	echo "$today,$g_count,$y_count,$b_count" >> "$filename"
 	}
 
