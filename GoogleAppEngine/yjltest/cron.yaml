@@ -3,5 +3,5 @@ cron:
   url: /gentoo/updateforumsfeed
   schedule: every 10 minutes
 - description: src_lb_cron
-  url: /src_lb_update
-  schedule: every 3 hours
+  url: /src_lb_cron
+  schedule: every day 01:00
