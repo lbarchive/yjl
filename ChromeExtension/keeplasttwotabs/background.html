@@ -1,0 +1,22 @@
+<html>
+<head>
+<script>
+function keep_two() {
+  chrome.windows.getAll({populate: true}, function(windows){
+    var tab_count = 0;
+    for (var i=0; i<windows.length; i++) {
+      var w = windows[i];
+      tab_count += w.tabs.length;
+      };
+    if (tab_count == 1)
+      chrome.tabs.create({});
+    });
+  }
+keep_two();
+chrome.tabs.onRemoved.addListener(function(tabId) {
+  keep_two()
+  });
+</script>
+</head>
+</html>
+<!-- vim: set sw=2 ts=2 et: -->
