@@ -1,0 +1,87 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+<title>Your Twitter Blocking List</title>
+<style>
+.notice {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  background-color: #fdd;
+  padding: 5px;
+  margin: 5px;
+  }
+.b {
+  -moz-border-radius: 5px;
+  -webkit-border-radius: 5px;
+  padding: 5px;
+  margin: 5px 5px 5px 3em;
+  }
+.b.even {
+  background-color: #fcc;
+  }
+.b.odd {
+  background-color: #cfc;
+  }
+.b .counter {
+  font-size: 1em;
+  left: 0;
+  position: absolute;
+  width: 3em;
+  text-align: center;
+  }
+.b a {
+  text-decoration: none;
+  }
+.b a * {
+  vertical-align: middle;
+  }
+.b img.profile_image {
+  width: 48px;
+  height: 48px;
+  }
+.b span.screen_name {
+  font-size: 48px;
+  }
+</style>
+</head>
+<body>
+<h1>Your Twitter Blocking List</h1>
+<div style="color:#f00">{{ error|escape }}</div>
+<form action="/twitter_blocklist" method="post" id="form">
+<input type="hidden" id="page" name="page" value="{{ page }}"/>
+<div>
+Twitter ID: <input type="text" name="twitter_id" value="{{ twitter_id }}"/>
+PW: <input type="password" name="twitter_pw" value="{{ twitter_pw }}"/>
+<input type="submit" value="Get list"/>
+</div>
+<div class="notice">
+I (<a href="http://twitter.com/livibetter">@livibetter</a>) am not interested in your passowrds. I can use OAuth but I didn't want to, the reason I do not want to use OAuth is because I do not want to sign up for a tool like this small. If you do not trust me (you better not), you can get the list by yourself at <a href="http://twitter.com/blocks/blocking.json">http://twitter.com/blocks/blocking.json</a>. You can read the source code of this tool <a href="http://code.google.com/p/yjl/source/browse/GoogleAppEngine/yjltest/twitter_block.py">here</a>, the code is put into Public Domain. This tool will cache the results but not your password and only you can read your own blocking list.
+</div>
+{% if blocks %}
+You have blocked {{ blocks|length }} Twitter user{{ blocks|length|pluralize }}. The numbers in parentheses are (following count/followers count/statuses count).
+{% for b in blocks %}
+<div class="b {% cycle even,odd %}">
+<div>
+<a href="http://twitter.com/{{ b.screen_name }}"><img class="profile_image" src="{{ b.profile_image_url }}"/> <span class="screen_name">{{ b.screen_name }}</span></a>
+({{ b.friends_count }}/{{ b.followers_count }}/{{ b.statuses_count }})
+<span class="counter">{{ forloop.counter }}</span>
+</div>
+<div>{{ b.status.text }}</div>
+</div>
+{% endfor %}
+{% else %}
+{% if post and not error %}
+<div class="notice">
+<div>You haven't blocked any Twitter user.</div>
+<div><a href="http://www.flickr.com/photos/indykethdy/2550177924/sizes/m/in/set-72157616149222983/"><img src="http://farm4.static.flickr.com/3270/2550177924_0ed903bb56.jpg" title="Sunset Nap"/></a></div>
+<div>Photo by <a href="http://www.flickr.com/photos/indykethdy/">Indy Kethdy</a> (This person and this cat do not endorse this tool)</div>
+<div>You are so adorable! (Means you are way too kind! You lazy kitten! Go to check your followers list and block those bad users without a mercy! NOW!)</div>
+</div>
+{% endif %}
+{% endif %}
+
+</form>
+</body>
+</html>
