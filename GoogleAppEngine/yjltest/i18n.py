@@ -60,7 +60,7 @@
 #
 # Once finishing the translation, run the following to compile
 #
-#   $ PYTHONPATH=/path/to/googleappengine/lib/django/ /path/to/googleappengine/lib/django/django/bin/compile-message.py
+#   $ PYTHONPATH=/path/to/googleappengine/lib/django/ /path/to/googleappengine/lib/django/django/bin/compile-messages.py
 #
 # Django's i18n can decide language per user. Normally it will be done by
 # using LocaleMiddleware. Since we don't run entire Django framework, we need
