@@ -37,7 +37,6 @@ class HomePage(webapp.RequestHandler):
 
     twitter_id = self.request.get('twitter_id', '')
     twitter_pw = self.request.get('twitter_pw', '')
-    page = self.request.get('page', 1)
 
     tmpl_values = {
         'twitter_id': twitter_id,
@@ -54,7 +53,7 @@ class HomePage(webapp.RequestHandler):
         return
       try:
         # XXX the page didn't work, Twitter still return whole list
-        f = fetch('https://twitter.com/blocks/blocking.json?page=' + page, twitter_id, twitter_pw, deadline=10)
+        f = fetch('https://twitter.com/blocks/blocking.json', twitter_id, twitter_pw, deadline=10)
         if f.status_code == 200:
           lst = json.loads(f.content)
           tmpl_values['blocks'] = lst
