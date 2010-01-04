@@ -735,6 +735,16 @@ class Feed(Source):
     return fp.parse(self.feed)
 
 
+class StackOverflowNewOnly(Feed):
+
+  TYPE = 'sono'
+
+  @staticmethod
+  def get_entry_updated(entry):
+
+    return entry['published']
+
+
 class Craigslist(Feed):
 
   TYPE = 'cl'
@@ -1178,7 +1188,7 @@ class Tail(Source):
 
 
 SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed,
-    'cl': Craigslist,
+    'sono': StackOverflowNewOnly, 'cl': Craigslist,
     'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather,
     'punbb12': PunBB12, 'twittersearch': TwitterSearch, 'tail': Tail}
 
