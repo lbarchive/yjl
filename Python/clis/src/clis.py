@@ -735,16 +735,6 @@ class Feed(Source):
     return fp.parse(self.feed)
 
 
-class StackOverflowNewOnly(Feed):
-
-  TYPE = 'sono'
-
-  @staticmethod
-  def get_entry_updated(entry):
-
-    return entry['published']
-
-
 class Craigslist(Feed):
 
   TYPE = 'cl'
@@ -757,7 +747,7 @@ class Craigslist(Feed):
     self.feed = src['feed']
     # Used as key to store session data
     self.src_id = self.feed
-    self.src_name = src.get('src_name', 'CL')
+    self.src_name = src.get('src_name', self.TYPE)
     self.interval = src.get('interval', 60)
     self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["updated"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry.link)!@@!ansi.fmagenta!@@!ansi.freset!@@!ansi.freset!@'), escape=None)
     # XXX
@@ -775,10 +765,10 @@ class Craigslist(Feed):
     session[self.session_id] = self.session
     p_dbg('Updated [%s] check_list' % self.session_id)
 
-  @staticmethod
-  def get_entry_id(entry):
+  @classmethod
+  def get_entry_id(cls, entry):
 
-    m = Craigslist.ID_RE.match(entry['guid'])
+    m = cls.ID_RE.match(entry['guid'])
     if not m:
       raise ValueError('Craiglist should have guid')
 
@@ -805,6 +795,21 @@ class Craigslist(Feed):
 
     feed['entries'] = new_entries
     return feed
+
+
+class StackOverflowNewOnly(Craigslist):
+
+  TYPE = 'sono'
+  ID_RE = re.compile('.*?(\d+)/[a-zA-Z0-9-]+')
+
+  @classmethod
+  def get_entry_id(cls, entry):
+
+    m = cls.ID_RE.match(entry['id'])
+    if not m:
+      raise ValueError('StackOverflow should have guid')
+
+    return int(m.group(1))
 
 
 class TwitterSearch(Feed):
