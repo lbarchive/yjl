@@ -1133,6 +1133,21 @@ class PunBB12(Feed):
     return feed
 
 
+class PunBB12OnlyNew(PunBB12, Craigslist):
+
+  TYPE = 'punbb12onlynew'
+  ID_RE = re.compile(r'.*?viewtopic\.php\?id=(\d+)')
+
+  @classmethod
+  def get_entry_id(cls, entry):
+
+    m = cls.ID_RE.match(entry['link'])
+    if not m:
+      raise ValueError('Punbb should have link')
+
+    return int(m.group(1))
+
+
 class Tail(Source):
 
   TYPE = 'tail'
@@ -1195,7 +1210,8 @@ class Tail(Source):
 SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed,
     'sono': StackOverflowNewOnly, 'cl': Craigslist,
     'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather,
-    'punbb12': PunBB12, 'twittersearch': TwitterSearch, 'tail': Tail}
+    'punbb12': PunBB12, 'punbb12onlynew': PunBB12OnlyNew,
+    'twittersearch': TwitterSearch, 'tail': Tail}
 
 ##################
 # Local shortening
