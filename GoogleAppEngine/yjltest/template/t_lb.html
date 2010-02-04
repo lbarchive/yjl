@@ -12,10 +12,10 @@
       // Following and Followers
       var data = new google.visualization.DataTable();
       data.addColumn('datetime', 'Date');
-      data.addColumn('number', 'Following');
       data.addColumn('number', 'Followers');
+      data.addColumn('number', 'Following');
       data.addRows([{% for r in results %}
-        [new Date({{ r.date.year }}, {{ r.date.month }} - 1, {{ r.date.day }}, {{ r.date.hour }}, {{ r.date.minute }} - 1, {{ r.date.second }}), {{ r.friends }}, {{ r.followers}}]{% if not forloop.last %},{% endif %}{% endfor %}
+        [new Date({{ r.date.year }}, {{ r.date.month }} - 1, {{ r.date.day }}, {{ r.date.hour }}, {{ r.date.minute }} - 1, {{ r.date.second }}), {{ r.followers }}, {{ r.friends }}]{% if not forloop.last %},{% endif %}{% endfor %}
         ]);
 
       var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div_users_count'));
@@ -24,7 +24,7 @@
       // Tweets per day
       var data = new google.visualization.DataTable();
       data.addColumn('datetime', 'Date');
-      data.addColumn('number', 'Tweets Over Time');
+      data.addColumn('number', 'Tweets Over Time (tweets/day)');
       data.addRows([{% for r in results %}
         [new Date({{ r.date.year }}, {{ r.date.month }} - 1, {{ r.date.day }}, {{ r.date.hour }}, {{ r.date.minute }} - 1, {{ r.date.second }}), {{ r.tweets_per_day }}]{% if not forloop.last %},{% endif %}{% endfor %}
         ]);
