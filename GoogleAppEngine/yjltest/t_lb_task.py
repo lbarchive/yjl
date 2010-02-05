@@ -31,5 +31,5 @@ def t_lb_update():
 
   record = TwitterLbRecord(date=today, friends=j['friends_count'],
       followers=j['followers_count'], tweets=j['statuses_count'],
-      tweets_per_day=tweets_per_day)
+      tweets_per_day=tweets_per_day, favourites=j['favourites_count'])
   record.put()

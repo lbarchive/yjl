@@ -42,6 +42,17 @@
 
       var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div_tweets'));
       chart.draw(data, {scaleType: 'maximized', fill: 50});
+      
+      // Favourites
+      var data = new google.visualization.DataTable();
+      data.addColumn('datetime', 'Date');
+      data.addColumn('number', 'Favourites');
+      data.addRows([{% for r in results %}
+        [new Date({{ r.date.year }}, {{ r.date.month }} - 1, {{ r.date.day }}, {{ r.date.hour }}, {{ r.date.minute }} - 1, {{ r.date.second }}), {% ifequal r.favourites None %}undefined{% else %}{{ r.favourites }}{% endifequal %}]{% if not forloop.last %},{% endif %}{% endfor %}
+        ]);
+
+      var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div_favourites'));
+      chart.draw(data, {scaleType: 'maximized', fill: 50});
     }
   </script>
 </head>
@@ -53,5 +64,7 @@
 <div id='chart_div_tweets_per_day' style='width: 1280px; height: 360px; margin: 0 auto;'></div>
 <h2>Tweets</h2>
 <div id='chart_div_tweets' style='width: 1280px; height: 360px; margin: 0 auto;'></div>
+<h2>Favourites</h2>
+<div id='chart_div_favourites' style='width: 1280px; height: 360px; margin: 0 auto;'></div>
 </body>
 </html>

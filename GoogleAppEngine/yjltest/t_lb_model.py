@@ -8,3 +8,4 @@ class TwitterLbRecord(db.Model):
   followers = db.IntegerProperty()
   tweets = db.IntegerProperty()
   tweets_per_day = db.FloatProperty()
+  favourites = db.IntegerProperty()
