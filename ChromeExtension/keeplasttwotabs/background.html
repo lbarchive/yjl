@@ -9,7 +9,7 @@ function keep_two() {
       tab_count += w.tabs.length;
       };
     if (tab_count == 1)
-      chrome.tabs.create({});
+      chrome.tabs.create({selected: false});
     });
   }
 keep_two();
