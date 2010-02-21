@@ -8,8 +8,11 @@ function keep_two() {
       var w = windows[i];
       tab_count += w.tabs.length;
       };
-    if (tab_count == 1)
-      chrome.tabs.create({selected: false});
+    if (tab_count == 1) {
+      var select_new_created = localStorage["select_new_created"];
+      select_new_created = (select_new_created == 1);
+      chrome.tabs.create({selected: select_new_created});
+      }
     });
   }
 keep_two();

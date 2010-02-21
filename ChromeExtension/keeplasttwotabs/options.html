@@ -1,0 +1,42 @@
+<html>
+<head><title>Keep Last Two Tabs Options</title>
+<script type="text/javascript">
+
+// Saves options to localStorage.
+function save_options() {
+  var select_new_created = document.getElementById("select_new_created");
+  if (select_new_created.checked)
+    localStorage["select_new_created"] = 1;
+  else
+    localStorage["select_new_created"] = 0;
+
+  // Update status to let user know options were saved.
+  var status = document.getElementById("status");
+  status.innerHTML = "Options Saved.";
+  setTimeout(function() {
+    status.innerHTML = "";
+  }, 750);
+}
+
+// Restores select box state to saved value from localStorage.
+function restore_options() {
+  var select_new_created = localStorage["select_new_created"];
+  if (select_new_created == 1) {
+  	document.getElementById("select_new_created").checked = true;
+  }
+}
+
+</script>
+</head>
+<body onload="restore_options()">
+
+<div>
+Select new created tab? <input type="checkbox" id="select_new_created" name="select_new_created" value="true"/>
+</div>
+
+<div>
+<button onclick="save_options()">Save</button> <span id="status"></span>
+</div>
+</body>
+</html>
+<!-- vim: set sw=2 ts=2 et: -->
