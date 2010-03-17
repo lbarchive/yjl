@@ -10,9 +10,14 @@ import urllib2
 
 SCREEN_NAME = 'lyjl'
 STATUSES_FOLLOWERS = 'http://twitter.com/statuses/followers/%s.json' % SCREEN_NAME
-
+# Over this amount would limit to one record for a day.
+RECORDS_THROTTLE = 30
 
 def main():
+  
+  DIRNAME = os.path.expanduser('~/cron.gen')
+  if not os.path.exists(DIRNAME):
+    os.makedirs(DIRNAME)
 
   # Get the list
   u = urllib2.urlopen(STATUSES_FOLLOWERS)
@@ -61,7 +66,7 @@ def main():
       followers[id] = [flers[id]]
 
   if unfollower_ids:
-    log = open(os.path.expanduser('~/cu_%s' % now.strftime('%Y%m%d-%H%M%S')), 'w')
+    log = open(os.path.expanduser('~/cron.gen/cu_%s' % now.strftime('%Y%m%d-%H%M%S')), 'w')
     # Print unfollowers
     for id in unfollower_ids:
       fler = followers[id]
@@ -73,6 +78,24 @@ def main():
       print >> log
       del followers[id]
     log.close()
+
+  # Clean up
+  for id in followers:
+    fler = followers[id]
+    if len(fler) < RECORDS_THROTTLE:
+      continue
+    # Need to remove some records
+    new_records = []
+    year = month = day = 0
+    for record in fler:
+      r_time = record['time']
+      if r_time.year == year and r_time.month == month and r_time.day == day:
+        continue
+      year = r_time.year
+      month = r_time.month
+      day = r_time.day
+      new_records.append(record)
+    followers[id] = new_records
 
   s['followers'] = followers
   s.close()
