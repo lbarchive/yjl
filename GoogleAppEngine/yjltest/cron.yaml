@@ -7,4 +7,4 @@ cron:
   schedule: every day 01:00
 - description: t_lb_cron
   url: /t_lb_cron
-  schedule: every 3 hours
+  schedule: every 3 hours synchronized
