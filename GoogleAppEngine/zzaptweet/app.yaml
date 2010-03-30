@@ -1,0 +1,26 @@
+application: zzaptweet
+version: 1
+runtime: python
+api_version: 1
+
+handlers:
+- url: /robots.txt
+  static_files: robots.txt
+  upload: robots.txt
+
+- url: /favicon.ico
+  static_files: favicon.ico
+  upload: favicon.ico
+
+- url: /
+  script: t_lb.py
+- url: /t_lb_cron
+  script: t_lb.py
+
+- url: /_ah/queue/deferred
+  script: $PYTHON_LIB/google/appengine/ext/deferred/handler.py
+  login: admin
+
+- url: /remote_api
+  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
+  login: admin

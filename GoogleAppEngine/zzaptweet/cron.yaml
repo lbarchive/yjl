@@ -1,0 +1,4 @@
+cron:
+- description: t_lb_cron
+  url: /t_lb_cron
+  schedule: every 3 hours synchronized

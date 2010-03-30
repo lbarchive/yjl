@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="en" xml:lang="en">
+<head>
+  <title>@zzap</title>
+  <script type='text/javascript' src='http://www.google.com/jsapi'></script>
+  <script type='text/javascript'>
+    google.load('visualization', '1', {'packages':['annotatedtimeline']});
+    google.setOnLoadCallback(drawChart);
+    function drawChart() {
+      // Following and Followers
+      var data = new google.visualization.DataTable();
+      data.addColumn('datetime', 'Date');
+      data.addColumn('number', 'Followers');
+      data.addColumn('number', 'Following');
+      data.addRows([{% for r in results %}
+        [new Date({{ r.date.year }}, {{ r.date.month }} - 1, {{ r.date.day }}, {{ r.date.hour }}, {{ r.date.minute }}, {{ r.date.second }}), {{ r.followers }}, {{ r.friends }}]{% if not forloop.last %},{% endif %}{% endfor %}
+        ]);
+
+      var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div_users_count'));
+      chart.draw(data, {scaleType: 'maximized', fill: 50});
+      
+      // Tweets per day
+      var data = new google.visualization.DataTable();
+      data.addColumn('datetime', 'Date');
+      data.addColumn('number', 'Tweets Over Time (tweets/day)');
+      data.addRows([{% for r in results %}
+        [new Date({{ r.date.year }}, {{ r.date.month }} - 1, {{ r.date.day }}, {{ r.date.hour }}, {{ r.date.minute }}, {{ r.date.second }}), {{ r.tweets_per_day }}]{% if not forloop.last %},{% endif %}{% endfor %}
+        ]);
+
+      var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div_tweets_per_day'));
+      chart.draw(data, {scaleType: 'maximized', fill: 50});
+
+      // Tweets
+      var data = new google.visualization.DataTable();
+      data.addColumn('datetime', 'Date');
+      data.addColumn('number', 'Tweets');
+      data.addRows([{% for r in results %}
+        [new Date({{ r.date.year }}, {{ r.date.month }} - 1, {{ r.date.day }}, {{ r.date.hour }}, {{ r.date.minute }}, {{ r.date.second }}), {{ r.tweets }}]{% if not forloop.last %},{% endif %}{% endfor %}
+        ]);
+
+      var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div_tweets'));
+      chart.draw(data, {scaleType: 'maximized', fill: 50, displayExactValues: true});
+      
+      // Favourites
+      var data = new google.visualization.DataTable();
+      data.addColumn('datetime', 'Date');
+      data.addColumn('number', 'Favourites');
+      data.addRows([{% for r in results %}
+        [new Date({{ r.date.year }}, {{ r.date.month }} - 1, {{ r.date.day }}, {{ r.date.hour }}, {{ r.date.minute }}, {{ r.date.second }}), {% ifequal r.favourites None %}undefined{% else %}{{ r.favourites }}{% endifequal %}]{% if not forloop.last %},{% endif %}{% endfor %}
+        ]);
+
+      var chart = new google.visualization.AnnotatedTimeLine(document.getElementById('chart_div_favourites'));
+      chart.draw(data, {scaleType: 'maximized', fill: 50});
+    }
+  </script>
+</head>
+<body style='text-align: center;'>
+<h1>@zzap</h1>
+<h2>Following and Followers</h2>
+<div id='chart_div_users_count' style='width: 1280px; height: 360px; margin: 0 auto;'></div>
+<h2>Tweets Over Time</h2>
+<div id='chart_div_tweets_per_day' style='width: 1280px; height: 360px; margin: 0 auto;'></div>
+<h2>Tweets</h2>
+<div id='chart_div_tweets' style='width: 1280px; height: 360px; margin: 0 auto;'></div>
+<h2>Favourites</h2>
+<div id='chart_div_favourites' style='width: 1280px; height: 360px; margin: 0 auto;'></div>
+</body>
+</html>
