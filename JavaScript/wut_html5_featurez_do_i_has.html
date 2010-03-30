@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>WUT HTML5 FEATUREZ DO I HAS?</title>
+<script src="modernizr.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script>
+var feature_desc = {
+  'fontface': '@font-face',
+  'canvas': 'Canvas',
+  'canvastext': 'Canvas Text',
+  'audio': 'HTML5 Audio',
+  'video': 'HTML5 Video',
+  'rgba': 'rgba()',
+  'hsla': 'hsla()',
+  'borderimage': 'border-image',
+  'borderradius': 'border-radius',
+  'boxshadow': 'box-shadow',
+  'multiplebgs': 'Multiple backgrounds',
+  'opacity': 'opacity',
+  'cssanimations': 'CSS Animations',
+  'csscolumns': 'CSS Columns',
+  'cssgradients': 'CSS Gradients',
+  'cssreflections': 'CSS Reflections',
+  'csstransforms': 'CSS 2D Transforms',
+  'csstransforms3d': 'CSS 3D Transforms',
+  'csstransitions': 'CSS Transitions',
+  'geolocation': 'Geolocation API',
+  'inputtypes': 'Input Types',
+  'input': 'Input Attributions',
+  'localstorage': 'localStorage',
+  'sessionstorage': 'sessionStorage',
+  'webworkers': 'Web Workers',
+  'applicationcache': 'applicationCache'
+  }
+$(function() {
+  var Modernizr = window.Modernizr;
+  if (!Modernizr) {
+    alert('Oops! Something went wrong when loads Modernizr! This page is useless now! :(');
+    return;
+    }
+  
+  $('#browser').text('Browser: ' + navigator.userAgent);
+  $('#versions').text('Modernizr: ' + Modernizr._version + ' jQuery: ' + $().jquery);
+
+  $.each(Modernizr, function(key, value) {
+    if (typeof Modernizr[key] == 'function' || key.indexOf('_') == 0)
+      return;
+    if (!(key in feature_desc))
+      feature_desc[key] = key
+    var feature = $('<div></div>');
+    $('<div>' + feature_desc[key] + ' (' + key + ')</div>')
+      .addClass('feature-title')
+      .attr('title', key)
+      .appendTo(feature);
+    feature
+      .addClass('feature')
+      .attr('id', 'feature-' + key);
+    if (value == true || value == false) feature.addClass(String(value));
+    feature
+      .hide()
+      .appendTo('#features');
+    if (typeof Modernizr[key] == 'object') {
+      // We have something more than just a property value
+      $('<div id="feature-' + key + '-subfeatures"></div>')
+        .addClass('subfeatures')
+        .appendTo(feature);
+      $.each(Modernizr[key], function(k2, v2) {
+        $('<span>' + k2 + '</span>')
+          .attr('title', v2)
+          .addClass('subfeature')
+          .addClass(String(v2))
+          .appendTo('#feature-' + key + '-subfeatures');
+        });
+      }
+    feature.animate(
+        {"height": "toggle", "opacity": "toggle"},
+        {duration: "normal" });
+    });
+  });
+</script>
+<style>
+h1 {font-family: Impact, Arial, sans-serif;}
+a {text-decoration: none;}
+#browser,
+#versions {font-family: Verdana; margin-top:1ex; margin-bottom: 1ex;}
+#shortdesc {color: #fff; font-family: Georgia; background-color: #488; border: 3px solid #888; border-radius: 5px; margin-bottom: 1ex; padding: 1ex; text-shadow: 1px 1px 0 #000;}
+div.feature {background-color: #4a4; border: 3px solid #888; border-radius: 5px; margin-bottom: 1ex; padding: 1ex;}
+div.feature.true {background-color: #0a0; border-color: #080;}
+div.feature.false {background-color: #a00; border-color: #800;}
+div.feature div.feature-title {color: #fff; font-family: Arial; font-size: 1.2em; font-weight: bold; text-shadow: 1px 1px 0 #444;}
+div.feature div.subfeatures {margin-top: 1ex; margin-bottom: 1ex;}
+span.subfeature {background-color: #a00; border: 3px solid #800; border-radius: 5px; margin: 0.5ex; padding: 0.5ex;}
+span.subfeature.true {background-color: #0a0; border-color: #080;}
+span.subfeature.false {background-color: #a00; border-color: #800;}
+span.subfeature.maybe {background-color: #ccc; border-color: #aaa;}
+span.subfeature.probably {background-color: #aaa; border-color: #888;}
+</style>
+</head>
+<body>
+<h1 title='What HTML5 features do I have?'>WUT HTML5 FEATUREZ DO I HAS?</h1>
+<!-- TODO show jquery and Modernizr versions and browser user agent and fade in slidein -->
+<div id="browser"></div>
+<div id="versions"></div>
+<div id="shortdesc">I (@lyjl) made this page after I read <a href="http://diveintohtml5.org/detect.html">Dive Into HTML5: Detecting HTML5 Features</a>. It mentions <a href="http://www.modernizr.com/">Modernizr</a>, which provides a list of properties you can access, by them you can know if a feature &mdash; not limited to the HTML5 features &mdash; is supported in current browser. I think a page with a clear view of results might help some people who want to know about their browser's support. This page is put into Public Domain.</div>
+<div id="features"></div>
+</body>
+</html>
+<!-- vim: set sw=2 ts=2 et ai: -->
