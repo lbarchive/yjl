@@ -16,9 +16,9 @@ echo
 if [[ $result == "" || $result == "y" || $result == "Y" ]]; then
 	read -e -p "Message: " message
 	echo
-	curl -F "media=@$1" -F "username=$ID" -F "password=$PW" -F "message=$message" http://twitpic.com/api/uploadAndPost
+	curl -F "media=@$1" -F "username=$ID" -F "password=$PW" -F "message=$message" https://twitpic.com/api/uploadAndPost
 else
 	echo
-	curl -F "media=@$1" -F "username=$ID" -F "password=$PW" http://twitpic.com/api/upload
+	curl -F "media=@$1" -F "username=$ID" -F "password=$PW" https://twitpic.com/api/upload
 fi
 echo
