@@ -8,7 +8,20 @@
   <![endif]-->
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 <script>
-$(function(){
+$(function (){
+  $('title').text('yjl.im');
+  $('#title').text('yjl.im');
+
+  $('#bio').fadeTo(0, 0);
+  $('section').hide();
+  $('footer').fadeTo(0, 0);
+
+  $('body').mousemove(start_animation);
+  });
+
+function start_animation(){
+
+  $('body').unbind('mousemove', start_animation);
 
   function chg(text){
     $('#title')
@@ -31,9 +44,6 @@ $(function(){
       .delay(100)
       ;
     }
-
-  $('title').text('yjl.im');
-  $('#title').text('yjl.im');
 
   $('#title').delay(1000);
 
@@ -77,10 +87,6 @@ $(function(){
 
   $('#title').delay(1000);
 
-  $('#bio').fadeTo(0, 0);
-  $('section').hide();
-  $('footer').fadeTo(0, 0);
-
   $('#title')
     .queue(function(){
       $('#bio').fadeTo('slow', 1);
@@ -105,7 +111,7 @@ $(function(){
       $(this).dequeue();
       })
     ;
-  });
+  }
 </script>
 <style>
 @font-face {font-family: "Yanone Tagesschrift"; src: url("font/YanoneTagesschrift.ttf");}
