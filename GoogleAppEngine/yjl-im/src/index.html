@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Yu-Jie Lin</title>
+  <!--[if IE]>
+  <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
+  <![endif]-->
+  <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+<script>
+$(function(){
+
+  function chg(text){
+    $('#title')
+      .queue(function(){
+        $('title').text(text);
+        $('#title').text(text);
+        $(this).dequeue();
+        })
+      .delay(100)
+      ;
+    }
+  function chg_color(color){
+    $('#title')
+      .queue(function(){
+        $('#title').css({
+          'color': color
+          });
+        $(this).dequeue();
+        })
+      .delay(100)
+      ;
+    }
+
+  $('title').text('yjl.im');
+  $('#title').text('yjl.im');
+
+  $('#title').delay(1000);
+
+  chg('yj.lim');
+  chg('y.jlim');
+  chg('.yjlim');
+  chg('.yjilm');
+  chg('.yijlm');
+  chg('.iyjlm');
+  chg('i.yjlm');
+  chg('i.yjml');
+  chg('i.ymjl');
+  chg('i.myjl');
+  chg('i.m yjl');
+  chg('i.m yujl');
+  chg('i.m yu-jl');
+  chg('i.m yu-jil');
+  chg('i.m yu-jiel');
+  chg('i.m yu-jie l');
+  chg('i.m yu-jie li');
+  chg('i.m yu-jie lin');
+  chg('I.m yu-jie lin');
+  chg("I'm yu-jie lin");
+  chg("I'm Yu-jie lin");
+  chg("I'm Yu-Jie lin");
+  chg("I'm Yu-Jie Lin");
+  
+  $('#title').delay(1000);
+  
+  chg("I'mYu-Jie Lin");
+  chg("I'Yu-Jie Lin");
+  chg("IYu-Jie Lin");
+  chg("Yu-Jie Lin");
+  
+  $('#title').delay(1000);
+
+  chg_color('#999')
+  chg_color('#888')
+  chg_color('#777')
+  chg_color('#666')
+
+  $('#title').delay(1000);
+
+  $('#bio').fadeTo(0, 0);
+  $('section').hide();
+  $('footer').fadeTo(0, 0);
+
+  $('#title')
+    .queue(function(){
+      $('#bio').fadeTo('slow', 1);
+      $(this).dequeue();
+      })
+    .delay('slow')
+    .delay('slow')
+    .queue(function(){
+      $('#social').fadeTo('slow', 1);
+      $(this).dequeue();
+      })
+    .delay('slow')
+    .delay('slow')
+    .queue(function(){
+      $('#blog').fadeTo('slow', 1);
+      $(this).dequeue();
+      })
+    .delay('slow')
+    .delay('slow')
+    .queue(function(){
+      $('footer').fadeTo('slow', 1);
+      $(this).dequeue();
+      })
+    ;
+  });
+</script>
+<style>
+@font-face {font-family: "Yanone Tagesschrift"; src: url("font/YanoneTagesschrift.ttf");}
+@font-face {font-family: "Yanone Kaffeesatz Light"; src: url("font/YanoneKaffeesatz-Light.otf");}
+@font-face {font-family: "Junction"; src: url("font/Junction.otf");}
+@font-face {font-family: "Inconsolata"; src: url("font/Inconsolata.otf");}
+
+body {background-color: #242424; color: #aaa;}
+a {color: #55a; text-decoration: none; -webkit-transition-property: color; -webkit-transition-duration: 0.2s}
+a:visited {color: #a5a;}
+a:hover {color: #a55;}
+
+#title {font-family: "Yanone Tagesschrift", "Palatino Linotype", "Book Antiqua", Palatino; font-size: 5em; margin: 0; text-shadow: #000 1px 1px 3px;}
+#bio {font-family: "Yanone Kaffeesatz Light", "Trebuchet MS", Helvetica; text-shadow: #000 1px 1px 0}
+footer {font-family: "Yanone Kaffeesatz Light", "Trebuchet MS", Helvetica}
+#social h1, #blog h1 {font-family: "Junction", "Lucida Sans Unicode", "Lucida Grande"}
+section ul {list-style-type: none; padding-left: 0;}
+section ul li {font-family: "Inconsolata", "Courier New", Courier, monospace; font-size: 2em;}
+
+header, section, footer {margin: auto auto; width: 700px;}
+#title, section, footer {text-align: center;}
+</style>
+</head>
+<body>
+<header>
+  <hgroup>
+    <h1 id="title">Yu-Jie Lin</h1>
+    <h2 id="bio">A <span title="01001101000I1011">lazy</span> coder, <a href="http://en.wikipedia.org/wiki/STS-1">$age_needs_calculation</a>, <span style="color: #aaf" title="8====D (NSFW!)">&#9794;</span>, Taiwanese, <span title="Where is Taylor, the Caramel Macchiato girl?">Caffeinated</span>, Temporary <span title="S">Barrel</span> for Beer, <span title="-62">Tweetaholic</span> (aka Unstoppable Tweeting Disorder), <span title="Many years to be such master, it's not easy!">Master of Idling</span>, <span title="Hate this prefix">Un</span>professional Blogger, and <span title="You can let your mouse to rest, no more, really.">more</span> unlisted.</h2>
+  <hgroup>
+</header>
+
+<section id="social">
+<h1>So-called Social!</h1>
+<ul>
+  <li><a href="http://www.twitter.com/lyjl"><img src="http://twitter-badges.s3.amazonaws.com/follow_me-c.png" alt="Follow lyjl on Twitter" title="Follow lyjl on Twitter"/></a><br/><span style="color: #222; font-size: 0.5em">Following @lyjl might not be a good idea! :D</span></li>
+  <li><a href="http://friendfeed.com/livibetter"><img src="http://friendfeed.com/static/images/chiclet.png" alt="Subscribe to me on FriendFeed" title="Subscribe to me on FriendFeed"/></a></li>
+</ul>
+</section>
+
+<section id="blog">
+<h1>Booooolog?</h1>
+<ul>
+  <li><a href="http://blog.yjl.im/">YJL --verbose</a></li>
+</ul>
+</section>
+
+<footer>
+  <p class="credit">Webfonts: <a href="http://levien.com/type/myfonts/inconsolata.html">Inconsolata</a>, <a href="http://www.theleagueofmoveabletype.com/fonts/1-junction">Junction</a>, <a href="http://www.fonts.info/info/en_yanone-kaffeesatz.htm">Yanone Kaffeesatz</a>, and <a href="http://yanone.de/typedesign/tagesschrift/">Yanone Tagesschrift</a></p>
+  <p class="copyright">© 2010 Yu-Jie Lin</p>
+</footer>
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-15896368-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body>
+</html>
+<!-- vim: set sw=2 ts=2 et ai: -->
