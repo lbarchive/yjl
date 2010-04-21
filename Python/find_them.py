@@ -46,6 +46,7 @@ urls = [
     ('http://%s.smugmug.com/', 'Learn more'),
     'http://www.zooomr.com/people/%s/',
     'http://%s.deviantart.com/',
+    ('http://dailybooth.com/%s', 'You are attempting to view an invalid user.'),
 
     'http://www.facebook.com/%s',
     'http://identi.ca/%s',
@@ -72,6 +73,7 @@ urls = [
     ('http://www.myspace.com/%s', 'ctl00_ctl00_cpMain_cpMain_Unavailable1_ErrorMessageLabel'),
 
     'http://friendfeed.com/%s',
+    ('http://foursquare.com/user/%s', 'redirect'),
     ]
 
 
