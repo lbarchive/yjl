@@ -7,103 +7,324 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 <script>
 var feature_desc = {
-  'fontface': '@font-face',
-  'canvas': 'Canvas',
-  'canvastext': 'Canvas Text',
-  'audio': 'HTML5 Audio',
-  'video': 'HTML5 Video',
-  'rgba': 'rgba()',
-  'hsla': 'hsla()',
-  'borderimage': 'border-image',
-  'borderradius': 'border-radius',
-  'boxshadow': 'box-shadow',
-  'multiplebgs': 'Multiple backgrounds',
-  'opacity': 'opacity',
-  'cssanimations': 'CSS Animations',
-  'csscolumns': 'CSS Columns',
-  'cssgradients': 'CSS Gradients',
-  'cssreflections': 'CSS Reflections',
-  'csstransforms': 'CSS 2D Transforms',
-  'csstransforms3d': 'CSS 3D Transforms',
-  'csstransitions': 'CSS Transitions',
-  'geolocation': 'Geolocation API',
-  'inputtypes': 'Input Types',
-  'input': 'Input Attributions',
-  'localstorage': 'localStorage',
-  'sessionstorage': 'sessionStorage',
-  'webworkers': 'Web Workers',
-  'applicationcache': 'applicationCache'
+  'html5-sections': ['Sections', 'http://www.w3.org/TR/html5/semantics.html#sections'],
+  'html5-grouping': ['Grouping content', 'http://www.w3.org/TR/html5/semantics.html#grouping-content'],
+  'html5-text-level': ['Text-level semantics', 'http://www.w3.org/TR/html5/text-level-semantics.html#text-level-semantics'],
+  'applicationcache': ['Application Cache', 'http://www.w3.org/TR/html5/offline.html#appcache'],
+  'html5-interactiveelements': ['Interactive elements', 'http://www.w3.org/TR/html5/interactive-elements.html#interactive-elements'],
+
+  'html5-embeds': ['Embedded content', 'http://www.w3.org/TR/html5/text-level-semantics.html#embedded-content-1'],
+  'video': ['Video', 'http://www.w3.org/TR/html5/video.html#video'],
+  'audio': ['Audio', 'http://www.w3.org/TR/html5/video.html#audio'],
+
+  'html5-userinteraction': ['User interaction', 'http://www.w3.org/TR/html5/editing.html#editing'],
+  'html5-editing': ['Editing API', 'http://www.w3.org/TR/html5/editing.html#editing-apis'],
+  
+  'inputtypes': '&lt;input type="?"&gt;',
+  'input': ['&lt;input&gt; attributions', 'http://www.w3.org/TR/html5/forms.html#common-input-element-attributes'],
+  'inputapis': ['Common &lt;input &gt; APIs', 'www.w3.org/TR/html5/forms.html#common-input-element-apis'],
+  'othercontrols': 'Other controls',
+
+
+  'sessionstorage': ['Session Storage', 'http://www.w3.org/TR/webstorage/#the-sessionstorage-attribute'],
+  'localstorage': ['Local Storage', 'http://www.w3.org/TR/webstorage/#the-localstorage-attribute'],
+
+  'geolocation': ['Geolocation API', 'http://www.w3.org/TR/geolocation-API/'],
+  'webdatabase': ['Web SQL Database (SQL Storage)', 'http://www.w3.org/TR/webdatabase/'],
+  'webnotifications': ['Web Notifications', 'http://dev.w3.org/2006/webapi/WebNotifications/publish/'],
+  'websockets': ['Web Sockets API (WebSocket)', 'http://www.w3.org/TR/websockets/'],
+  'webworkers': ['Web Workers', 'http://www.whatwg.org/specs/web-workers/current-work/'],
+
+  'css3-animations': ['Animations module', 'http://www.w3.org/TR/css3-animations/'],
+  'css3-bg': ['Backgrounds and Borders module', 'http://www.w3.org/TR/css3-background/'],
+  'css3-color': ['Color module', 'http://www.w3.org/TR/css3-color/'],
+  'csscolumns': ['Multi-columns layout module', 'http://www.w3.org/TR/css3-multicol/'],
+  'css3-fonts': ['Fonts module', 'http://www.w3.org/TR/css3-fonts/'],
+  'css3-images': ['Image values module', 'http://dev.w3.org/csswg/css3-images/'],
+  'csstransforms': ['2D Transforms module', 'http://www.w3.org/TR/css3-2d-transforms/'],
+  'csstransforms3d': ['3D Transforms module', 'http://www.w3.org/TR/css3-3d-transforms/'],
+  'csstransitions': ['Transitions module', 'http://www.w3.org/TR/css3-transitions/'],
+  
+  'cssreflections': 'Reflections',
   }
+
+var category = {
+  'html5': ['HTML5', ['html5-sections', 'html5-grouping', 'applicationcache', 'html5-interactiveelements']],
+  'html5-embedded': ['HTML5 Embedded content', ['html5-embeds', 'video', 'audio']],
+  'html5-form': ['HTML5 Form', ['inputtypes', 'input', 'inputapis', 'othercontrols']],
+  'html5-userinteraction': ['HTML5 User interaction', ['html5-userinteraction', 'html5-editing'], 'http://www.w3.org/TR/html5/editing.html#editing'],
+
+  'web-storage': ['Web Storage', ['localstorage', 'sessionstorage'], 'http://www.w3.org/TR/webstorage/'],
+
+  'web-apis': ['Web APIs', ['geolocation', 'webdatabase', 'webnotifications', 'websockets', 'webworkers']],
+
+  'css3': ['CSS3', ['css3-animations','css3-bg', 'css3-color', 'csscolumns', 'css3-fonts', 'css3-images', 'csstransforms', 'csstransforms3d', 'csstransitions']],
+  'css': ['CSS', ['cssreflections']]
+  }
+
 $(function() {
   var Modernizr = window.Modernizr;
   if (!Modernizr) {
     alert('Oops! Something went wrong when loads Modernizr! This page is useless now! :(');
     return;
     }
+
+  / * Add more to Modernizr */
+  Modernizr['html5-sections'] = {};
+  $.each(['section', 'nav', 'article', 'aside', 'hgroup', 'header', 'footer', 'address'], function(i, e) {
+    Modernizr['html5-sections'][e] = 'unknown';
+    });
+
+  Modernizr['html5-grouping'] = {};
+  $.each(['figure', 'figcaption'], function(i, e) {
+    Modernizr['html5-grouping'][e] = 'unknown';
+    });
+
+  Modernizr['html5-text-level'] = {};
+  $.each(['mark', 'ruby', 'rt', 'rp', 'bdo'], function(i, e) {
+    Modernizr['html5-text-level'][e] = 'unknown';
+    });
+
+  Modernizr['html5-interactiveelements'] = {};
+  Modernizr['html5-interactiveelements']['details'] = 'open' in document.createElement('details');
+  Modernizr['html5-interactiveelements']['summary'] = 'unknown';
+  Modernizr['html5-interactiveelements']['command'] = 'type' in document.createElement('command');
+  Modernizr['html5-interactiveelements']['menu'] = 'type' in document.createElement('menu');
+
+  Modernizr.addTest('canvas-webgl', function() {
+    try {
+    return (
+      (!!document.createElement('canvas').getContext('webgl')) ? true: (
+      (!!document.createElement('canvas').getContext('experimental-webgl')) ? true :
+      false));
+    }
+    catch (e) {
+      // Firefox throws exception
+      return false;
+      }
+  });
+
+  Modernizr['html5-embeds'] = {};
+  {
+    var e;
+    Modernizr['html5-embeds']['Canvas'] = Modernizr['canvas'];
+    Modernizr['html5-embeds']['Canvas Text'] = Modernizr['canvastext'];
+    Modernizr['html5-embeds']['Canvas (WebGL)'] = Modernizr['canvas-webgl'];
+    e = document.createElement('iframe');
+    Modernizr['html5-embeds']['iframe'] = 'contentDocument' in e;
+    e = document.createElement('embed');
+    Modernizr['html5-embeds']['embed'] = 'src' in e && 'type' in e;
+    e = document.createElement('source');
+    Modernizr['html5-embeds']['source'] = 'src' in e && 'type' in e && 'media' in e;
+  }
   
+  Modernizr['inputapis'] = {};
+  {
+  var ele = document.createElement('input');  
+  $.each(['value', 'checked', 'files', 'valueAsDate', 'valueAsNumber', 'stepUp', 'stepDown', 'list', 'selectedOption'], function(i, fname) {
+    Modernizr['inputapis']['input.' + fname] = fname in ele;
+    });
+  }
+
+  Modernizr['othercontrols'] = {};
+  {
+    var e;
+    e = document.createElement('keygen');
+    Modernizr['othercontrols']['keygen'] = 'type' in e;
+    e = document.createElement('output');
+    Modernizr['othercontrols']['output'] = 'type' in e;
+    e = document.createElement('progress');
+    Modernizr['othercontrols']['progress'] = 'position' in e;
+    e = document.createElement('meter');
+    Modernizr['othercontrols']['meter'] = 'form' in e;
+  }
+
+  Modernizr['html5-userinteraction'] = {};
+  {
+    var ele;
+    ele = document.createElement('textarea');
+    $.each(['hidden', 'scrollIntoView', 'accessKey', 'contentEditable'], function(i, e) {
+      Modernizr['html5-userinteraction'][e] = e in ele;
+      });
+    Modernizr['html5-userinteraction']['document.designMode'] = 'designMode' in document;
+    Modernizr['html5-userinteraction']['element.spellcheck'] = 'spellcheck' in ele;
+    Modernizr['html5-userinteraction']['Drag and drop'] = 'draggable' in ele;
+    Modernizr['html5-userinteraction']['Undo history'] = 'undoManager' in window;
+  }
+  
+  Modernizr['html5-editing'] = {}
+  $.each(['execCommand', 'queryCommandEnabled', 'queryCommandIndeterm', 'queryCommandState', 'queryCommandSupported', 'queryCommandValue'], function(i, e) {
+    Modernizr['html5-editing']['document.' + e] = e in document;
+    });
+
+  Modernizr.addTest('webdatabase', function () {
+    return typeof window.openDatabase == "function" ? true : false;
+  });
+
+  Modernizr.addTest('webnotifications', function() {
+    return (
+      (window.notifications != undefined) ? true : (
+      (window.webkitNotifications != undefined) ? true :
+      false));
+  });
+
+  Modernizr.addTest('websockets', function() {
+    return typeof WebSocket == "function" ? true : false;
+  });
+  
+  
+  Modernizr['css3-animations'] = {
+    '@keyframes': (
+      (window.CSSKeyframeRule != undefined) ? true : (
+      (window.WebKitCSSKeyframeRule != undefined) ? true :
+      false)),
+    'animations': Modernizr['cssanimations']
+    };
+
+  Modernizr['css3-bg'] = {
+    'Multiple background images': Modernizr['multiplebgs'],
+    'border-radius': Modernizr['borderradius'],
+    'border-image': Modernizr['borderimage'],
+    'box-shadow (removed)': Modernizr['boxshadow']
+    };
+
+  Modernizr['css3-color'] = {
+    'opacity': Modernizr['opacity'],
+    'rgba()': Modernizr['rgba'],
+    'hsla()': Modernizr['hsla']
+    };
+
+  Modernizr['css3-fonts'] = {
+    '@font-face': Modernizr['fontface']
+    };
+
+  Modernizr['css3-images'] = {
+    'Gradients': Modernizr['cssgradients']
+    };
+
+  // ==========================================================================
+
   $('#browser').text('Browser: ' + navigator.userAgent);
   $('#versions').text('Modernizr: ' + Modernizr._version + ' jQuery: ' + $().jquery);
 
-  $.each(Modernizr, function(key, value) {
-    if (typeof Modernizr[key] == 'function' || key.indexOf('_') == 0)
-      return;
-    if (!(key in feature_desc))
-      feature_desc[key] = key
-    var feature = $('<div></div>');
-    $('<div>' + feature_desc[key] + ' (' + key + ')</div>')
-      .addClass('feature-title')
-      .attr('title', key)
-      .appendTo(feature);
-    feature
-      .addClass('feature')
-      .attr('id', 'feature-' + key);
-    if (value == true || value == false) feature.addClass(String(value));
-    feature
-      .hide()
-      .appendTo('#features');
-    if (typeof Modernizr[key] == 'object') {
-      // We have something more than just a property value
-      $('<div id="feature-' + key + '-subfeatures"></div>')
-        .addClass('subfeatures')
-        .appendTo(feature);
-      $.each(Modernizr[key], function(k2, v2) {
-        $('<span>' + k2 + '</span>')
-          .attr('title', v2)
-          .addClass('subfeature')
-          .addClass(String(v2))
-          .appendTo('#feature-' + key + '-subfeatures');
-        });
-      }
-    feature.animate(
-        {"height": "toggle", "opacity": "toggle"},
-        {duration: "normal" });
+  var $categories = $('#categories');
+
+  $.each(category, function (cat_name, cat_value) {
+    var cat_desc = cat_value[0];
+    var cat_features = cat_value[1];
+    var cat_link = (cat_value.length == 3) ? cat_value[2] : '';
+
+    var $cat = $('<div></div>')
+        .attr('id', cat_name)
+        .addClass('category')
+        .append($('<h2></h2>')
+            .html((cat_link != '')
+                ? '<a href="' + cat_link + '">'+ cat_desc+ '</a>'
+                : cat_desc)
+            )
+        .appendTo($categories)
+        ;
+    
+    $.each(cat_features, function (index, feature_name) {
+      var key = feature_name;
+      var value = Modernizr[feature_name];
+      
+      if (!(feature_name in feature_desc))
+        feature_desc[key] = key;
+
+      var $feature = $('<div></div>');
+      $feature
+        .append($('<div></div>')
+          .html((typeof feature_desc[key] == 'string')
+            ? feature_desc[key]
+            : '<a href="' + feature_desc[key][1] + '">' + feature_desc[key][0] + '</a>'
+            )
+          .addClass('feature-title')
+          .attr('title', key)
+          )
+        .addClass('feature')
+        .attr('id', 'feature-' + key)
+        .appendTo($cat);
+
+      if (value == true || value == false) $feature.addClass(String(value));
+      
+      if (typeof Modernizr[key] == 'object') {
+        // We have something more than just a property value
+        $('<div></div>')
+          .attr('id', 'feature-' + key + '-subfeatures')
+          .addClass('subfeatures')
+          .appendTo($feature);
+        $.each(Modernizr[key], function(k2, v2) {
+          $('<span>' + k2 + '</span>')
+            .attr('title', v2)
+            .addClass('subfeature')
+            .addClass(String(v2))
+            .appendTo('#feature-' + key + '-subfeatures');
+          });
+        }
+      })
     });
-  });
+ });
 </script>
 <style>
-h1 {font-family: Impact, Arial, sans-serif;}
-a {text-decoration: none;}
+body {background-color: #446; color: #ccc; text-shadow: #000 0 1px 0;}
+h1 {font-family: Impact, Arial, sans-serif; text-shadow: #000 0 0 5px;}
+
+a {color: #448; text-decoration: none; text-shadow: #448 0 0 1px;}
+a:hover {color: #aaf; text-decoration: none;}
+
 #browser,
 #versions {font-family: Verdana; margin-top:1ex; margin-bottom: 1ex;}
-#shortdesc {color: #fff; font-family: Georgia; background-color: #488; border: 3px solid #888; border-radius: 5px; margin-bottom: 1ex; padding: 1ex; text-shadow: 1px 1px 0 #000;}
-div.feature {background-color: #4a4; border: 3px solid #888; border-radius: 5px; margin-bottom: 1ex; padding: 1ex;}
-div.feature.true {background-color: #0a0; border-color: #080;}
-div.feature.false {background-color: #a00; border-color: #800;}
+#shortdesc {font-family: Georgia; background-color: #488;
+  border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
+  box-shadow: #488 0 0 5px; -moz-box-shadow: #488 0 0 5px; -o-box-shadow: #488 0 0 5px; -webkit-box-shadow: #488 0 0 5px;
+  color: #000; margin-bottom: 1ex; padding: 1ex; text-shadow: #000 0 1px 1px;}
+
+div.category {background-color: #888;
+  border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
+  box-shadow: #888 0 0 5px; -moz-box-shadow: #888 0 0 5px; -o-box-shadow: #888 0 0 5px; -webkit-box-shadow: #888 0 0 5px;
+  margin-bottom: 1ex; padding: 1ex;}
+div.category h2 {background-color: #000;
+  background-image: linear-gradient(left, #000, #888);
+  background-image: -moz-linear-gradient(left, #000, #888);
+  background-image: -webkit-gradient(linear, left bottom, right bottom, from(#000), to(#888));
+  border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
+  color: #aaa; margin: 0 0 1ex 0; padding: 1ex; text-shadow: #aaa 0 1px 1px;}
+
+div.feature {background-color: #484;
+  border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
+  box-shadow: #484 0 0 5px; -moz-box-shadow: #484 0 0 5px; -o-box-shadow: #484 0 0 5px; -webkit-box-shadow: #484 0 0 5px;
+  margin-bottom: 1ex; padding: 1ex;}
+div.feature.true {background-color: #0a0; 
+  box-shadow: #0a0 0 0 5px; -moz-box-shadow: #0a0 0 0 5px; -o-box-shadow: #0a0 0 0 5px; -webkit-box-shadow: #0a0 0 0 5px;}
+div.feature.false {background-color: #a00;
+  box-shadow: #a00 0 0 5px; -moz-box-shadow: #a00 0 0 5px; -o-box-shadow: #a00 0 0 5px; -webkit-box-shadow: #a00 0 0 5px;}
 div.feature div.feature-title {color: #fff; font-family: Arial; font-size: 1.2em; font-weight: bold; text-shadow: 1px 1px 0 #444;}
 div.feature div.subfeatures {margin-top: 1ex; margin-bottom: 1ex;}
-span.subfeature {background-color: #a00; border: 3px solid #800; border-radius: 5px; margin: 0.5ex; padding: 0.5ex;}
-span.subfeature.true {background-color: #0a0; border-color: #080;}
-span.subfeature.false {background-color: #a00; border-color: #800;}
-span.subfeature.maybe {background-color: #ccc; border-color: #aaa;}
-span.subfeature.probably {background-color: #aaa; border-color: #888;}
+
+span.subfeature {background-color: #a00; 
+  border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
+  box-shadow: #a00 0 0 5px; -moz-box-shadow: #a00 0 0 5px; -o-box-shadow: #a00 0 0 5px; -webkit-box-shadow: #a00 0 0 5px;
+  color: #000; margin: 0.5ex; padding: 0.5ex; text-shadow: none;}
+span.subfeature.true {background-color: #0a0;
+  box-shadow: #0a0 0 0 5px; -moz-box-shadow: #0a0 0 0 5px; -o-box-shadow: #0a0 0 0 5px; -webkit-box-shadow: #0a0 0 0 5px;}
+span.subfeature.false {background-color: #a00;
+  box-shadow: #a00 0 0 5px; -moz-box-shadow: #a00 0 0 5px; -o-box-shadow: #a00 0 0 5px; -webkit-box-shadow: #a00 0 0 5px;}
+span.subfeature.maybe {background-color: #88c;
+  box-shadow: #88c 0 0 5px; -moz-box-shadow: #88c 0 0 5px; -o-box-shadow: #88c 0 0 5px; -webkit-box-shadow: #88c 0 0 5px;}
+span.subfeature.probably {background-color: #aaa;
+  box-shadow: #aaa 0 0 5px; -moz-box-shadow: #aaa 0 0 5px; -o-box-shadow: #aaa 0 0 5px; -webkit-box-shadow: #aaa 0 0 5px;}
+span.subfeature.unknown {background-color: #000;
+  box-shadow: #000 0 0 5px; -moz-box-shadow: #000 0 0 5px; -o-box-shadow: #000 0 0 5px; -webkit-box-shadow: #000 0 0 5px;
+  color: #fff;}
 </style>
 </head>
 <body>
 <h1 title='What HTML5 features do I have?'>WUT HTML5 FEATUREZ DO I HAS?</h1>
 <div id="browser"></div>
 <div id="versions"></div>
-<div id="shortdesc">I (@lyjl) made this page after I read <a href="http://diveintohtml5.org/detect.html">Dive Into HTML5: Detecting HTML5 Features</a>. It mentions <a href="http://www.modernizr.com/">Modernizr</a>, which provides a list of properties you can access, by them you can know if a feature &mdash; not limited to the HTML5 features &mdash; is supported in current browser. I think a page with a clear view of results might help some people who want to know about their browser's support. This page is put into Public Domain.</div>
-<div id="features"></div>
+<div id="shortdesc">I (@<a href="http://twitter.com/lyjl">lyjl</a>) made this page after I read <a href="http://diveintohtml5.org/detect.html">Dive Into HTML5: Detecting HTML5 Features</a>. It mentions <a href="http://www.modernizr.com/">Modernizr</a>, which provides a list of properties you can access, by them you can know if a feature &mdash; not limited to the HTML5 features &mdash; is supported in current browser. I think a page with a clear view of results might help some people who want to know about their browser's support. <a href="http://code.google.com/p/yjl/source/browse/JavaScript/wut_html5_featurez_do_i_has.html">This page</a> is put into Public Domain.</div>
+<div id="categories"></div>
 </body>
 </html>
 <!-- vim: set sw=2 ts=2 et ai: -->
