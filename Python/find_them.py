@@ -57,7 +57,7 @@ urls = [
 
     'http://www.backtype.com/%s',
     'http://disqus.com/%s/',
-    ('http://intensedebate.com/people/%s', 'Invalid username'),
+    ('http://intensedebate.com/people/%s', 'Invalid user name'),
 
     ('http://12seconds.tv/channel/%s', 'redirect'),
     'http://www.dailymotion.com/%s',
