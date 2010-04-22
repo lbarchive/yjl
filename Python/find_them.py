@@ -2,6 +2,8 @@
 # Fine people on websites using Twitter's following list
 
 
+from optparse import OptionParser
+
 import json
 import Queue
 import random
@@ -12,7 +14,13 @@ import urllib2
 socket.setdefaulttimeout(10)
 
 
-USERNAME = 'lyjl'
+__author__ = 'Yu-Jie Lin'
+__copyright__ = "Copyright 2010, Yu-Jie Lin"
+__credits__ = []
+__license__ = "New BSD"
+__version__ = '0.0.0.1'
+__email__ = 'livibetter@gmail.com'
+__status__ = 'Development'
 
 
 urls = [
@@ -151,12 +159,34 @@ for i in range(MAX_CHECKERS):
   c.start()
 
 
-f = urllib2.urlopen('http://api.twitter.com/1/statuses/friends/%s.json' % USERNAME)
-j = json.loads(f.read())
-f.close()
+def main():
 
-for user in j:
-  username = user['screen_name']
-  checking_queue.put(username)
+  usage = 'usage: %prog [options] [username]'
+  parser = OptionParser(usage=usage, version='%%prog %s' % __version__)
+  parser.add_option('-a', '--additional',
+      type='str', dest='additional',
+      help='Also check these users, e.g. "-a user1,user2,user3"',
+      )
+  options, args = parser.parse_args()
 
-checking_queue.join()
+  if len(args) > 1:
+    parser.error('Can only accept one username')
+  
+  if len(args) == 1:
+    f = urllib2.urlopen('http://api.twitter.com/1/statuses/friends/%s.json' % args[0])
+    j = json.loads(f.read())
+    f.close()
+
+    for user in j:
+      username = user['screen_name']
+      checking_queue.put(username)
+
+  if options.additional:
+    for u in options.additional.split(','):
+      checking_queue.put(u)
+
+  checking_queue.join()
+
+
+if __name__ == '__main__':
+  main()
