@@ -1,3 +1,5 @@
+/* Gentium Basic */
+
 @font-face {
 	font-family: 'Gentium Basic';
 	src: url('GentiumBasic/GenBasR.eot');
@@ -24,6 +26,8 @@
 	src: url('GentiumBasic/GenBasBI.eot');
 	src: local('Gentium Basic'), url('GentiumBasic/GenBasBI.ttf') format('truetype'), url('GentiumBasic/GenBasBI.svg#webfont') format('svg');
 }
+
+/* Gentium Book Basic */
 
 @font-face {
 	font-family: 'Gentium Book Basic';
@@ -53,3 +57,32 @@
 	src: local('Gentium Book Basic'), url('GentiumBasic/GenBkBasBI.ttf') format('truetype'), url('GentiumBasic/GenBkBasBI.svg#webfont') format('svg');
 }
 
+/* Bergamo Gtd */
+
+@font-face {
+	font-family: 'Bergamo Std';
+	src: url('BergamoStd/BergamoStd-Regular.eot');
+	src: local('Bergamo Std'), url('BergamoStd/BergamoStd-Regular.ttf') format('truetype'), url('BergamoStd/BergamoStd-Regular.svg#webfont') format('svg');
+}
+
+@font-face {
+	font-family: 'Bergamo Std';
+	src: url('BergamoStd/BergamoStd-Italic.eot');
+	font-style: italic;
+	src: local('Bergamo Std'), url('BergamoStd/BergamoStd-Italic.ttf') format('truetype'), url('BergamoStd/BergamoStd-Italic.svg#webfont') format('svg');
+}
+
+@font-face {
+	font-family: 'Bergamo Std';
+	font-weight: bold;
+	src: url('BergamoStd/BergamoStd-Bold.eot');
+	src: local('Bergamo Std'), url('BergamoStd/BergamoStd-Bold.ttf') format('truetype'), url('BergamoStd/BergamoStd-Bold.svg#webfont') format('svg');
+}
+
+@font-face {
+	font-family: 'Bergamo Std';
+	font-style: italic;
+	font-weight: bold;
+	src: url('BergamoStd/BergamoStd-BoldItalic.eot');
+	src: local('Bergamo Std'), url('BergamoStd/BergamoStd-BoldItalic.ttf') format('truetype'), url('BergamoStd/BergamoStd-BoldItalic.svg#webfont') format('svg');
+}
