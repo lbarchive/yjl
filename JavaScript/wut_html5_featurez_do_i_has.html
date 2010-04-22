@@ -14,8 +14,10 @@ var feature_desc = {
   'html5-interactiveelements': ['Interactive elements', 'http://www.w3.org/TR/html5/interactive-elements.html#interactive-elements'],
 
   'html5-embeds': ['Embedded content', 'http://www.w3.org/TR/html5/text-level-semantics.html#embedded-content-1'],
-  'video': ['Video', 'http://www.w3.org/TR/html5/video.html#video'],
-  'audio': ['Audio', 'http://www.w3.org/TR/html5/video.html#audio'],
+  'html5-video': ['Video', 'http://www.w3.org/TR/html5/video.html#video'],
+  'html5-audio': ['Audio', 'http://www.w3.org/TR/html5/video.html#audio'],
+  'video': ['Video (Results from Modernizr)', 'http://www.w3.org/TR/html5/video.html#video'],
+  'audio': ['Audio (Results from Modernizr)', 'http://www.w3.org/TR/html5/video.html#audio'],
 
   'html5-userinteraction': ['User interaction', 'http://www.w3.org/TR/html5/editing.html#editing'],
   'html5-editing': ['Editing API', 'http://www.w3.org/TR/html5/editing.html#editing-apis'],
@@ -50,7 +52,7 @@ var feature_desc = {
 
 var category = {
   'html5': ['HTML5', ['html5-sections', 'html5-grouping', 'applicationcache', 'html5-interactiveelements']],
-  'html5-embedded': ['HTML5 Embedded content', ['html5-embeds', 'video', 'audio']],
+  'html5-embedded': ['HTML5 Embedded content', ['html5-embeds', 'html5-video', 'html5-audio', 'video', 'audio']],
   'html5-form': ['HTML5 Form', ['inputtypes', 'input', 'inputapis', 'othercontrols']],
   'html5-userinteraction': ['HTML5 User interaction', ['html5-userinteraction', 'html5-editing'], 'http://www.w3.org/TR/html5/editing.html#editing'],
 
@@ -118,6 +120,31 @@ $(function() {
     Modernizr['html5-embeds']['source'] = 'src' in e && 'type' in e && 'media' in e;
   }
   
+  Modernizr['html5-video'] = {};
+  {
+    var ele;
+    ele = document.createElement('video');
+    $.each([
+        'video/ogg', 'video/ogg; codecs="theroa, vorbis"', 'application/ogg',
+        'video/mp4', 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"', 'application/mp4'
+        ], function (i, e) {
+      Modernizr['html5-video'][e] = ele.canPlayType(e);
+      });
+  }
+   Modernizr['html5-audio'] = {};
+  {
+    var ele;
+    ele = document.createElement('audio');
+    $.each([
+        'audio/mp4', 'audio/x-m4a', 'application/mp4',
+        'audio/mp3', 'audio/mpeg', 'audio/mpeg3',
+        'audio/ogg', 'audio/ogg; codecs="vorbis"', 'application/ogg',
+        'audio/vnd.wave', 'audio/wave', 'audio/wav', 'audio/wav; codecs="1"', 'audio/x-wav', 'audio/x-pn-wav'
+        ], function (i, e) {
+      Modernizr['html5-audio'][e] = ele.canPlayType(e);
+      });
+  }
+ 
   Modernizr['inputapis'] = {};
   {
   var ele = document.createElement('input');  
@@ -305,7 +332,7 @@ div.feature div.subfeatures {margin-top: 1ex; margin-bottom: 1ex;}
 span.subfeature {background-color: #a00; 
   border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
   box-shadow: #a00 0 0 5px; -moz-box-shadow: #a00 0 0 5px; -o-box-shadow: #a00 0 0 5px; -webkit-box-shadow: #a00 0 0 5px;
-  color: #000; margin: 0.5ex; padding: 0.5ex; text-shadow: none;}
+  color: #000; display: inline-block; margin-bottom: 1ex; margin-left: 1ex; padding: 0.5ex; text-shadow: none;}
 span.subfeature.true {background-color: #0a0;
   box-shadow: #0a0 0 0 5px; -moz-box-shadow: #0a0 0 0 5px; -o-box-shadow: #0a0 0 0 5px; -webkit-box-shadow: #0a0 0 0 5px;}
 span.subfeature.false {background-color: #a00;
