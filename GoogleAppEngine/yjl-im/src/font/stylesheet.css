@@ -1,0 +1,55 @@
+@font-face {
+	font-family: 'Gentium Basic';
+	src: url('GentiumBasic/GenBasR.eot');
+	src: local('Gentium Basic'), url('GentiumBasic/GenBasR.ttf') format('truetype'), url('GentiumBasic/GenBasR.svg#webfont') format('svg');
+}
+
+@font-face {
+	font-family: 'Gentium Basic';
+	font-style: italic;
+	src: url('GentiumBasic/GenBasI.eot');
+	src: local('Gentium Basic'), url('GentiumBasic/GenBasI.ttf') format('truetype'), url('GentiumBasic/GenBasI.svg#webfont') format('svg');
+}
+
+@font-face {
+	font-family: 'Gentium Basic';
+	font-weight: bold;
+	src: url('GentiumBasic/GenBasB.eot');
+	src: local('Gentium Basic'), url('GentiumBasic/GenBasB.ttf') format('truetype'), url('GentiumBasic/GenBasB.svg#webfont') format('svg');
+}
+
+@font-face {
+	font-family: 'Gentium Basic';
+	font-style: italic;
+	src: url('GentiumBasic/GenBasBI.eot');
+	src: local('Gentium Basic'), url('GentiumBasic/GenBasBI.ttf') format('truetype'), url('GentiumBasic/GenBasBI.svg#webfont') format('svg');
+}
+
+@font-face {
+	font-family: 'Gentium Book Basic';
+	src: url('GentiumBasic/GenBkBasR.eot');
+	src: local('Gentium Book Basic'), url('GentiumBasic/GenBkBasR.ttf') format('truetype'), url('GentiumBasic/GenBkBasR.svg#webfont') format('svg');
+}
+
+@font-face {
+	font-family: 'Gentium Book Basic';
+	font-style: italic;
+	src: url('GentiumBasic/GenBkBasI.eot');
+	src: local('Gentium Book Basic'), url('GentiumBasic/GenBkBasI.ttf') format('truetype'), url('GentiumBasic/GenBkBasI.svg#webfont') format('svg');
+}
+
+@font-face {
+	font-family: 'Gentium Book Basic';
+	font-weight: bold;
+	src: url('GentiumBasic/GenBkBasB.eot');
+	src: local('Gentium Book Basic'), url('GentiumBasic/GenBkBasB.ttf') format('truetype'), url('GentiumBasic/GenBkBasB.svg#webfont') format('svg');
+}
+
+@font-face {
+	font-family: 'Gentium Book Basic';
+	font-style: italic;
+	font-weight: bold;
+	src: url('GentiumBasic/GenBkBasBI.eot');
+	src: local('Gentium Book Basic'), url('GentiumBasic/GenBkBasBI.ttf') format('truetype'), url('GentiumBasic/GenBkBasBI.svg#webfont') format('svg');
+}
+
