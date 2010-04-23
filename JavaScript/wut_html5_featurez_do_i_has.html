@@ -6,7 +6,7 @@
 <script src="modernizr.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 <script>
-var WHFDI_VERSION = '0.1';
+var WHFDI_VERSION = '0.1.0.1';
 
 var feature_desc = {
   'html5-sections': ['Sections', 'http://www.w3.org/TR/html5/semantics.html#sections'],
@@ -249,7 +249,7 @@ $(function() {
   // ==========================================================================
 
   $('#browser').text('Browser: ' + navigator.userAgent);
-  $('#versions').text('Modernizr: ' + Modernizr._version + ' jQuery: ' + $().jquery + ' WHFDI: ' + WHFDI_VERSION);
+  $('#versions').text('Modernizr: ' + Modernizr._version + ' jQuery: ' + $().jquery + ' WHFDI: ' + WH5FDI_VERSION);
 
   var $categories = $('#categories');
   var tr = 'WUT HTML5 FEATUREZ DO I HAS?\n\n' + $('#browser').text() + '\n' + $('#versions').text() + '\n\n\n';
@@ -344,13 +344,13 @@ a:hover {color: #aaf; text-decoration: none;}
   box-shadow: #488 0 0 5px; -moz-box-shadow: #488 0 0 5px; -o-box-shadow: #488 0 0 5px; -webkit-box-shadow: #488 0 0 5px;
   color: #000; margin-bottom: 1ex; padding: 1ex; text-shadow: #000 0 1px 1px;}
 
-#tr-container > div,
+#tr-container,
 div.category {background-color: #888;
   border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
   box-shadow: #888 0 0 5px; -moz-box-shadow: #888 0 0 5px; -o-box-shadow: #888 0 0 5px; -webkit-box-shadow: #888 0 0 5px;
   margin-bottom: 1ex; padding: 1ex;}
 
-#tr-container > div h2,
+#tr-container > h2,
 div.category h2 {background-color: #000;
   background-image: linear-gradient(left, #000, #888);
   background-image: -moz-linear-gradient(left, #000, #888);
@@ -396,14 +396,12 @@ span.subfeature.unknown {background-color: #000; color: #000;
 <div id="browser"></div>
 <div id="versions"></div>
 <div id="shortdesc">I (@<a href="http://twitter.com/lyjl">lyjl</a>) made this page after I read <a href="http://diveintohtml5.org/detect.html">Dive Into HTML5: Detecting HTML5 Features</a>. It mentions <a href="http://www.modernizr.com/">Modernizr</a>, which provides a list of properties you can access, by them you can know if a feature &mdash; not limited to the HTML5 features &mdash; is supported in current browser. I think a page with a clear view of results might help some people who want to know about their browser's support. <a href="http://code.google.com/p/yjl/source/browse/JavaScript/wut_html5_featurez_do_i_has.html">This page</a> is put into Public Domain.</div>
-<div id="categories"></div>
-
 <div id="tr-container">
-<div>
 <h2>Results in Text</h2>
 <textarea id="textresult" style="width: 100%" rows="20"></textarea>
 </div>
-</div>
+
+<div id="categories"></div>
 </body>
 </html>
 <!-- vim: set sw=2 ts=2 et ai: -->
