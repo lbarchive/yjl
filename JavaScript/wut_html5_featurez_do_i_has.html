@@ -24,7 +24,7 @@ var feature_desc = {
   
   'inputtypes': '&lt;input type="?"&gt;',
   'input': ['&lt;input&gt; attributions', 'http://www.w3.org/TR/html5/forms.html#common-input-element-attributes'],
-  'inputapis': ['Common &lt;input &gt; APIs', 'www.w3.org/TR/html5/forms.html#common-input-element-apis'],
+  'inputapis': ['Common &lt;input&gt; APIs', 'www.w3.org/TR/html5/forms.html#common-input-element-apis'],
   'othercontrols': 'Other controls',
 
 
@@ -250,6 +250,15 @@ $(function() {
   $('#versions').text('Modernizr: ' + Modernizr._version + ' jQuery: ' + $().jquery);
 
   var $categories = $('#categories');
+  var tr = '';
+  var stupidmap = {
+    'true'    : '[true    ]',
+    'false'   : '[false   ]',
+    'maybe'   : '[maybe   ]',
+    'probably': '[probably]',
+    'unknown' : '[unknown ]',
+    ''        : '[        ]'
+    };
 
   $.each(category, function (cat_name, cat_value) {
     var cat_desc = cat_value[0];
@@ -266,7 +275,8 @@ $(function() {
             )
         .appendTo($categories)
         ;
-    
+    tr += '===== ' + $cat.text() + ' =====\n\n';
+
     $.each(cat_features, function (index, feature_name) {
       var key = feature_name;
       var value = Modernizr[feature_name];
@@ -288,9 +298,15 @@ $(function() {
         .attr('id', 'feature-' + key)
         .appendTo($cat);
 
-      if (value == true || value == false) $feature.addClass(String(value));
-      
+      tr += ' * ' + $feature.text();
+      if (typeof value == 'boolean') {
+        $feature.addClass(String(value));
+        tr += ' : ' + String(value);
+        }
+      tr += '\n';
+
       if (typeof Modernizr[key] == 'object') {
+        tr += '\n';
         // We have something more than just a property value
         $('<div></div>')
           .attr('id', 'feature-' + key + '-subfeatures')
@@ -302,10 +318,14 @@ $(function() {
             .addClass('subfeature')
             .addClass(String(v2))
             .appendTo('#feature-' + key + '-subfeatures');
+          tr += '   ' + stupidmap[String(v2)] + ' ' + k2 + '\n';
           });
         }
+      tr += '\n';
       })
+    tr += '\n';
     });
+ $('#textresult').val(tr);
  });
 </script>
 <style>
@@ -322,10 +342,13 @@ a:hover {color: #aaf; text-decoration: none;}
   box-shadow: #488 0 0 5px; -moz-box-shadow: #488 0 0 5px; -o-box-shadow: #488 0 0 5px; -webkit-box-shadow: #488 0 0 5px;
   color: #000; margin-bottom: 1ex; padding: 1ex; text-shadow: #000 0 1px 1px;}
 
+#tr-container > div,
 div.category {background-color: #888;
   border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
   box-shadow: #888 0 0 5px; -moz-box-shadow: #888 0 0 5px; -o-box-shadow: #888 0 0 5px; -webkit-box-shadow: #888 0 0 5px;
   margin-bottom: 1ex; padding: 1ex;}
+
+#tr-container > div h2,
 div.category h2 {background-color: #000;
   background-image: linear-gradient(left, #000, #888);
   background-image: -moz-linear-gradient(left, #000, #888);
@@ -344,21 +367,26 @@ div.feature.false {background-color: #a00;
 div.feature div.feature-title {color: #fff; font-family: Arial; font-size: 1.2em; font-weight: bold; text-shadow: 1px 1px 0 #444;}
 div.feature div.subfeatures {margin-top: 1ex; margin-bottom: 1ex;}
 
-span.subfeature {background-color: #a00; 
+span.subfeature {background-color: #444; color: #aaa;
   border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
-  box-shadow: #a00 0 0 5px; -moz-box-shadow: #a00 0 0 5px; -o-box-shadow: #a00 0 0 5px; -webkit-box-shadow: #a00 0 0 5px;
-  color: #000; display: inline-block; margin-bottom: 1ex; margin-left: 1ex; padding: 0.5ex; text-shadow: none;}
-span.subfeature.true {background-color: #0a0;
+  box-shadow: #444 0 0 5px; -moz-box-shadow: #444 0 0 5px; -o-box-shadow: #444 0 0 5px; -webkit-box-shadow: #444 0 0 5px;
+  display: inline-block; margin-bottom: 1ex; margin-left: 1ex; padding: 0.5ex; text-shadow: none;}
+span.subfeature.true {background-color: #0a0; color: #000;
   box-shadow: #0a0 0 0 5px; -moz-box-shadow: #0a0 0 0 5px; -o-box-shadow: #0a0 0 0 5px; -webkit-box-shadow: #0a0 0 0 5px;}
-span.subfeature.false {background-color: #a00;
+span.subfeature.false {background-color: #a00; color: #000;
   box-shadow: #a00 0 0 5px; -moz-box-shadow: #a00 0 0 5px; -o-box-shadow: #a00 0 0 5px; -webkit-box-shadow: #a00 0 0 5px;}
-span.subfeature.maybe {background-color: #88c;
+span.subfeature.maybe {background-color: #88c; color: #000;
   box-shadow: #88c 0 0 5px; -moz-box-shadow: #88c 0 0 5px; -o-box-shadow: #88c 0 0 5px; -webkit-box-shadow: #88c 0 0 5px;}
-span.subfeature.probably {background-color: #aaa;
+span.subfeature.probably {background-color: #aaa; color: #000;
   box-shadow: #aaa 0 0 5px; -moz-box-shadow: #aaa 0 0 5px; -o-box-shadow: #aaa 0 0 5px; -webkit-box-shadow: #aaa 0 0 5px;}
-span.subfeature.unknown {background-color: #000;
+span.subfeature.unknown {background-color: #000; color: #000;
   box-shadow: #000 0 0 5px; -moz-box-shadow: #000 0 0 5px; -o-box-shadow: #000 0 0 5px; -webkit-box-shadow: #000 0 0 5px;
   color: #fff;}
+
+#textresult {background-color: #444; color: #aaa; border: none;
+  border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
+  box-shadow: #444 0 0 5px; -moz-box-shadow: #444 0 0 5px; -o-box-shadow: #444 0 0 5px; -webkit-box-shadow: #444 0 0 5px;
+}
 </style>
 </head>
 <body>
@@ -367,6 +395,13 @@ span.subfeature.unknown {background-color: #000;
 <div id="versions"></div>
 <div id="shortdesc">I (@<a href="http://twitter.com/lyjl">lyjl</a>) made this page after I read <a href="http://diveintohtml5.org/detect.html">Dive Into HTML5: Detecting HTML5 Features</a>. It mentions <a href="http://www.modernizr.com/">Modernizr</a>, which provides a list of properties you can access, by them you can know if a feature &mdash; not limited to the HTML5 features &mdash; is supported in current browser. I think a page with a clear view of results might help some people who want to know about their browser's support. <a href="http://code.google.com/p/yjl/source/browse/JavaScript/wut_html5_featurez_do_i_has.html">This page</a> is put into Public Domain.</div>
 <div id="categories"></div>
+
+<div id="tr-container">
+<div>
+<h2>Results in Text</h2>
+<textarea id="textresult" style="width: 100%" rows="20"></textarea>
+</div>
+</div>
 </body>
 </html>
 <!-- vim: set sw=2 ts=2 et ai: -->
