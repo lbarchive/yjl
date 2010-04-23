@@ -119,14 +119,26 @@ $(function() {
     e = document.createElement('source');
     Modernizr['html5-embeds']['source'] = 'src' in e && 'type' in e && 'media' in e;
   }
-  
+ 
+  // http://dev.w3.org/html5/spec/video.html#the-source-element
   Modernizr['html5-video'] = {};
   {
     var ele;
     ele = document.createElement('video');
     $.each([
-        'video/ogg', 'video/ogg; codecs="theroa, vorbis"', 'application/ogg',
-        'video/mp4', 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"', 'application/mp4'
+        'video/ogg', 'video/ogg; codecs="theroa, vorbis"',
+        'video/ogg; codecs="theora, speex"',
+        'video/ogg; codecs="dirac, vorbis"',
+        'application/ogg',
+        'video/x-matroska; codecs="theora, vorbis"',
+        'video/mp4', 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
+        'video/mp4; codecs="avc1.58A01E, mp4a.40.2"',
+        'video/mp4; codecs="avc1.4D401E, mp4a.40.2"',
+        'video/mp4; codecs="avc1.64001E, mp4a.40.2"',
+        'video/mp4; codecs="mp4v.20.8, mp4a.40.2"',
+        'video/mp4; codecs="mp4v.20.240, mp4a.40.2"',
+        'application/mp4',
+        'video/3gpp; codecs="mp4v.20.8, samr"',
         ], function (i, e) {
       Modernizr['html5-video'][e] = ele.canPlayType(e);
       });
@@ -138,7 +150,10 @@ $(function() {
     $.each([
         'audio/mp4', 'audio/x-m4a', 'application/mp4',
         'audio/mp3', 'audio/mpeg', 'audio/mpeg3',
-        'audio/ogg', 'audio/ogg; codecs="vorbis"', 'application/ogg',
+        'audio/ogg', 'audio/ogg; codecs="vorbis"',
+        'audio/ogg; codecs="speex"',
+        'audio/ogg; codecs="flac"',
+        'application/ogg',
         'audio/vnd.wave', 'audio/wave', 'audio/wav', 'audio/wav; codecs="1"', 'audio/x-wav', 'audio/x-pn-wav'
         ], function (i, e) {
       Modernizr['html5-audio'][e] = ele.canPlayType(e);
