@@ -84,7 +84,10 @@ def main():
   # Preparing the text
   if in_text == '-':
     if sys.stdin.isatty():
-      print '( Press Control+D at new line to finish )'
+      if sys.platform == 'win32':
+        print '( Press Control+Z, then Return at new line to finish )'
+      else:
+        print '( Press Control+D, then Return at new line to finish )'
     text = sys.stdin.readlines()
   else:
     if not sys.stdin.isatty():
