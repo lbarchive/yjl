@@ -6,7 +6,7 @@
 <script src="modernizr.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 <script>
-var WH5FDIH_VERSION = '0.1.0.2';
+var WH5FDIH_VERSION = '0.1.1';
 
 var feature_desc = {
   'html5-sections': ['Sections', 'http://www.w3.org/TR/html5/semantics.html#sections'],
@@ -39,6 +39,8 @@ var feature_desc = {
   'websockets': ['Web Sockets API (WebSocket)', 'http://www.w3.org/TR/websockets/'],
   'webworkers': ['Web Workers', 'http://www.whatwg.org/specs/web-workers/current-work/'],
 
+  'html-md-api': ['DOM APIs', 'http://www.w3.org/TR/microdata/#microdata-dom-api'],
+
   'css3-animations': ['Animations module', 'http://www.w3.org/TR/css3-animations/'],
   'css3-bg': ['Backgrounds and Borders module', 'http://www.w3.org/TR/css3-background/'],
   'css3-color': ['Color module', 'http://www.w3.org/TR/css3-color/'],
@@ -62,6 +64,8 @@ var category = {
 
   'web-apis': ['Web APIs', ['geolocation', 'webdatabase', 'webnotifications', 'websockets', 'webworkers']],
 
+  'html-microdata': ['HTML Microdata', ['html-md-api'], 'http://www.w3.org/TR/microdata/'],
+  
   'css3': ['CSS3', ['css3-animations','css3-bg', 'css3-color', 'csscolumns', 'css3-fonts', 'css3-images', 'csstransforms', 'csstransforms3d', 'csstransitions']],
   'css': ['CSS', ['cssreflections']]
   }
@@ -217,6 +221,16 @@ $(function() {
   });
   
   
+  Modernizr['html-md-api'] = {};
+  {
+    Modernizr['html-md-api']['document.getItems'] = 'getItems' in document;
+    // Don't know if it has to be attached to body
+    var $itemscope = $('<section itemscope itemtype="http://data-vocabulary.org/Person"></section>').appendTo('body');
+    var $itemprop = $('<span itemprop="name">Yu-Jie Lin</span>').appendTo($itemscope);
+    Modernizr['html-md-api']['element.properties'] = 'properties' in $itemscope[0];
+    Modernizr['html-md-api']['element.itemValue'] = 'itemValue' in $itemscope[0];
+  }
+
   Modernizr['css3-animations'] = {
     '@keyframes': (
       (window.CSSKeyframeRule != undefined) ? true : (
@@ -389,10 +403,13 @@ span.subfeature.unknown {background-color: #000; color: #000;
   border-radius: 5px; -moz-border-radius: 5px; -o-border-radius: 5px; -webkit-border-radius: 5px;
   box-shadow: #444 0 0 5px; -moz-box-shadow: #444 0 0 5px; -o-box-shadow: #444 0 0 5px; -webkit-box-shadow: #444 0 0 5px;
 }
+
+#shorten-uri {float: right; color: #fff; font-family: monospace; font-size: 1em; text-shadow: #000 0 0 5px;}
 </style>
 </head>
 <body>
 <h1 title='What HTML5 features do I have?'>WUT HTML5 FEATUREZ DO I HAS?</h1>
+<div id='shorten-uri'>Shorten Meow: http://j.mp/WH5FDIH</div>
 <div id="browser"></div>
 <div id="versions"></div>
 <div id="shortdesc">I (@<a href="http://twitter.com/lyjl">lyjl</a>) made this page after I read <a href="http://diveintohtml5.org/detect.html">Dive Into HTML5: Detecting HTML5 Features</a>. It mentions <a href="http://www.modernizr.com/">Modernizr</a>, which provides a list of properties you can access, by them you can know if a feature &mdash; not limited to the HTML5 features &mdash; is supported in current browser. I think a page with a clear view of results might help some people who want to know about their browser's support. <a href="http://code.google.com/p/yjl/source/browse/JavaScript/wut_html5_featurez_do_i_has.html">This page</a> is put into Public Domain.</div>
