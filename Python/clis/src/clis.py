@@ -1,5 +1,7 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
+# clis - CLI Stream Reader
+# Copyright 2009, 2010, Yu-Jie Lin
 # GPLv3
 
 from BaseHTTPServer import BaseHTTPRequestHandler, HTTPServer
@@ -834,36 +836,14 @@ class TwitterSearch(Feed):
     self.rpp = src.get('rpp', 15)
 
     self._init_session()
-    self._load_last_id()
-
-  # Copied from my old code, twitter-tracker. 
-  def cleanup_links(self, s):
-
-    m = self.RE_LINK.match(s)
-    while m:
-      # XXX
-      try:
-        str(m.group(3))
-      except UnicodeEncodeError:
-        p_err('m.group(3): %s' % repr(m.group(3)))
-      #if m.group(2) == str(m.group(3)).replace(u'<b>', u'').replace(u'</b>', u'') or \
-      if m.group(2) == m.group(3).replace(u'<b>', u'').replace(u'</b>', u'') or \
-          m.group(2).find(m.group(3)) >= 0:
-        # Other links metioned in tweets
-        s = u"%s\033[1:33m%s\033[0m%s" % (m.group(1), surl(m.group(2)), m.group(4))
-      else:
-        if m.group(2)[0] == '/':
-          # A hashtag has uri /search?q=%23... 
-          s = u"%s\033[1:32m%s\033[0m%s" % (m.group(1), surl(m.group(3)), m.group(4))
-        else:
-          # User
-          s = u"%s%s[\033[1:34m%s\033[0m]%s" % (m.group(1), m.group(3), surl(m.group(2)), m.group(4))
-      m = self.RE_LINK.match(s)
-    return s
-  
+    # Do not load last_id, so we can have a clean-run searching
+    # self._load_last_id()
+    self.last_id = None
+    self.update(suppress=True)
+ 
   def get_list(self):
 
-    parameters = {'q': self.q, 'lang': self.lang, 'rpp': self.rpp}
+    parameters = {'q': self.q, 'lang': self.lang, 'rpp': self.rpp, 'result_type': 'recent'}
     if self.last_id:
       parameters['since_id'] = self.last_id
     feed = fp.parse(self.SEARCH_URL + '?' + urllib.urlencode(parameters))
@@ -871,13 +851,8 @@ class TwitterSearch(Feed):
       if 'status' not in feed:
         p_err('No key status in feed: ' + repr(feed))
         return
-      #if feed.headers['status'].startswith('403') or feed.headers['status'].startswith('404'):
       if feed['status'] == 403 or feed['status'] == 404:
-        p_err('last_id reset\n')
-        f = urllib2.urlopen(TwitterSearch.PUBLIC_URL)
-        j = json.load(f)
-        f.close()
-        self._update_last_id(j[0]['id'])
+        p_err('Got 403 or 404\n')
         return
       elif feed['status'] == 503:
         p_err('HTTP Status 503\n')
@@ -905,14 +880,15 @@ class TwitterSearch(Feed):
       entry['author'] = {'screen_name': screen_name, 'name': name[1:-1]}
       if self.is_excluded(entry):
         continue
-#      entry['title'] = self.cleanup_links(unescape(entry['content'][0]['value'])).replace('<b>', ANSI.fred).replace('</b>', ANSI.freset).replace('\n', ' ')
       new_entries += [entry]
     feed['entries'] = new_entries
 
     return feed
 
   @safe_update
-  def update(self):
+  def update(self, suppress=False):
+    # suppress is for first seach of session, user may not want to read lots of
+    # tweets when they just run clis.py
 
     if time.time() < self.interval + self.last_accessed:
       return
@@ -924,6 +900,9 @@ class TwitterSearch(Feed):
     if feed is None:
       return
     p_clr(msg)
+    if suppress:
+      return
+
     if not feed['entries']:
       return
       
@@ -1328,7 +1307,7 @@ def main():
 
   global options, session
 
-  p('''clis (C) 2009 Yu-Jie Lin
+  p('''clis (C) 2009, 2010 Yu-Jie Lin
 The code is licensed under the terms of the GNU General Public License (GPL).
 
 For running the code, you must agree with all limitations which are denoted in
