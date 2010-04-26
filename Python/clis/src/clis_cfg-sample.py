@@ -38,11 +38,13 @@ sources = [
         # Twitter: Statuses of you and whom you follow
         'type': 'twitter',
         #src_name': 'Twitter',
-        'username': 'username', 
-        'password': 'secret', 
+        'username': 'username',
+        # Get your keys here: http://dev.twitter.com/apps/new
+        'consumer_key': 'YOUR_KEY', # Double Check :)
+        'consumer_secret': 'YOUR_SECRET', # Double Check :)
         #interval': 90,
         # status.tweet_link - URL of Tweet
-        #'output': '@!ansi.fgreen!@@!ftime(status.created_at, "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!status.text!@ @!ansi.fmagenta!@@!surl(status.tweet_link)!@@!ansi.freset!@',
+        #'output': '@!ansi.fgreen!@@!ftime(status["created_at"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status["user"]["screen_name"]!@@!ansi.freset!@: @!unescape(status["text"])!@ @!ansi.fmagenta!@@!surl(status["tweet_link"])!@@!ansi.freset!@'
         },
     {
         'type': 'twittersearch',

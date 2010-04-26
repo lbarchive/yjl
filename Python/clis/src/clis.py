@@ -29,14 +29,24 @@ import traceback
 import tty
 import urllib
 import urllib2
+import urlparse
 socket.setdefaulttimeout(10)
 
 from pyratemp import Template as tpl
 
 import feedparser as fp
 import friendfeed as ff
+import oauth2 as oauth 
 import twitter
 
+
+###############
+# Twitter OAuth
+
+#request_token_url = 'http://twitter.com/oauth/request_token'
+request_token_url = 'https://api.twitter.com/oauth/request_token'
+access_token_url = 'https://api.twitter.com/oauth/access_token'
+authorize_url = 'https://api.twitter.com/oauth/authorize'
 
 ###########
 # Utilities
@@ -343,7 +353,8 @@ def sigexit(signum, frame):
 
   if 'session' in __builtin__.__dict__:
     session.close()
-  termios.tcsetattr(fd, termios.TCSANOW, old_settings)
+  if fd and old_settings:
+    termios.tcsetattr(fd, termios.TCSANOW, old_settings)
   p('\033[?25h')
 
 
@@ -594,14 +605,89 @@ class Twitter(Source):
     super(Twitter, self).__init__(src)
     
     self.username = src['username']
-    self.api = twitter.Api(username=self.username, password=src['password'])
+    self.consumer_key = src['consumer_key']
+    self.consumer_secret = src['consumer_secret']
+    
     self.src_id = self.username
     self.src_name = src.get('src_name', 'Twitter')
     self.interval = src.get('interval', 90)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(status.created_at, "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status.user.screen_name!@@!ansi.freset!@: @!unescape(status.text)!@ @!ansi.fmagenta!@@!surl(status.tweet_link)!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(status["created_at"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status["user"]["screen_name"]!@@!ansi.freset!@: @!unescape(status["text"])!@ @!ansi.fmagenta!@@!surl(status["tweet_link"])!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
+
+    self.consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
+    if 'access_token' not in self.session:
+      self.get_access_token()
+      
+    self.token = oauth.Token(self.session['access_token']['oauth_token'],
+        self.session['access_token']['oauth_token_secret'])
+    self.client = oauth.Client(self.consumer, self.token)
+
     self._load_last_id()
+
+  def get_access_token(self):
+
+    p('\nGetting Access Token from Twitter...\n\n')
+
+    client = oauth.Client(self.consumer)
+
+# Step 1: Get a request token. This is a temporary token that is used for 
+# having the user authorize an access token and to sign the request to obtain 
+# said access token.
+
+    resp, content = client.request(request_token_url, "GET")
+    if resp['status'] != '200':
+      p_err(repr(resp))
+      p_err(repr(content))
+      raise Exception("Invalid response %s." % resp['status'])
+
+    request_token = dict(urlparse.parse_qsl(content))
+
+    p("Request Token:\n")
+    p("    - oauth_token        = %s\n" % request_token['oauth_token'])
+    p("    - oauth_token_secret = %s\n" % request_token['oauth_token_secret'])
+    p('\n')
+
+# Step 2: Redirect to the provider. Since this is a CLI script we do not 
+# redirect. In a web application you would redirect the user to the URL
+# below.
+
+    p("Go to the following link in your browser:\n")
+    p("%s?oauth_token=%s\n" % (authorize_url, request_token['oauth_token']))
+    p('\n')
+
+# After the user has granted access to you, the consumer, the provider will
+# redirect you to whatever URL you have told them to redirect to. You can 
+# usually define this in the oauth_callback argument as well.
+    
+    accepted = 'n'
+    while accepted.lower() == 'n':
+          accepted = raw_input('Have you authorized me? (y/n) ')
+          oauth_verifier = raw_input('What is the PIN? ')
+
+# Step 3: Once the consumer has redirected the user back to the oauth_callback
+# URL you can request the access token the user has approved. You use the 
+# request token to sign this request. After this is done you throw away the
+# request token and use the access token returned. You should store this 
+# access token somewhere safe, like a database, for future use.
+    token = oauth.Token(request_token['oauth_token'],
+        request_token['oauth_token_secret'])
+    token.set_verifier(oauth_verifier)
+    client = oauth.Client(self.consumer, token)
+
+    resp, content = client.request(access_token_url, "POST")
+    access_token = dict(urlparse.parse_qsl(content))
+    
+    p("Access Token:\n")
+    p("    - oauth_token        = %s\n" % access_token['oauth_token'])
+    p("    - oauth_token_secret = %s\n" % access_token['oauth_token_secret'])
+    p('\n')
+    p("You may now access protected resources using the access tokens above.\n" )
+    p('\n')
+
+    self.session['access_token'] = access_token
+    self.access_token = access_token
+
 
   @staticmethod
   def to_localtime(d):
@@ -610,7 +696,14 @@ class Twitter(Source):
 
   def get_list(self):
 
-    return self.api.GetFriendsTimeline(since_id=self.last_id)
+    request_uri = 'http://api.twitter.com/1/statuses/friends_timeline.json'
+    if self.last_id:
+      request_uri += '?since_id=%s' % self.last_id
+    resp, content = self.client.request(request_uri, 'GET')
+    if resp['status'] != '200':
+      raise Exception("Invalid response %s." % resp['status'])
+
+    return json.loads(content)
 
   @safe_update
   def update(self):
@@ -626,15 +719,15 @@ class Twitter(Source):
 
     if not statuses:
       return
-    self._update_last_id(statuses[0].id)
+    self._update_last_id(statuses[0]['id'])
 
     statuses.reverse()
     for status in statuses:
-      p_dbg('ID: %s' % status.id)
+      p_dbg('ID: %s' % status['id'])
       if self.is_excluded(status):
         continue
-      status.__dict__['tweet_link'] = 'http://twitter.com/%s/status/%s' % (status.user.screen_name, status.id)
-      status.created_at = self.to_localtime(status.created_at)
+      status['tweet_link'] = 'http://twitter.com/%s/status/%s' % (status['user']['screen_name'], status['id'])
+      status['created_at'] = self.to_localtime(status['created_at'])
       print self.output(status=status, src_name=self.src_name, **common_tpl_opts)
 
 
@@ -1305,6 +1398,7 @@ def load_config():
 
 def main():
 
+  global fd, old_settings, p_stdin
   global options, session
 
   p('''clis (C) 2009, 2010 Yu-Jie Lin
@@ -1317,6 +1411,24 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
   options, args = parser_args()
   
   sources, cfg = load_config()
+  
+  p('\033[?25l')
+  width = ttywidth()
+  signal.signal(signal.SIGWINCH, update_width)
+
+  # Get stdin file descriptor
+  fd = sys.stdin.fileno()         
+  # Backup, important!
+  old_settings = termios.tcgetattr(fd)
+  tty.setraw(sys.stdin.fileno())
+
+  p_stdin = select.poll()
+  # Register for data-in
+  p_stdin.register(sys.stdin, select.POLLIN)
+
+  sys.stdout = STDOUT_R
+  sys.stderr = STDERR_R
+
 
   # Configure server parameter
   # FIXME this is ugly
@@ -1373,23 +1485,9 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
 
 
 if __name__ == '__main__':
-  
-  p('\033[?25l')
-  width = ttywidth()
-  signal.signal(signal.SIGWINCH, update_width)
-
-  # Get stdin file descriptor
-  fd = sys.stdin.fileno()         
-  # Backup, important!
-  old_settings = termios.tcgetattr(fd)
-  tty.setraw(sys.stdin.fileno())
-
-  p_stdin = select.poll()
-  # Register for data-in
-  p_stdin.register(sys.stdin, select.POLLIN)
-
-  sys.stdout = STDOUT_R
-  sys.stderr = STDERR_R
+ 
+  fd = None
+  old_settings = None
 
   try:
     main()
