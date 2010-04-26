@@ -37,13 +37,11 @@ from pyratemp import Template as tpl
 import feedparser as fp
 import friendfeed as ff
 import oauth2 as oauth 
-import twitter
 
 
 ###############
 # Twitter OAuth
 
-#request_token_url = 'http://twitter.com/oauth/request_token'
 request_token_url = 'https://api.twitter.com/oauth/request_token'
 access_token_url = 'https://api.twitter.com/oauth/access_token'
 authorize_url = 'https://api.twitter.com/oauth/authorize'
