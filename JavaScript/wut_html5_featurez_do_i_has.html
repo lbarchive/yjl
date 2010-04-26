@@ -6,7 +6,7 @@
 <script src="modernizr.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 <script>
-var WH5FDIH_VERSION = '0.1.1.1';
+var WH5FDIH_VERSION = '0.2';
 
 var feature_desc = {
   'html5-sections': ['Sections', 'http://www.w3.org/TR/html5/semantics.html#sections'],
@@ -80,7 +80,11 @@ $(function() {
   / * Add more to Modernizr */
   Modernizr['html5-sections'] = {};
   $.each(['section', 'nav', 'article', 'aside', 'hgroup', 'header', 'footer', 'address'], function(i, e) {
-    Modernizr['html5-sections'][e] = 'unknown';
+    var ele;
+    ele = document.createElement(e);
+    $('body').append(ele);
+    Modernizr['html5-sections'][e] = $(ele).css('display') == 'block';
+    $(ele).remove();
     });
 
   Modernizr['html5-grouping'] = {};
@@ -137,7 +141,8 @@ $(function() {
         'video/ogg; codecs="dirac, vorbis"',
         'application/ogg',
         'video/x-matroska; codecs="theora, vorbis"',
-        'video/mp4', 'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
+        'video/mp4',
+        'video/mp4; codecs="avc1.42E01E, mp4a.40.2"',
         'video/mp4; codecs="avc1.58A01E, mp4a.40.2"',
         'video/mp4; codecs="avc1.4D401E, mp4a.40.2"',
         'video/mp4; codecs="avc1.64001E, mp4a.40.2"',
@@ -146,10 +151,11 @@ $(function() {
         'application/mp4',
         'video/3gpp; codecs="mp4v.20.8, samr"',
         ], function (i, e) {
-      Modernizr['html5-video'][e] = ele.canPlayType(e);
+      Modernizr['html5-video'][e] = ('canPlayType' in ele) ? ele.canPlayType(e) : false;
       });
   }
-   Modernizr['html5-audio'] = {};
+
+  Modernizr['html5-audio'] = {};
   {
     var ele;
     ele = document.createElement('audio');
@@ -162,10 +168,10 @@ $(function() {
         'application/ogg',
         'audio/vnd.wave', 'audio/wave', 'audio/wav', 'audio/wav; codecs="1"', 'audio/x-wav', 'audio/x-pn-wav'
         ], function (i, e) {
-      Modernizr['html5-audio'][e] = ele.canPlayType(e);
+      Modernizr['html5-audio'][e] = ('canPlayType' in ele) ? ele.canPlayType(e) : false;
       });
   }
- 
+
   Modernizr['inputapis'] = {};
   {
   var ele = document.createElement('input');  
