@@ -86,3 +86,12 @@
 	src: url('BergamoStd/BergamoStd-BoldItalic.eot');
 	src: local('Bergamo Std'), url('BergamoStd/BergamoStd-BoldItalic.ttf') format('truetype'), url('BergamoStd/BergamoStd-BoldItalic.svg#webfont') format('svg');
 }
+
+/* Prociono */
+
+@font-face {
+	font-family: 'Prociono';
+	src: url('Prociono-Regular.eot');
+	src: local('Prociono'), url('Prociono/Prociono-Regular.ttf') format('truetype'), url('Prociono/Prociono-Regular.svg#webfont') format('svg');
+}
+

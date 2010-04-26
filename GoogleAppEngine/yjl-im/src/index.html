@@ -9,6 +9,10 @@
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
 <script>
 $(function (){
+
+  if (window.location.href.indexOf('localhost') >= 0)
+    return;
+
   $('title').text('yjl.im');
   $('#title').text('yjl.im');
 
@@ -113,23 +117,43 @@ function start_animation(){
     ;
   }
 </script>
+<link href='font/stylesheet.css' rel='stylesheet' type='text/css'/> 
 <style>
 @font-face {font-family: "Yanone Tagesschrift"; src: url("font/YanoneTagesschrift.ttf");}
 @font-face {font-family: "Yanone Kaffeesatz Light"; src: url("font/YanoneKaffeesatz-Light.otf");}
-@font-face {font-family: "Junction"; src: url("font/Junction.otf");}
 @font-face {font-family: "Inconsolata"; src: url("font/Inconsolata.otf");}
 
 body {background-color: #242424; color: #aaa;}
-a {color: #55a; text-decoration: none; -webkit-transition-property: color; -webkit-transition-duration: 0.2s}
-a:visited {color: #a5a;}
-a:hover {color: #a55;}
+a {color: #666; text-decoration: none; -webkit-transition-property: color; -webkit-transition-duration: 0.2s}
+a:visited {color: #666;}
+a:hover {color: #fff; text-shadow: #fff 0 0 2px;}
 
 #title {font-family: "Yanone Tagesschrift", "Palatino Linotype", "Book Antiqua", Palatino; font-size: 5em; margin: 0; text-shadow: #000 1px 1px 3px;}
 #bio {font-family: "Yanone Kaffeesatz Light", "Trebuchet MS", Helvetica; text-shadow: #000 1px 1px 0}
 footer {font-family: "Yanone Kaffeesatz Light", "Trebuchet MS", Helvetica}
-#social h1, #blog h1 {font-family: "Junction", "Lucida Sans Unicode", "Lucida Grande"}
+
+#social h1, #blog h1 {font-family: "Prociono", "Lucida Sans Unicode", "Lucida Grande"}
+
 section ul {list-style-type: none; padding-left: 0;}
-section ul li {font-family: "Inconsolata", "Courier New", Courier, monospace; font-size: 2em;}
+
+section li {
+  font-family: "Inconsolata", "Courier New", Courier, monospace; font-size: 2em;
+  display: inline-block; margin-left: 1ex;
+  }
+section li:first-child {margin-left: 0;}
+
+section li a {
+  background-color: #aaa;
+  border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
+  box-shadow: #aaa 0 0 5px; -moz-box-shadow: #aaa 0 0 5px; -webkit-box-shadow: #aaa 0 0 5px;
+  text-shadow: #222 0 0 2px;
+  display: inline-block;
+  height: 48px; width: 48px; line-height: 48px;
+  }
+#blog li a {
+  width: auto;
+  padding: 0 1ex;
+  }
 
 header, section, footer {margin: auto auto; width: 700px;}
 #title, section, footer {text-align: center;}
@@ -139,15 +163,15 @@ header, section, footer {margin: auto auto; width: 700px;}
 <header>
   <hgroup>
     <h1 id="title">Yu-Jie Lin</h1>
-    <h2 id="bio">A <span title="01001101000I1011">lazy</span> coder, <a href="http://en.wikipedia.org/wiki/STS-1">$age_needs_calculation</a>, <span style="color: #aaf" title="8====D (NSFW!)">&#9794;</span>, Taiwanese, <span title="Where is Taylor, the Caramel Macchiato girl?">Caffeinated</span>, Temporary <span title="S">Barrel</span> for Beer, <span title="-62">Tweetaholic</span> (aka Unstoppable Tweeting Disorder), <span title="Many years to be such master, it's not easy!">Master of Idling</span>, <span title="Hate this prefix">Un</span>professional Blogger, and <span title="You can let your mouse to rest, no more, really.">more</span> unlisted.</h2>
+    <h2 id="bio">A <span title="01001101000I1011">lazy</span> coder, <a href="http://en.wikipedia.org/wiki/STS-1">$age_needs_calculation</a>, <span title="8====D (NSFW!)">&#9794;</span>, Taiwanese, <span title="Where is Taylor, the Caramel Macchiato girl?">Caffeinated</span>, Temporary <span title="S">Barrel</span> for Beer, <span title="-62">Tweetaholic</span> (aka Unstoppable Tweeting Disorder), <span title="Many years to be such master, it's not easy!">Master of Idling</span>, <span title="Hate this prefix">Un</span>professional Blogger, and <span title="You can let your mouse to rest, no more, really.">more</span> unlisted.</h2>
   </hgroup>
 </header>
 
 <section id="social">
 <h1>So-called Social!</h1>
 <ul>
-  <li><a href="http://www.twitter.com/lyjl"><img src="http://twitter-badges.s3.amazonaws.com/follow_me-c.png" alt="Follow lyjl on Twitter" title="Follow lyjl on Twitter"/></a><br/><span style="color: #222; font-size: 0.5em">Following @lyjl might not be a good idea! :D</span></li>
-  <li><a href="http://friendfeed.com/livibetter"><img src="http://friendfeed.com/static/images/chiclet.png" alt="Subscribe to me on FriendFeed" title="Subscribe to me on FriendFeed"/></a></li>
+  <li><a href="http://www.twitter.com/lyjl" title="Twitter">t</a></li>
+  <li><a href="http://friendfeed.com/livibetter" title="FriendFeed">FF</a></li>
 </ul>
 </section>
 
@@ -159,7 +183,7 @@ header, section, footer {margin: auto auto; width: 700px;}
 </section>
 
 <footer>
-  <p class="credit">Webfonts: <a href="http://levien.com/type/myfonts/inconsolata.html">Inconsolata</a>, <a href="http://www.theleagueofmoveabletype.com/fonts/1-junction">Junction</a>, <a href="http://www.fonts.info/info/en_yanone-kaffeesatz.htm">Yanone Kaffeesatz</a>, and <a href="http://yanone.de/typedesign/tagesschrift/">Yanone Tagesschrift</a></p>
+  <p class="credit">Webfonts: <a href="http://levien.com/type/myfonts/inconsolata.html">Inconsolata</a>, <a href="http://www.theleagueofmoveabletype.com/fonts/13-prociono">Prociono</a>, <a href="http://www.fonts.info/info/en_yanone-kaffeesatz.htm">Yanone Kaffeesatz</a>, and <a href="http://yanone.de/typedesign/tagesschrift/">Yanone Tagesschrift</a></p>
   <p class="copyright">© 2010 Yu-Jie Lin</p>
 </footer>
 <script type="text/javascript">
