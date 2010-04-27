@@ -351,8 +351,7 @@ def sigexit(signum, frame):
 
   if 'session' in __builtin__.__dict__:
     session.close()
-  if fd and old_settings:
-    termios.tcsetattr(fd, termios.TCSANOW, old_settings)
+  termios.tcsetattr(fd, termios.TCSANOW, old_settings)
   p('\033[?25h')
 
 
@@ -620,6 +619,15 @@ class Twitter(Source):
     self.token = oauth.Token(self.session['access_token']['oauth_token'],
         self.session['access_token']['oauth_token_secret'])
     self.client = oauth.Client(self.consumer, self.token)
+
+    # Test if access token is working
+    resp, content = self.client.request('https://api.twitter.com/1/account/verify_credentials.json', 'GET')
+    if resp['status'] == '401':
+      p_err('Something is wrong with access token, getting again...\n')
+      self.get_access_token()
+      self.token = oauth.Token(self.session['access_token']['oauth_token'],
+          self.session['access_token']['oauth_token_secret'])
+      self.client = oauth.Client(self.consumer, self.token)
 
     self._load_last_id()
 
@@ -1484,9 +1492,6 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
 
 if __name__ == '__main__':
  
-  fd = None
-  old_settings = None
-
   try:
     main()
   except Exception, e:
