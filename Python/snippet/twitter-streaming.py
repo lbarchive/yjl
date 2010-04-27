@@ -57,8 +57,17 @@ def main():
         password, {'track': track})
     print 'Tracking... [Control + C to stop]'
     print
+    multiline = False
+    line = ''
     while True:
-      line = f.readline()
+      if multiline:
+        line += '\n' + f.readline()
+      else:
+        line = f.readline()
+      multiline = not line.endswith('\r\n')
+      if multiline:
+        continue
+      
       if line:
         status = json.loads(line)
         try:
