@@ -150,7 +150,7 @@ def unescape(s):
 
 def remove_additional_space(s):
 
-  return re.sub('( |\n)+', ' ', s)
+  return re.sub('( |\n|\t)+', ' ', s)
 
 
 ##################
