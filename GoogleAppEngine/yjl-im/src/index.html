@@ -17,7 +17,7 @@ $(function (){
   $('#title').text('yjl.im');
 
   $('#bio').fadeTo(0, 0);
-  $('section').hide();
+  $('section > section').hide();
   $('footer').fadeTo(0, 0);
 
   $('body').mousemove(start_animation);
@@ -160,26 +160,28 @@ header, section, footer {display: block; margin: auto auto; width: 700px;}
 </style>
 </head>
 <body>
-<header>
-  <hgroup>
-    <h1 id="title">Yu-Jie Lin</h1>
-    <h2 id="bio">A <span title="01001101000I1011">lazy</span> coder, <a href="http://en.wikipedia.org/wiki/STS-1">$age_needs_calculation</a>, <span title="8====D (NSFW!)">&#9794;</span>, Taiwanese, <span title="Where is Taylor, the Caramel Macchiato girl?">Caffeinated</span>, Temporary <span title="S">Barrel</span> for Beer, <span title="-62">Tweetaholic</span> (aka Unstoppable Tweeting Disorder), <span title="Many years to be such master, it's not easy!">Master of Idling</span>, <span title="Hate this prefix">Un</span>professional Blogger, and <span title="You can let your mouse to rest, no more, really.">more</span> unlisted.</h2>
-  </hgroup>
-</header>
+<section itemscope itemtype="http://data-vocabulary.org/Person">
+  <header>
+    <hgroup>
+      <h1 itemprop="name" id="title">Yu-Jie Lin</h1>
+      <h2 id="bio"><span itemprop="role"><span title="01001101000I1011">Lazy</span> coder</span>, <a href="http://en.wikipedia.org/wiki/STS-1">$age_needs_calculation</a>, <span title="8====D (NSFW!)">&#9794;</span>, <span itemprop="address" itemscope itemtype="http://data-vocabulary.org/Address"><span itemprop="country-name">Taiwan</span></span>ese, <span title="Where is Taylor, the Caramel Macchiato girl?">Caffeinated</span>, Temporary <span title="S">Barrel</span> for Beer, <span title="-62">Tweetaholic</span> (aka Unstoppable Tweeting Disorder), <span title="Many years to be such master, it's not easy!">Master of Idling</span>, <span itemprop="title"><span title="Hate this prefix">Un</span>professional Blogger</span>, and <span title="You can let your mouse to rest, no more, really.">more</span> unlisted.</h2>
+    </hgroup>
+  </header>
 
-<section id="social">
-<h1>So-called Social!</h1>
-<ul>
-  <li><a href="http://www.twitter.com/lyjl" title="Twitter">t</a></li>
-  <li><a href="http://friendfeed.com/livibetter" title="FriendFeed">FF</a></li>
-</ul>
-</section>
+  <section id="social">
+  <h1>So-called Social!</h1>
+  <ul>
+    <li><a itemprop="url" href="http://www.twitter.com/lyjl" title="Twitter">t</a></li>
+    <li><a itemprop="url" href="http://friendfeed.com/livibetter" title="FriendFeed">FF</a></li>
+  </ul>
+  </section>
 
-<section id="blog">
-<h1>Booooolog?</h1>
-<ul>
-  <li><a href="http://blog.yjl.im/">YJL --verbose</a></li>
-</ul>
+  <section id="blog">
+  <h1>Booooolog?</h1>
+  <ul>
+    <li><a itemprop="url" href="http://blog.yjl.im/">YJL --verbose</a></li>
+  </ul>
+  </section>
 </section>
 
 <footer>
