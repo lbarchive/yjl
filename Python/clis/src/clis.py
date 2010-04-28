@@ -611,7 +611,11 @@ class Twitter(Source):
     self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(status["created_at"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status["user"]["screen_name"]!@@!ansi.freset!@: @!unescape(status["text"])!@ @!ansi.fmagenta!@@!surl(status["tweet_link"])!@@!ansi.freset!@'), escape=None)
 
     self._init_session()
+    self.create_connection()
+    self._load_last_id()
 
+  def create_connection(self):
+    
     self.consumer = oauth.Consumer(self.consumer_key, self.consumer_secret)
     if 'access_token' not in self.session:
       self.get_access_token()
@@ -628,8 +632,6 @@ class Twitter(Source):
       self.token = oauth.Token(self.session['access_token']['oauth_token'],
           self.session['access_token']['oauth_token_secret'])
       self.client = oauth.Client(self.consumer, self.token)
-
-    self._load_last_id()
 
   def get_access_token(self):
 
@@ -705,7 +707,18 @@ class Twitter(Source):
     request_uri = 'http://api.twitter.com/1/statuses/friends_timeline.json'
     if self.last_id:
       request_uri += '?since_id=%s' % self.last_id
-    resp, content = self.client.request(request_uri, 'GET')
+    try:
+      resp, content = self.client.request(request_uri, 'GET')
+    except AttributeError, e:
+      if repr(e) == """AttributeError("'NoneType' object has no attribute 'makefile'",)""":
+        # XXX http://code.google.com/p/httplib2/issues/detail?id=62
+        # Force to reconnect
+        p_err("\nAttributeError: 'NoneType' object has no attribute 'makefile'\n")
+        p_err("Reconnecting...")
+        Twitter.create_connection()
+        p_err("done.\n")
+      else:
+        raise e
     if resp['status'] != '200':
       raise Exception("Invalid response %s." % resp['status'])
 
@@ -928,7 +941,7 @@ class TwitterSearch(Feed):
 
     self.src_name = src.get('src_name', 'TwitterSearch')
     self.interval = src.get('interval', 60)
-    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["published"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["author"]["screen_name"]!@@!ansi.freset!@: @!entry["title"]!@ @!ansi.fmagenta!@@!surl(entry["link"])!@@!ansi.freset!@'), escape=None)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(entry["published"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!entry["author"]["screen_name"]!@@!ansi.freset!@: @!remove_additional_space(entry["title"])!@ @!ansi.fmagenta!@@!surl(entry["link"])!@@!ansi.freset!@'), escape=None)
     self.q = src['q']
     self.lang = src.get('lang', 'en')
     self.src_id = '%s:%s' % (self.lang, self.q)
