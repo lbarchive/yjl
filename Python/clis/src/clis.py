@@ -709,20 +709,21 @@ class Twitter(Source):
       request_uri += '?since_id=%s' % self.last_id
     try:
       resp, content = self.client.request(request_uri, 'GET')
+      if resp['status'] != '200':
+        raise Exception("Invalid response %s." % resp['status'])
+      return json.loads(content)
     except AttributeError, e:
       if repr(e) == """AttributeError("'NoneType' object has no attribute 'makefile'",)""":
         # XXX http://code.google.com/p/httplib2/issues/detail?id=62
         # Force to reconnect
-        p_err("\nAttributeError: 'NoneType' object has no attribute 'makefile'\n")
-        p_err("Reconnecting...")
+        p("\n")
+        p_err("AttributeError: 'NoneType' object has no attribute 'makefile'\n")
+        p_err("Reconnecting...\n")
         self.create_connection()
-        p_err("done.\n")
+        p_err("Done.\n")
+        return
       else:
         raise e
-    if resp['status'] != '200':
-      raise Exception("Invalid response %s." % resp['status'])
-
-    return json.loads(content)
 
   @safe_update
   def update(self):
