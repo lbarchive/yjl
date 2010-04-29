@@ -715,7 +715,7 @@ class Twitter(Source):
         # Force to reconnect
         p_err("\nAttributeError: 'NoneType' object has no attribute 'makefile'\n")
         p_err("Reconnecting...")
-        Twitter.create_connection()
+        self.create_connection()
         p_err("done.\n")
       else:
         raise e
