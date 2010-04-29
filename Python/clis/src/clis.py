@@ -962,13 +962,13 @@ class TwitterSearch(Feed):
     feed = fp.parse(self.SEARCH_URL + '?' + urllib.urlencode(parameters))
     try:
       if 'status' not in feed:
-        p_err('\nNo key status in feed: %s\n' % feed['bozo_exception'])
+        p_err('No key status in feed: %s\n' % feed['bozo_exception'])
         return
       if feed['status'] == 403 or feed['status'] == 404:
-        p_err('\nGot 403 or 404\n')
+        p_err('Got 403 or 404\n')
         return
       elif feed['status'] == 503:
-        p_err('\nHTTP Status 503\n')
+        p_err('HTTP Status 503\n')
         return
     except AttributeError, e:
       p_dbg(repr(feed))
