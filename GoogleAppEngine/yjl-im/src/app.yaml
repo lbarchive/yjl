@@ -3,14 +3,18 @@ version: 1
 runtime: python
 api_version: 1
 
-default_expiration: "7d"
+#default_expiration: "7d"
 
 handlers:
 #- url: /css
 #  static_dir: css
 
-- url: /font
-  static_dir: font
+- url: /font/stylesheet.css
+  static_files: font/stylesheet.css
+  upload: font/stylesheet.css
+
+- url: /font/.*
+  script: font.py
 
 - url: /img
   static_dir: img
