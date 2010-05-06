@@ -13,7 +13,8 @@ $(function (){
   if (window.location.href.indexOf('localhost') >= 0)
     return;
 
-  $('title').text('yjl.im');
+  if (!$.browser.msie)
+    $('title').text('yjl.im');
   $('#title').text('yjl.im');
 
   $('#bio').fadeTo(0, 0);
@@ -30,7 +31,8 @@ function start_animation(){
   function chg(text){
     $('#title')
       .queue(function(){
-        $('title').text(text);
+        if (!$.browser.msie)
+          $('title').text(text);
         $('#title').text(text);
         $(this).dequeue();
         })
@@ -119,18 +121,14 @@ function start_animation(){
 </script>
 <link href='font/stylesheet.css' rel='stylesheet' type='text/css'/> 
 <style>
-@font-face {font-family: "Yanone Tagesschrift"; src: url("font/YanoneTagesschrift.ttf");}
-@font-face {font-family: "Yanone Kaffeesatz Light"; src: url("font/YanoneKaffeesatz-Light.otf");}
-@font-face {font-family: "Inconsolata"; src: url("font/Inconsolata.otf");}
-
 body {background-color: #242424; color: #aaa; padding: 1ex;}
 a {color: #666; text-decoration: none; -webkit-transition-property: color; -webkit-transition-duration: 0.2s}
 a:visited {color: #666;}
 a:hover {color: #fff; text-shadow: #fff 0 0 2px;}
 
-#title {font-family: "Yanone Tagesschrift", "Palatino Linotype", "Book Antiqua", Palatino; font-size: 5em; margin: 0; text-shadow: #000 1px 1px 3px;}
-#bio {font-family: "Yanone Kaffeesatz Light", "Trebuchet MS", Helvetica; text-shadow: #000 1px 1px 0}
-footer {font-family: "Yanone Kaffeesatz Light", "Trebuchet MS", Helvetica}
+#title {font-family: "Moms Typewriter", "Palatino Linotype", "Book Antiqua", Palatino; font-size: 4em; margin: 0; text-shadow: #000 1px 1px 3px;}
+#bio {font-family: "Existence", "Trebuchet MS", Helvetica; text-shadow: #000 1px 1px 0}
+footer {font-family: "Existence", "Trebuchet MS", Helvetica}
 
 #social h1, #blog h1 {font-family: "Prociono", "Lucida Sans Unicode", "Lucida Grande"}
 
@@ -138,7 +136,8 @@ section ul {list-style-type: none; padding-left: 0;}
 
 section li {
   font-family: "Inconsolata", "Courier New", Courier, monospace; font-size: 2em;
-  display: inline-block; margin-left: 1ex;
+  display: inline-block; *display:inline;
+  margin-left: 1ex;
   }
 section li:first-child {margin-left: 0;}
 
@@ -147,7 +146,7 @@ section li a {
   border-radius: 5px; -moz-border-radius: 5px; -webkit-border-radius: 5px;
   box-shadow: #aaa 0 0 5px; -moz-box-shadow: #aaa 0 0 5px; -webkit-box-shadow: #aaa 0 0 5px;
   text-shadow: #222 0 0 2px;
-  display: inline-block;
+  display: block;
   height: 48px; width: 48px; line-height: 48px;
   }
 #blog li a {
@@ -185,7 +184,7 @@ header, section, footer {display: block; margin: auto auto; width: 700px;}
 </section>
 
 <footer>
-  <p class="credit">Webfonts: <a href="http://levien.com/type/myfonts/inconsolata.html">Inconsolata</a>, <a href="http://www.theleagueofmoveabletype.com/fonts/13-prociono">Prociono</a>, <a href="http://www.fonts.info/info/en_yanone-kaffeesatz.htm">Yanone Kaffeesatz</a>, and <a href="http://yanone.de/typedesign/tagesschrift/">Yanone Tagesschrift</a></p>
+  <p class="credit">Webfonts: <a href="http://yeah-noah.kernest.com/fonts">Existence</a>, <a href="http://levien.com/type/myfonts/inconsolata.html">Inconsolata</a>, <a href="http://users.cuci.nl/nonsuch/free.htm">Moms Typewriter</a>, and <a href="http://www.theleagueofmoveabletype.com/fonts/13-prociono">Prociono</a></p>
   <p class="copyright">© 2010 Yu-Jie Lin</p>
 </footer>
 <script type="text/javascript">
