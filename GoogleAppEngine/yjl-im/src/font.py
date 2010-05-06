@@ -38,15 +38,15 @@ class FontFile(webapp.RequestHandler):
       self.error(404)
       return
 
-    if os.environ['SERVER_NAME'] != 'localhost' and not (
-        'Origin' in self.request.headers and \
-        self.request.headers['Origin'] in ['localhost', 'http://www.yjl.im', 'http://blog.yjl.im']):
+    if 'Origin' not in self.request.headers:
+      self.response.headers.add_header('Access-Control-Allow-Origin', 'http://www.yjl.im')
+    elif os.environ['SERVER_NAME'] == 'localhost' or \
+        self.request.headers['Origin'] in ['http://www.yjl.im', 'http://blog.yjl.im']:
+      self.response.headers.add_header('Access-Control-Allow-Origin', self.request.headers['Origin'])
+    else:
       self.response.headers.add_header('Access-Control-Allow-Origin', 'http://www.yjl.im')
       self.error(403)
       return
-      
-    if os.environ['SERVER_NAME'] != 'localhost':
-      self.response.headers.add_header('Access-Control-Allow-Origin', self.request.headers['Origin'])
     
     self.response.headers['Content-Type'] = FontFile.EXT_TYPES[ext]
     
