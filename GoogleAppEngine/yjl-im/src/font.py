@@ -1,5 +1,6 @@
+import os
 import os.path
-import logging
+
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 
@@ -19,7 +20,6 @@ class FontFile(webapp.RequestHandler):
   def get(self, fontpath):
 
     fontpath = os.path.normpath(fontpath)
-    logging.debug(fontpath)
     # Does someone try to get other files?
     if fontpath.startswith('.') or fontpath.startswith('/'):
       self.error(403)
@@ -36,14 +36,17 @@ class FontFile(webapp.RequestHandler):
     if not os.path.exists(fontpath):
       self.error(404)
       return
-    
-    f = open(fontpath)
-    if 'Origin' in self.request.headers and \
-        self.request.headers['Origin'] in ['http://www.yjl.im', 'http://blog.yjl.im']:
-        self.response.headers.add_header('Access-Control-Allow-Origin', self.request.headers['Origin'])
-    else:
-        self.response.headers.add_header('Access-Control-Allow-Origin',  'http://www.yjl.im')
 
+    if os.environ['SERVER_NAME'] != 'localhost' and not (
+        'Origin' in self.request.headers and \
+        self.request.headers['Origin'] in ['localhost', 'http://www.yjl.im', 'http://blog.yjl.im']):
+      self.response.headers.add_header('Access-Control-Allow-Origin', 'http://www.yjl.im')
+      self.error(403)
+      return
+      
+    f = open(fontpath)
+    if os.environ['SERVER_NAME'] != 'localhost':
+      self.response.headers.add_header('Access-Control-Allow-Origin', self.request.headers['Origin'])
     self.response.headers.add_header('Content-Type', FontFile.EXT_TYPES[ext])
     self.response.out.write(f.read())
     f.close()

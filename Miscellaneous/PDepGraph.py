@@ -5,7 +5,7 @@
 # This code is in Publid Domain.
 #
 # Author:
-#  2009 Yu-Jie Lin
+#  2009, 2010 Yu-Jie Lin
 #
 # Dependencies:
 #  1. gentoolkit
@@ -13,7 +13,6 @@
 
 
 from optparse import OptionParser
-from sets import Set
 import sys
 
 
