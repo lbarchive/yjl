@@ -1,3 +1,4 @@
+import datetime
 import os
 import os.path
 
@@ -44,10 +45,16 @@ class FontFile(webapp.RequestHandler):
       self.error(403)
       return
       
-    f = open(fontpath)
     if os.environ['SERVER_NAME'] != 'localhost':
       self.response.headers.add_header('Access-Control-Allow-Origin', self.request.headers['Origin'])
-    self.response.headers.add_header('Content-Type', FontFile.EXT_TYPES[ext])
+    
+    self.response.headers['Content-Type'] = FontFile.EXT_TYPES[ext]
+    
+    expires = datetime.datetime.utcnow() + datetime.timedelta(365)
+    self.response.headers.add_header('Expires', expires.strftime("%d %b %Y %H:%M:%S GMT"))
+    self.response.headers['Cache-Control'] = 'public, max-age=%d' % (86400 * 365)
+    
+    f = open(fontpath)
     self.response.out.write(f.read())
     f.close()
 
