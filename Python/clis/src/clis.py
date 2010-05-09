@@ -89,7 +89,7 @@ def safe_update(func):
       func(*args, **kwds)
     except select.error:
       pass
-    except (socket.timeout, urllib2.HTTPError, urllib2.URLError), e:
+    except (socket.error, socket.timeout, urllib2.HTTPError, urllib2.URLError), e:
       p_err('%s\n' % repr(e))
     except Exception:
       p_err('\n')
@@ -423,6 +423,7 @@ class Source(object):
 
     self.last_accessed = 0
     self.exclude = src.get('exclude', [])
+    self.highlight = src.get('highlight', [])
     self.hide_id = src.get('hide_id', False)
 
   def _init_session(self):
@@ -539,6 +540,22 @@ class Source(object):
           p_err('[%s] %s' % (self.session_id, repr(e)))
           raise e
     return False
+
+  def process_highlight(self, entry):
+
+    if not self.highlight:
+      return
+
+    for key, highlights in self.highlight:
+      try:
+        # FIXME Dangerous
+        value = eval('entry%s' % key)
+        r_hl = re.compile('(' + '|'.join(highlights) + ')', re.I)
+        new_value = r_hl.sub(ANSI.fired + r'\1' + ANSI.freset, value)
+        exec 'entry%s = """%s"""' % (key, new_value)
+      except Exception, e:
+        p_err('[%s] %s' % (self.session_id, repr(e)))
+        raise e
 
   @safe_update
   def update(self):
@@ -1028,6 +1045,7 @@ class TwitterSearch(Feed):
       # XXX make this a method and move to base class, and also should support re
       if self.is_excluded(entry):
         continue
+      self.process_highlight(entry)
       print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
 
 
