@@ -551,7 +551,7 @@ class Source(object):
         # FIXME Dangerous
         value = eval('entry%s' % key)
         r_hl = re.compile('(' + '|'.join(highlights) + ')', re.I)
-        new_value = r_hl.sub(ANSI.fired + r'\1' + ANSI.freset, value)
+        new_value = r_hl.sub(ANSI.fired + ur'\1' + ANSI.freset, value)
         exec 'entry%s = """%s"""' % (key, new_value)
       except Exception, e:
         p_err('[%s] %s' % (self.session_id, repr(e)))
