@@ -550,9 +550,9 @@ class Source(object):
       try:
         # FIXME Dangerous
         value = eval('entry%s' % key)
-        r_hl = re.compile('(' + '|'.join(highlights) + ')', re.I)
-        new_value = r_hl.sub(ANSI.fired + ur'\1' + ANSI.freset, value)
-        exec 'entry%s = """%s"""' % (key, new_value)
+        r_hl = re.compile(u'(' + u'|'.join(highlights) + u')', re.I | re.U)
+        new_value = r_hl.sub(unicode(ANSI.fired) + ur'\1' + unicode(ANSI.freset), value)
+        exec u'entry%s = u"""%s"""' % (key, new_value)
       except Exception, e:
         p_err('[%s] %s' % (self.session_id, repr(e)))
         raise e
@@ -595,6 +595,7 @@ class Source(object):
         continue
       # XXX
       try:
+        self.process_highlight(entry)
         print self.output(entry=entry, src_name=self.src_name, **common_tpl_opts)
         if hasattr(self, 'say'):
           self.sayit(self.say(entry=entry, src_name=self.src_name, **common_tpl_opts))
