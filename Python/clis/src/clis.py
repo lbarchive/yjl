@@ -552,7 +552,7 @@ class Source(object):
         value = eval('entry%s' % key)
         r_hl = re.compile(u'(' + u'|'.join(highlights) + u')', re.I | re.U)
         new_value = r_hl.sub(unicode(ANSI.fired) + ur'\1' + unicode(ANSI.freset), value)
-        exec u'entry%s = u"""%s"""' % (key, new_value)
+        exec u'entry%s = u"""%s"""' % (key, new_value.replace(u'"', ur'\"'))
       except Exception, e:
         p_err('[%s] %s' % (self.session_id, repr(e)))
         raise e
