@@ -2,97 +2,112 @@
 
 @font-face {
 	font-family: 'Gentium Basic';
-	src: url('GentiumBasic/GenBasR.eot');
-	src: local('☺'), url('GentiumBasic/GenBasR.ttf') format('truetype'), url('GentiumBasic/GenBasR.svg#webfont') format('svg');
+	src: url('GentiumBasic/GenBasR-webfont.eot');
+	src: local('☺'), url('GentiumBasic/GenBasR-webfont.woff') format('woff'), url('GentiumBasic/GenBasR-webfont.ttf') format('truetype'), url('GentiumBasic/GenBasR-webfont.svg#webfont') format('svg');
+	font-weight: normal;
+	font-style: normal;
 }
 
 @font-face {
 	font-family: 'Gentium Basic';
+	src: url('GentiumBasic/GenBasI-webfont.eot');
+	src: local('☺'), url('GentiumBasic/GenBasI-webfont.woff') format('woff'), url('GentiumBasic/GenBasI-webfont.ttf') format('truetype'), url('GentiumBasic/GenBasI-webfont.svg#webfont') format('svg');
+	font-weight: normal;
 	font-style: italic;
-	src: url('GentiumBasic/GenBasI.eot');
-	src: local('☺'), url('GentiumBasic/GenBasI.ttf') format('truetype'), url('GentiumBasic/GenBasI.svg#webfont') format('svg');
 }
 
 @font-face {
 	font-family: 'Gentium Basic';
+	src: url('GentiumBasic/GenBasB-webfont.eot');
+	src: local('☺'), url('GentiumBasic/GenBasB-webfont.woff') format('woff'), url('GentiumBasic/GenBasB-webfont.ttf') format('truetype'), url('GentiumBasic/GenBasB-webfont.svg#webfont') format('svg');
 	font-weight: bold;
-	src: url('GentiumBasic/GenBasB.eot');
-	src: local('☺'), url('GentiumBasic/GenBasB.ttf') format('truetype'), url('GentiumBasic/GenBasB.svg#webfont') format('svg');
+	font-style: normal;
 }
 
 @font-face {
 	font-family: 'Gentium Basic';
+	src: url('GentiumBasic/GenBasBI-webfont.eot');
+	src: local('☺'), url('GentiumBasic/GenBasBI-webfont.woff') format('woff'), url('GentiumBasic/GenBasBI-webfont.ttf') format('truetype'), url('GentiumBasic/GenBasBI-webfont.svg#webfont') format('svg');
+	font-weight: bold;
 	font-style: italic;
-	src: url('GentiumBasic/GenBasBI.eot');
-	src: local('☺'), url('GentiumBasic/GenBasBI.ttf') format('truetype'), url('GentiumBasic/GenBasBI.svg#webfont') format('svg');
 }
 
 /* Gentium Book Basic */
 
 @font-face {
 	font-family: 'Gentium Book Basic';
-	src: url('GentiumBasic/GenBkBasR.eot');
-	src: local('☺'), url('GentiumBasic/GenBkBasR.ttf') format('truetype'), url('GentiumBasic/GenBkBasR.svg#webfont') format('svg');
+	src: url('GentiumBasic/GenBkBasR-webfont.eot');
+	src: local('☺'), url('GentiumBasic/GenBkBasR-webfont.woff') format('woff'), url('GentiumBasic/GenBkBasR-webfont.ttf') format('truetype'), url('GentiumBasic/GenBkBasR-webfont.svg#webfont') format('svg');
+	font-weight: normal;
+	font-style: normal;
 }
 
 @font-face {
 	font-family: 'Gentium Book Basic';
+	src: url('GentiumBasic/GenBkBasI-webfont.eot');
+	src: local('☺'), url('GentiumBasic/GenBkBasI-webfont.woff') format('woff'), url('GentiumBasic/GenBkBasI-webfont.ttf') format('truetype'), url('GentiumBasic/GenBkBasI-webfont.svg#webfont') format('svg');
+	font-weight: normal;
 	font-style: italic;
-	src: url('GentiumBasic/GenBkBasI.eot');
-	src: local('☺'), url('GentiumBasic/GenBkBasI.ttf') format('truetype'), url('GentiumBasic/GenBkBasI.svg#webfont') format('svg');
 }
 
 @font-face {
 	font-family: 'Gentium Book Basic';
+	src: url('GentiumBasic/GenBkBasB-webfont.eot');
+	src: local('☺'), url('GentiumBasic/GenBkBasB-webfont.woff') format('woff'), url('GentiumBasic/GenBkBasB-webfont.ttf') format('truetype'), url('GentiumBasic/GenBkBasB-webfont.svg#webfont') format('svg');
 	font-weight: bold;
-	src: url('GentiumBasic/GenBkBasB.eot');
-	src: local('☺'), url('GentiumBasic/GenBkBasB.ttf') format('truetype'), url('GentiumBasic/GenBkBasB.svg#webfont') format('svg');
+	font-style: normal;
 }
 
 @font-face {
 	font-family: 'Gentium Book Basic';
-	font-style: italic;
+	src: url('GentiumBasic/GenBkBasBI-webfont.eot');
+	src: local('☺'), url('GentiumBasic/GenBkBasBI-webfont.woff') format('woff'), url('GentiumBasic/GenBkBasBI-webfont.ttf') format('truetype'), url('GentiumBasic/GenBkBasBI-webfont.svg#webfont') format('svg');
 	font-weight: bold;
-	src: url('GentiumBasic/GenBkBasBI.eot');
-	src: local('☺'), url('GentiumBasic/GenBkBasBI.ttf') format('truetype'), url('GentiumBasic/GenBkBasBI.svg#webfont') format('svg');
-}
-
-/* Bergamo Gtd */
-
-@font-face {
-	font-family: 'Bergamo Std';
-	src: url('BergamoStd/BergamoStd-Regular.eot');
-	src: local('☺'), url('BergamoStd/BergamoStd-Regular.ttf') format('truetype'), url('BergamoStd/BergamoStd-Regular.svg#webfont') format('svg');
-}
-
-@font-face {
-	font-family: 'Bergamo Std';
-	src: url('BergamoStd/BergamoStd-Italic.eot');
 	font-style: italic;
-	src: local('☺'), url('BergamoStd/BergamoStd-Italic.ttf') format('truetype'), url('BergamoStd/BergamoStd-Italic.svg#webfont') format('svg');
+}
+
+/* Bergamo Std */
+
+@font-face {
+	font-family: 'Bergamo Std';
+	src: url('BergamoStd/BergamoStd-Regular-webfont.eot');
+	src: local('☺'), url('BergamoStd/BergamoStd-Regular-webfont.woff') format('woff'), url('BergamoStd/BergamoStd-Regular-webfont.ttf') format('truetype'), url('BergamoStd/BergamoStd-Regular-webfont.svg#webfont') format('svg');
+	font-weight: normal;
+	font-style: normal;
 }
 
 @font-face {
 	font-family: 'Bergamo Std';
-	font-weight: bold;
-	src: url('BergamoStd/BergamoStd-Bold.eot');
-	src: local('☺'), url('BergamoStd/BergamoStd-Bold.ttf') format('truetype'), url('BergamoStd/BergamoStd-Bold.svg#webfont') format('svg');
-}
-
-@font-face {
-	font-family: 'Bergamo Std';
+	src: url('BergamoStd/BergamoStd-Italic-webfont.eot');
+	src: local('☺'), url('BergamoStd/BergamoStd-Italic-webfont.woff') format('woff'), url('BergamoStd/BergamoStd-Italic-webfont.ttf') format('truetype'), url('BergamoStd/BergamoStd-Italic-webfont.svg#webfont') format('svg');
+	font-weight: normal;
 	font-style: italic;
+}
+
+@font-face {
+	font-family: 'Bergamo Std';
+	src: url('BergamoStd/BergamoStd-Bold-webfont.eot');
+	src: local('☺'), url('BergamoStd/BergamoStd-Bold-webfont.woff') format('woff'), url('BergamoStd/BergamoStd-Bold-webfont.ttf') format('truetype'), url('BergamoStd/BergamoStd-Bold-webfont.svg#webfont') format('svg');
 	font-weight: bold;
-	src: url('BergamoStd/BergamoStd-BoldItalic.eot');
-	src: local('☺'), url('BergamoStd/BergamoStd-BoldItalic.ttf') format('truetype'), url('BergamoStd/BergamoStd-BoldItalic.svg#webfont') format('svg');
+	font-style: normal;
+}
+
+@font-face {
+	font-family: 'Bergamo Std';
+	src: url('BergamoStd/BergamoStd-BoldItalic-webfont.eot');
+	src: local('☺'), url('BergamoStd/BergamoStd-BoldItalic-webfont.woff') format('woff'), url('BergamoStd/BergamoStd-BoldItalic-webfont.ttf') format('truetype'), url('BergamoStd/BergamoStd-BoldItalic-webfont.svg#webfont') format('svg');
+	font-weight: bold;
+	font-style: italic;
 }
 
 /* Prociono */
 
 @font-face {
 	font-family: 'Prociono';
-	src: url('Prociono/Prociono-Regular.eot');
-	src: local('☺'), url('Prociono/Prociono-Regular.ttf') format('truetype'), url('Prociono/Prociono-Regular.svg#webfont') format('svg');
+	src: url('Prociono/Prociono-Regular-webfont.eot');
+	src: local('☺'), url('Prociono/Prociono-Regular-webfont.woff') format('woff'), url('Prociono/Prociono-Regular-webfont.ttf') format('truetype'), url('Prociono/Prociono-Regular-webfont.svg#webfont') format('svg');
+	font-weight: normal;
+	font-style: normal;
 }
 
 /* Inconsolata */
