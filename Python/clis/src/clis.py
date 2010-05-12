@@ -614,6 +614,7 @@ class Source(object):
 class Twitter(Source):
 
   TYPE = 'twitter'
+  REQUEST_URI = 'http://api.twitter.com/1/statuses/friends_timeline.json'
 
   def __init__(self, src):
     
@@ -714,7 +715,6 @@ class Twitter(Source):
     self.session['access_token'] = access_token
     self.access_token = access_token
 
-
   @staticmethod
   def to_localtime(d):
 
@@ -722,7 +722,7 @@ class Twitter(Source):
 
   def get_list(self):
 
-    request_uri = 'http://api.twitter.com/1/statuses/friends_timeline.json'
+    request_uri = self.REQUEST_URI
     if self.last_id:
       request_uri += '?since_id=%s' % self.last_id
     try:
@@ -764,7 +764,32 @@ class Twitter(Source):
         continue
       status['tweet_link'] = 'http://twitter.com/%s/status/%s' % (status['user']['screen_name'], status['id'])
       status['created_at'] = self.to_localtime(status['created_at'])
+      self.process_highlight(status)
       print self.output(status=status, src_name=self.src_name, **common_tpl_opts)
+
+
+# FIXME Merge into class Twitter
+class TwitterMentions(Twitter):
+
+  TYPE = 'twittermentions'
+  REQUEST_URI = 'http://api.twitter.com/1/statuses/mentions.json'
+
+  def __init__(self, src):
+    
+    super(Twitter, self).__init__(src)
+    
+    self.username = src['username']
+    self.consumer_key = src['consumer_key']
+    self.consumer_secret = src['consumer_secret']
+    
+    self.src_id = self.username
+    self.src_name = src.get('src_name', 'TwitterMentions')
+    self.interval = src.get('interval', 90)
+    self.output = tpl(src.get('output', '@!ansi.fgreen!@@!ftime(status["created_at"], "%H:%M:%S")!@@!ansi.freset!@ [@!src_name!@] @!ansi.fyellow!@@!status["user"]["screen_name"]!@@!ansi.freset!@: @!unescape(status["text"])!@ @!ansi.fmagenta!@@!surl(status["tweet_link"])!@@!ansi.freset!@'), escape=None)
+
+    self._init_session()
+    self.create_connection()
+    self._load_last_id()
 
 
 class FriendFeed(Source):
@@ -1316,7 +1341,8 @@ class Tail(Source):
       i -= 1
 
 
-SOURCE_CLASSES = {'twitter': Twitter, 'friendfeed': FriendFeed, 'feed': Feed,
+SOURCE_CLASSES = {'twitter': Twitter, 'twittermentions': TwitterMentions,
+    'friendfeed': FriendFeed, 'feed': Feed,
     'sono': StackOverflowNewOnly, 'cl': Craigslist,
     'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather,
     'punbb12': PunBB12, 'punbb12onlynew': PunBB12OnlyNew,
