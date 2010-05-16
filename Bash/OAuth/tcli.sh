@@ -33,18 +33,22 @@ OAuth_sh=$(which TwitterOAuth.sh)
 source "$OAuth_sh"
 
 usage () {
-	echo "
-usage: $0 options
+	echo "usage: $0 options
 
 OPTIONS:
- -h      Show this message
- -c command
-	account_update_profile_image
-	statuses_update
- -r in_reply_to_status_id
- -s status
- -f file
+  -h      Show this message
+
+  -c      Command
+    
+	Valid Commands:
+      account_update_profile_image
+      statuses_update
+      twitpic_upload
+      twitpic_upload_post
+
+Use -h -c command to get options for the command.
 "
+	exit $1
 	}
 
 show_config_help () {
@@ -55,14 +59,45 @@ oauth_consumer_secret=YOUR_CONSUMER_SECRET
 You can register new app to get consumer key and secret at
   http://dev.twitter.com/apps/new
 "
-	exit 1
+	exit $1
+	}
+
+show_account_update_profile_image () {
+	echo "Command account_update_profile_image
+
+Requires:
+  -f file
+"
+	exit $1
+	}
+
+show_statuses_update () {
+	echo "Command statuses_update
+
+Requires:
+  -s status
+
+Optional:
+  -r in_reply_to_status_id
+"
+	exit $1
+	}
+
+show_twitpic_update () {
+	echo "Command twitpic_update
+
+Requires:
+  -s status
+  -f file
+"
+	exit $0
 	}
 
 load_config () {
-	[[ -f "$TCLI_RC" ]] && . "$TCLI_RC" || show_config_help
+	[[ -f "$TCLI_RC" ]] && . "$TCLI_RC" || show_config_help 1
 
-	[[ "$oauth_consumer_key" == "" ]] && show_config_help
-	[[ "$oauth_consumer_secret" == "" ]] && show_config_help
+	[[ "$oauth_consumer_key" == "" ]] && show_config_help 1
+	[[ "$oauth_consumer_secret" == "" ]] && show_config_help 1
 
 	TO_init
 
@@ -88,6 +123,7 @@ main () {
 	tcli_status=
 	tcli_in_reply_to_status_id=
 	tcli_file=
+	tcli_help_flag=
 	while getopts "c:s:r:f:h" name
 	do
 		case $name in
@@ -95,27 +131,72 @@ main () {
 		s)	tcli_status="$OPTARG";;
 		r)	tcli_in_reply_to_status_id="$OPTARG";;
 		f)	tcli_file="$OPTARG";;
-		h)  usage
-			exit 0;;
+		h)  tcli_help_flag="1";;
 		?)	usage
 			exit 2;;
 		esac
 	done
 
+	if [[ "$tcli_help_flag" == "1" ]]; then case $tcli_command in
+	account_update_profile_image)
+		show_account_update_profile_image 0
+		;;
+	statuses_update)
+		show_statuses_update 0
+		;;
+	twitpic_upload|twitpic_upload_post)
+		show_twitpic_upload 0
+		;;
+	*)
+		[[ "$tcli_command" == "" ]] && usage 0
+		usage 1
+	esac ; fi
+
 	case $tcli_command in
 	account_update_profile_image)
-		[[ "$tcli_file" == "" ]] && echo 'Requires: -f filename' && exit 1
+		[[ "$tcli_file" == "" ]] && show_account_update_profile 1
 		TO_account_update_profile_image '' "$tcli_file"
 		echo "$TO_ret"
 		return $TO_rval
 		;;
 	statuses_update)
-		[[ "$tcli_status" == "" ]] && echo 'Requires: -s "status"' && exit 1
+		[[ "$tcli_status" == "" ]] && show_statuses_update 1
 		TO_statuses_update '' "$tcli_status" "$tcli_in_reply_to_status_id"
 		echo "$TO_ret"
 		return $TO_rval
 		;;
+	twitpic_upload)
+		[[ "$twitpic_api" == "" ]] && read -p 'You TwitPic API Key: ' twitpic_api && echo "twitpic_api=\"$twitpic_api\"" >> "$TCLI_RC"
+		[[ "$twitpic_api" == "" ]] && exit 1
+
+		[[ "$tcli_file" == "" ]] && show_twitpic_upload 1
+		[[ "$tcli_status" == "" ]] && show_twitpic_upload 1
+		
+		T_ACCOUNT_VERIFY_CREDENTIALS='https://api.twitter.com/1/account/verify_credentials.json'
+		auth_header=$(OAuth_authorization_header 'X-Verify-Credentials-Authorization' 'http://api.twitter.com' '' '' 'GET' "$T_ACCOUNT_VERIFY_CREDENTIALS")
+		ret=$(curl -s -H "X-Auth-Service-Provider=$T_ACCOUNT_VERIFY_CREDENTIALS" -H "$auth_header" -F "key=$twitpic_api" -F "message=$tcli_status" -F "media=@$tcli_file" http://twitpic.com/api/2/upload.xml)
+		echo "$ret"
+		;;
+	twitpic_upload_post)
+		[[ "$twitpic_api" == "" ]] && read -p 'You TwitPic API Key: ' twitpic_api && echo "twitpic_api=\"$twitpic_api\"" >> "$TCLI_RC"
+		[[ "$twitpic_api" == "" ]] && exit 1
+
+		[[ "$tcli_file" == "" ]] && show_twitpic_upload 1
+		[[ "$tcli_status" == "" ]] && show_twitpic_upload 1
+		
+		T_ACCOUNT_VERIFY_CREDENTIALS='https://api.twitter.com/1/account/verify_credentials.json'
+		auth_header=$(OAuth_authorization_header 'X-Verify-Credentials-Authorization' 'http://api.twitter.com' '' '' 'GET' "$T_ACCOUNT_VERIFY_CREDENTIALS")
+		ret=$(curl -s -H "X-Auth-Service-Provider=$T_ACCOUNT_VERIFY_CREDENTIALS" -H "$auth_header" -F "key=$twitpic_api" -F "message=$tcli_status" -F "media=@$tcli_file" http://twitpic.com/api/2/upload.xml)
+		image_url=$(egrep -o 'http://twitpic\.com/[^<]*' <<< "$ret")
+		TO_statuses_update '' "$tcli_status $image_url" "$tcli_in_reply_to_status_id"
+		echo "$TO_ret"
+		return $TO_rval
+		;;
+	*)
+		usage 1
+		;;
 	esac
+	return 0
 	}
 
 main "$@"
