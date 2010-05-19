@@ -1,6 +1,6 @@
 {
 "name": "Twitter Web++",
-"version": "0.1",
+"version": "0.1.0.1",
 "description": "Enhances Twitter Web Interface",
 "icons": {"48": "icon48.png", "128": "icon128.png"},
 "background_page": "background.html",

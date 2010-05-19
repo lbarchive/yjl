@@ -221,7 +221,7 @@ function onreply() {
   if ($.trim(before_reply_status) == '')
     // Empty status
     endpos = tweet_screen_name.length + 2;
-  if (!re.exec(before_reply_status))
+  else if (!re.exec(before_reply_status))
     // tweet_screen_name not in #status before, characters are inserted by
     // Twitter's reply function.
     endpos += tweet_screen_name.length + 2

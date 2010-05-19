@@ -1,0 +1,11 @@
+# Twitter Web++ Chrome Extension Changelog
+
+## 0.1.0.1 (2010-05-19T18:38:20+0800)
+
+ - Fix cursor mis-replace when status is (equivalent to) empty.
+
+## 0.1 (2010-05-19)
+
+ - First release
+
+<!-- vim: set filetype=mkd: -->
