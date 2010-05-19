@@ -1,0 +1,108 @@
+#twpp {
+  margin-bottom: 1ex;
+  }
+
+#twpp input[type=button] {
+  -webkit-transition-property: background-color;
+  -webkit-transition-duration: 0.2s;
+  }
+
+#twpp_surl input[type=button],
+#twpp_quicktext input[type=button] {
+  border: none;
+  border-radius: 1em;
+  font-size: 1em;
+  margin-bottom: 0.5ex;
+  margin-top: 0.5ex;
+  margin-right: 1ex;
+  }
+
+#twpp_surl input[type=button] {
+  background-color: #ADC070;
+  color: #fff;
+  }
+
+#twpp_quicktext input[type=button] {
+  background-color: #70ADC0;
+  color: #fff;
+  }
+
+#twpp_surl input[type=button]:hover {
+  background-color: #779243;
+  }
+
+#twpp_quicktext input[type=button]:hover {
+  background-color: #437792;
+  }
+
+#twpp_surl input:last-child,
+#twpp_quicktext input:last-child {
+  margin-right: 0;
+  }
+
+li.status {
+  -webkit-transition-property: -webkit-box-shadow;
+  -webkit-transition-duration: 0.2s;
+  }
+
+li.status.twpp-onreply,
+li.status.twpp-onreply:hover {
+  -webkit-box-shadow: rgba(232, 87, 167, 0.753906) 0 0 5px;
+  margin-left: -10px;
+  margin-right: -10px;
+  padding-left: 10px !important;
+  z-index: 1000;
+  }
+
+li.status.twpp-onreply span.actions,
+li.status.twpp-onreply:hover span.actions {
+  right: 20px;
+  }
+
+li.status.twpp-onreply ul.actions-hover,
+li.status.twpp-onreply:hover ul.actions-hover {
+  padding-right: 20px;
+  }
+
+li.status.twpp-onreply span.thumb,
+li.status.twpp-onreply:hover span.thumb {
+  padding-left: 10px;
+  }
+
+#trends ul.trends-links li a {
+  -webkit-transition-property: background-color, height, opacity, padding-bottom, padding-top, visibility !important;
+  -webkit-transition-duration: 0.2, 1s, 1s, 1s, 1s, 1s;
+  }
+
+#trends ul.trends-links li a.twpp-tt-dim {
+  opacity: 0.25;
+  }
+
+#trends ul.trends-links li a.twpp-tt-remove {
+  visibility: hidden;
+  height: 0;
+  opacity: 0;
+  padding-bottom: 0;
+  padding-top: 0;
+  }
+
+/* For Twitter */
+li, li a {
+  -webkit-transition-property: background-color;
+  -webkit-transition-duration: 0.2s;
+  }
+
+li.status ul.actions-hover {
+  -webkit-transition-property: opacity;
+  -webkit-transition-duration: 0.2s;
+  }
+
+li.status ul.actions-hover {
+  visibility: visible;
+  opacity: 0;
+  }
+
+li.status:hover ul.actions-hover {
+  visibility: visible;
+  opacity: 1;
+  }

@@ -1,0 +1,31 @@
+{
+"name": "Twitter Web++",
+"version": "0.1",
+"description": "Enhances Twitter Web Interface",
+"icons": {"48": "icon48.png", "128": "icon128.png"},
+"background_page": "background.html",
+"options_page": "options.html",
+"content_scripts": [
+    {   "matches": [
+            "http://twitter.com/*",
+            "https://twitter.com/*"
+            ],
+        "css": [
+            "jquery.bar.css",
+            "twitterwebpp.css"
+            ],
+        "js": [
+            "jquery.js",
+            "jquery.bar.js",
+            "twitterwebpp.js"
+            ]
+        }
+    ],
+"permissions": [
+    "tabs",
+    "http://twitter.com/*",
+    "https://twitter.com/*",
+    "http://api.j.mp/*",
+    "http://api.bit.ly/*"
+    ]
+}

@@ -1,0 +1,371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Twitter Web++ Options</title>
+<script src="jquery.js"></script>
+<script src="jquery.bar.js"></script>
+<script>
+if (chrome.extension.getURL('').indexOf('mhhfojhaplkgphlfkenicgdacjkhhjhd') < 0) {
+    // Probably the published one, shut console's mouth up
+    // TODO Add a wrapper so user can choose (in Options page) to see debug information
+    console.debug = function() {};
+    }
+
+
+// FIXME Oh, this list is so embarrassing
+var ENABLES = ['surl', 'qt', 'self_reply', 'pull_users', 'pull_lists', 'pull_hashtags', 'pull_rter', 'tt_dim', 'tt_remove'];
+
+
+// Saves options to localStorage.
+function save_options() {
+
+  $.each(ENABLES, function (idx, item) {
+      localStorage[item + '_enabled'] = $('#' + item + '_enabled')[0].checked;
+      });
+
+  $('#surl_services input').each(function (idx, input) {
+      localStorage[input.id] = input.checked;
+      });
+
+  localStorage['quicktext'] = $('#quicktext').val();
+  localStorage['tt_dim'] = $('#tt_dim').val();
+  localStorage['tt_remove'] = $('#tt_remove').val();
+  // Update status to let user know options were saved.
+  $('#jbar').bar({
+      message: 'Options saved'
+      })
+      .click();
+  
+  }
+
+
+// Restores select box state to saved value from localStorage.
+function restore_options() {
+ 
+  chrome.extension.sendRequest({command: 'request_surl_services'}, function(resp) {
+      var surl_services = resp.surl_services;
+      $.each(surl_services, function (key, surl) {
+          $('#surl_services')
+              .append($('<input/>', {type: 'checkbox', id: 'surl_' + key, checked: surl.enabled}))
+              .append($('<label/>', {'for': 'surl_' + key, text: surl.name}))
+              ;
+          });
+      });
+
+  $('#quicktext').val(localStorage["quicktext"]);
+  $('#tt_dim').val(localStorage["tt_dim"]);
+  $('#tt_remove').val(localStorage["tt_remove"]);
+
+  $.each(ENABLES, function (idx, item) {
+      var $i = $('#' + item + '_enabled');
+      if ($i.length == 1) {
+        $i[0].checked = localStorage[item + '_enabled'] == 'true';
+        }
+      });
+
+  }
+
+
+function show_attributions() {
+
+  $('#jbar').bar({
+      message: 'Use <a href="http://tympanus.net/codrops/2009/10/29/jbar-a-jquery-notification-plugin/">jBar</a> with modifications for this extension.',
+      time: 5000
+      })
+      .click();
+  return false  
+
+  }
+
+
+$(function () {
+
+  $('#out-links td:first-child a')[0].href = 'https://chrome.google.com/extensions/detail/' + document.location.hostname;
+  
+  chrome.extension.sendRequest({command: 'request_config'}, function(config) {
+      $('#version').text('Version: ' + config.version + '.');
+      });
+
+  restore_options();
+
+  $('input[type=checkbox][class*=chain_enable_]').change(function () {
+      var $e = $(this);
+      var re = new RegExp("\\bchain_enable_([_a-z0-9-]+)\\b", "gi");
+      var m = re.exec($e.attr('class'));
+      if (!m)
+        return
+      var target = m[1];
+      if (this.checked)
+        $('#' + target).slideDown()
+      else
+        $('#' + target).slideUp();
+      })
+      .change();
+
+  });
+</script>
+<link rel="stylesheet" type="text/css" href="jquery.bar.css"/>
+<style>
+body {
+  background-color: #BECFD6;
+  font-family: Georgia, 'Times New Roman', Times, serif;
+  margin: 0 auto;
+  padding: 10px;
+  width: 720px;
+  }
+
+header {
+  background: #437792 -webkit-gradient(
+    linear,
+    left top,
+    left bottom,
+    color-stop(0.6, #3B6980),
+    color-stop(0.8, #467D99)
+    );
+  border-radius: 1em;
+  color: #FFF;
+  margin-bottom: 10px;
+  padding-top: 1em;
+  }
+
+header h1 {
+  font-size: 2em;
+  line-height: 0em;
+  text-align: center;
+  text-shadow: #000 0 0 3px;
+  }
+
+#out-links {
+  margin-bottom: 10px;
+  }
+
+#out-links table {
+  background-color: rgba(128, 128, 192, 0.5);
+  border-bottom-left-radius: 1em;
+  border-bottom-right-radius: 1em;
+  border-spacing: 0;
+  table-layout: fixed;
+  width: 100%;
+  }
+
+#out-links td {
+  margin: 0;
+  padding: 0;
+  }
+
+#out-links td:first-child a {
+  border-bottom-left-radius: 1em;
+  }
+
+#out-links td:last-child a {
+  border-bottom-right-radius: 1em;
+  }
+
+#out-links td a {
+  border: none;
+  color: #fff;
+  font-family: 'Lucida Grande', Geneva, Helvetica, sans-serif;  
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  text-shadow: #000 0 1px 1px;
+  display: block;
+  margin: 0;
+  padding: 0.5em 1em;
+  -webkit-transition-property: background-color;
+  -webkit-transition-duration: 0.2s;
+  }
+
+#out-links td a:hover {
+  background-color: rgba(192, 128, 128, 0.75);
+  }
+
+footer {
+  background: #437792 -webkit-gradient(
+    linear,
+    left bottom,
+    left top,
+    color-stop(0.8, #467D99),
+    color-stop(0.6, #3B6980)
+    );
+  border-radius: 1em;
+  color: #FFF;
+  margin-top: 10px;
+  padding: 10px;
+  text-align: center;
+  }
+
+
+#content {
+  background-color: #FFF;
+  border-radius: 1em;
+  padding: 10px;
+  }
+
+#content h1 {
+  background-color: #BECFD6;
+  border-radius: 0.5em;
+  color: #88c;
+  cursor: default;
+  font-family: 'Lucida Grande', Geneva, Helvetica, sans-serif;  
+  font-size: 1.5em;
+  padding: 0.25em 0.5em;
+  }
+
+#content #compose h1 {
+  margin-top: 0;
+  }
+
+#content h2 {
+  color: #3B6980;
+  cursor: default;
+  font-family: 'Lucida Grande', Geneva, Helvetica, sans-serif;  
+  font-size: 1.25em;
+  }
+
+#content div.content {
+  margin: auto 0.75em;
+  }
+
+a, a:visited {
+  color: #437792;
+  text-decoration: none;
+  }
+
+a:hover {
+  text-decoration: underline;
+  }
+
+footer a, footer a:visited {
+  color: #C0DEED;
+  text-decoration: none;
+  }
+
+footer p {
+  line-height: 1em;
+  margin: 5px;
+  padding: 0;
+  }
+
+code {
+  background-color: #ccf;
+  display: inline-block;
+  border-radius: 0.5em;
+  padding: 0 0.25em;
+  }
+
+input[type=checkbox]:hover,
+label:hover {
+  cursor: pointer;
+  }
+
+button,
+input {
+  -webkit-transition-property: background-color, color;
+  -webkit-transition-duration: 0.2s, 0.2s;
+  background-color: #437792;
+  border: none;
+  border-radius: 0.5em;
+  color: #FFF;
+  padding: 0.25em 0.5em;
+  }
+
+textarea {
+  -webkit-transition-property: -webkit-box-shadow;
+  -webkit-transition-duration: 0.2s;
+  border-color: #437792;
+  border-radius: 0.25em;
+  width: 100%;
+  }
+
+textarea:focus {
+  -webkit-box-shadow: rgba(87, 167, 232, 0.753906) 0 0 5px;
+  }
+  
+#save {
+  cursor: pointer;
+  display: block;
+  font-size: 2em;
+  margin-top: 10px;
+  text-align: center;
+  width: 100%;
+  }
+
+#save:hover {
+  background-color: #467D99;
+  color: #126;
+  }
+</style>
+</head>
+<body>
+<header>
+<h1>Twitter Web++ Options</h1>
+<section id="out-links">
+<table><tbody><tr>
+  <td><a href="#">Extension Home</a></td>
+  <td><a href="http://groups.google.com/group/yu-jie-lin">Discussion Group</a></td>
+  <td><a href="http://code.google.com/p/yjl/source/browse/#hg/ChromeExtension/twitterwebpp">Source</a></td>
+  <td><a href="http://twitter.com/lyjl">@lyjl</a></td>
+</tr></tbody></table>
+</section>
+
+</header>
+
+<section id="content">
+
+<section id="compose">
+<h1>Tweeting</h1>
+<div class="content">
+<h2><input type="checkbox" id="surl_enabled" class="chain_enable_surl_services"/><label for="surl_enabled">Shortening URL Service</label></h2>
+<div id="surl_services"></div>
+
+<h2><input type="checkbox" id="qt_enabled" class="chain_enable_qt_panel"/><label for="qt_enabled">Quick Text</label></h2>
+<div id="qt_panel">
+Syntax: <code>Title[:[LText][:[RText]]]</code>, ‘:’ is the splitter.
+<textarea id="quicktext" rows="10" cols="80"></textarea>
+</div>
+
+<h2>Pulling the Followings for Replying</h2>
+<div>
+<input type="checkbox" id="pull_users_enabled"/> <label for="pull_users_enabled">Users</label>
+<input type="checkbox" id="pull_lists_enabled"/> <label for="pull_lists_enabled">Lists</label>
+<input type="checkbox" id="pull_hashtags_enabled"/> <label for="pull_hashtags_enabled">Hashtags</label>
+<input type="checkbox" id="pull_rter_enabled"/> <label for="pull_rter_enabled">Retweeter</label>
+</div>
+
+<h2>Other</h2>
+<div>
+<input type="checkbox" id="self_reply_enabled"/><label for="self_reply_enabled">Add Self-reply button</label>
+</div>
+</div><!-- .content -->
+</section><!-- #compose -->
+
+<section id="trending">
+<h1>Trending Topic</h1>
+<div class="content">
+One regular expression per line. Each will be compiled with <code>gi</code> flags.
+</div>
+
+<div class="content">
+<h2><input type="checkbox" id="tt_dim_enabled" class="chain_enable_tt_dim"/><label for="tt_dim_enabled">Dim Topics</label></h2>
+<textarea id="tt_dim" rows="10" cols="80"></textarea>
+
+<h2><input type="checkbox" id="tt_remove_enabled" class="chain_enable_tt_remove"/><label for="tt_remove_enabled">Remove Topics</label></h2>
+<textarea id="tt_remove" rows="10" cols="80"></textarea>
+</div><!-- .content -->
+</section><!-- #trending -->
+
+<section>
+<button id="save" onclick="save_options()">Save</button>
+</section>
+
+</section<!-- #content -->
+
+<footer>
+<p>Twitter Web++ is created by @<a href="http://twitter.com/lyjl">lyjl</a> and not affiliated with <a href="http://twitter.com/">Twitter</a>.</p>
+<p><span id="version"></span> Copyright 2010 <a href="http://lmgtfy.com/?q=livibetter">Yu-Jie Lin</a>. <a href="javascript:show_attributions();">Attributions</a>.</p>
+</footer>
+<div id="jbar"></div>
+</body>
+</html>
+<!-- vim: set sw=2 ts=2 et: -->

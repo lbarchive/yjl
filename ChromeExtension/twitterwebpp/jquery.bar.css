@@ -1,0 +1,30 @@
+.jbar {
+  height: 0;
+	width: 100%;
+	position:fixed;
+	text-align:center;
+	left:0;
+	z-index:9999999;
+	margin:0;
+	padding:0;
+  text-shadow: #000 1px 1px 0;
+  }
+
+.jbar-bottom {
+	background-color: #467D99;
+	bottom:0;
+  -webkit-box-shadow: #000 0 0 5px;
+  color: #FFF;
+  }
+
+.jbar-error {
+	background-color: #7D4646 !important;
+  -webkit-box-shadow: #7D4646 0 0 5px;
+  color: #FF !important;
+  }
+
+.jbar-content{
+	line-height: 46px;
+	font-size: 18px;
+	font-family: 'Lucida Grande', sans-serif;
+}
