@@ -113,6 +113,12 @@ function start_animation(){
     .delay('slow')
     .delay('slow')
     .queue(function(){
+      $('#more').fadeTo('slow', 1);
+      $(this).dequeue();
+      })
+    .delay('slow')
+    .delay('slow')
+    .queue(function(){
       $('footer').fadeTo('slow', 1);
       $(this).dequeue();
       })
@@ -149,7 +155,8 @@ section li a {
   display: block;
   height: 48px; width: 48px; line-height: 48px;
   }
-#blog li a {
+#blog li a,
+#more li a {
   width: auto;
   padding: 0 1ex;
   }
@@ -179,6 +186,13 @@ header, section, footer {display: block; margin: auto auto; width: 700px;}
   <h1>Booooolog?</h1>
   <ul>
     <li><a itemprop="url" href="http://blog.yjl.im/">YJL --verbose</a></li>
+  </ul>
+  </section>
+
+  <section id="more">
+  <h1>More about me?</h1>
+  <ul>
+    <li><a itemprop="url" href="http://lmgtfy.com/?q=livibetter">All Information</a></li>
   </ul>
   </section>
 </section>
