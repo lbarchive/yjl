@@ -131,7 +131,7 @@ _OAuth_signature () {
 OAuth_signature () {
 	# Return the signature, note it's necessary to pass to OAuth_PE before add to header
 	# $1 base_string
-	_OAuth_signature "$oauth_signature_method" "$1" "$oauth_consumer_secret&$oauth_token_secret"
+	_OAuth_signature "$oauth_signature_method" "$1" "$oauth_consumer_secret" "$oauth_token_secret"
 	}
 
 _OAuth_authorization_header_params_string () {
