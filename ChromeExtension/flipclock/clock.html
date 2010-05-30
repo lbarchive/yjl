@@ -14,6 +14,13 @@ if (only_hhmm === undefined) {
 else {
 	only_hhmm = JSON.parse(only_hhmm);
 	}
+var is24 = localStorage['is24'];
+if (is24 === undefined) {
+	is24 = false;
+	}
+else {
+	is24 = JSON.parse(is24);
+	}
 	
 function Flip(target, text, font) {
 	if (target === undefined) {
@@ -165,6 +172,10 @@ FlipHour.prototype = new Flip();
 
 FlipHour.prototype._draw = function (target, text) {
 	var hour = Number(text);
+	if (is24) {
+		Flip.prototype._draw.call(this, target, hour);
+		return;
+		}
 	Flip.prototype._draw.call(this, target, (hour > 12) ? hour - 12 : hour);
 	var ctx = target.getContext('2d');
 	ctx.save();
@@ -285,10 +296,24 @@ function onload() {
 	window.onresize = resize;
 	resize();
 	document.body.addEventListener('click', onclick, false);
+	document.body.addEventListener('keyup', onkeyup, false);
+	}
+
+function onkeyup(evt) {
+	var ch = String.fromCharCode(evt.keyCode);
+	switch (ch) {
+		case ' ':
+			onclick();
+			break;
+		case '2':
+			is24 = !is24;
+			localStorage['is24'] = JSON.stringify(is24);
+			resize();
+			break;
+		}
 	}
 
 function onclick() {
-	console.log('click');
 	only_hhmm = !only_hhmm;
 	localStorage['only_hhmm'] = JSON.stringify(only_hhmm);
 	resize();
