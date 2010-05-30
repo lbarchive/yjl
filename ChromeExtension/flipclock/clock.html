@@ -30,29 +30,11 @@ function Flip(target, text, font) {
 		}
 	this.target = document.getElementById(target);
 	this.text = text;
-	this.font = font;
-	this.fontsize = /^\d+/.exec(font)[0];
 	this._from = document.createElement('canvas');
-	this._from.width = this.target.width;
-	this._from.height = this.target.height;
 	this._to = document.createElement('canvas');
-	this._to.width = this.target.width;
-	this._to.height = this.target.height;
 	this.step = null;
 	this.max_steps = 10;
-
-	// Calculate gap
-	var gap = Math.floor(this.target.width * 0.01);
-	if (gap < 2) {
-		gap = 2;
-		}
-	if (gap > 20) {
-		gap = 20;
-		}
-	this.gap = gap;
-
-	// First draw
-	this._draw(this.target, this.text);
+	this.resize(font);
 	}
 Flip.prototype = {
 	constructor: Flip,
@@ -65,6 +47,16 @@ Flip.prototype = {
 			this._to.width = this.target.width;
 			this._to.height = this.target.height;
 			}
+		// Calculate gap
+		var gap = Math.floor(this.target.width * 0.01);
+		if (gap < 2) {
+			gap = 2;
+			}
+		if (gap > 20) {
+			gap = 20;
+			}
+		this.gap = gap;
+		
 		this.font = font;
 		this.fontsize = /^\d+/.exec(font)[0];
 		if (this.step !== null) {
@@ -287,25 +279,28 @@ function resize() {
 		window.setTimeout(update_clock, 100);
 		}
 	if (config.only_hhmm) {
-		document.getElementById('pad').style.height = ((h - size) / 2) + 'px';
+		document.body.style.paddingTop = ((h - size) / 2) + 'px';
+		document.body.style.paddingBottom = ((h - size) / 2) + 'px';
 		}
 	else {
-		document.getElementById('pad').style.height = ((h - (size + size2 + 10)) / 2) + 'px';
+		document.body.style.paddingTop = ((h - (size + size2 + 10)) / 2) + 'px';
+		document.body.style.paddingBottom = ((h - (size + size2 + 10)) / 2) + 'px';
 		}
 	}
 
 function onload() {
 	window.onresize = resize;
 	resize();
-	document.body.addEventListener('click', onclick, false);
+	document.body.addEventListener('dblclick', ondblclick, false);
 	document.body.addEventListener('keyup', onkeyup, false);
+	document.onselectstart = function () {return false;};
 	}
 
 function onkeyup(evt) {
 	var ch = String.fromCharCode(evt.keyCode);
 	switch (ch) {
 		case ' ':
-			onclick();
+			ondblclick();
 			break;
 		case '2':
 			config.is24 = !config.is24;
@@ -315,7 +310,7 @@ function onkeyup(evt) {
 		}
 	}
 
-function onclick() {
+function ondblclick() {
 	config.only_hhmm = !config.only_hhmm;
 	localStorage['config'] = JSON.stringify(config);
 	resize();
@@ -323,7 +318,6 @@ function onclick() {
 </script>
 </head>
 <body onload='onload()'>
-<div id="pad"></div>
 <div id="row1">
 <canvas id='hh'></canvas>
 <canvas id='mm'></canvas>
