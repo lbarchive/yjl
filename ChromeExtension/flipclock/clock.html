@@ -8,13 +8,13 @@ body {background-color: #000; overflow: hidden; margin: 5px}
 <script>
 var hh, mm, ss, ww, MM, dd, yy;
 var config = localStorage['config'];
-if (config === undefined) {
+if (config == undefined) {
 	config = {
 		only_hhmm: false,
 		is24: false
 		}
 	var only_hhmm = localStorage['only_hhmm'];
-	if (only_hhmm !== undefined) {
+	if (only_hhmm != undefined) {
 		config.only_hhmm = only_hhmm;
 		delete localStorage['only_hhmm'];
 		}
@@ -148,8 +148,6 @@ Flip.prototype = {
 				cd.drawImage(flip._to,
 					0, h / 2, w, h / 2,
 					0, h / 2, w, h / 2);
-				flip._from.width = flip._from.width;
-				flip._to.width = flip._to.width;
 				flip.step = null;
 				}
 			}
@@ -288,7 +286,7 @@ function resize() {
 		}
 	}
 
-function onload() {
+function load() {
 	window.onresize = resize;
 	resize();
 	document.body.addEventListener('dblclick', ondblclick, false);
@@ -317,7 +315,7 @@ function ondblclick() {
 	}
 </script>
 </head>
-<body onload='onload()'>
+<body onload='load()'>
 <div id="row1">
 <canvas id='hh'></canvas>
 <canvas id='mm'></canvas>
