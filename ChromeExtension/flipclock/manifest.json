@@ -1,6 +1,6 @@
 {
 "name": "Flip Clock",
-"version": "0.1",
+"version": "0.3",
 "description": "Flip Clock for F11",
 "icons": {"48": "icon48.png", "128": "icon128.png"},
 "background_page": "background.html",

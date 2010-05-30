@@ -7,19 +7,21 @@ body {background-color: #000; overflow: hidden; margin: 5px}
 </style>
 <script>
 var hh, mm, ss, ww, MM, dd, yy;
-var only_hhmm = localStorage['only_hhmm'];
-if (only_hhmm === undefined) {
-	only_hhmm = false;
+var config = localStorage['config'];
+if (config === undefined) {
+	config = {
+		only_hhmm: false,
+		is24: false
+		}
+	var only_hhmm = localStorage['only_hhmm'];
+	if (only_hhmm !== undefined) {
+		config.only_hhmm = only_hhmm;
+		delete localStorage['only_hhmm'];
+		}
+	localStorage['config'] = JSON.stringify(config);
 	}
 else {
-	only_hhmm = JSON.parse(only_hhmm);
-	}
-var is24 = localStorage['is24'];
-if (is24 === undefined) {
-	is24 = false;
-	}
-else {
-	is24 = JSON.parse(is24);
+	config = JSON.parse(config);
 	}
 	
 function Flip(target, text, font) {
@@ -172,7 +174,7 @@ FlipHour.prototype = new Flip();
 
 FlipHour.prototype._draw = function (target, text) {
 	var hour = Number(text);
-	if (is24) {
+	if (config.is24) {
 		Flip.prototype._draw.call(this, target, hour);
 		return;
 		}
@@ -210,12 +212,12 @@ function update_clock() {
 	if (s.length < 2) {
 		s = '0' + s;
 		}
-	if (!only_hhmm) {
+	if (!config.only_hhmm) {
 		try { ss.flip(s); } catch (err1) { }
 		}
 	try { mm.flip(m); } catch (err2) { }
 	try { hh.flip(h); } catch (err3) { }
-	if (!only_hhmm) {
+	if (!config.only_hhmm) {
 		try { ww.flip(w); } catch (err4) { }
 		try { MM.flip(M); } catch (err5) { }
 		try { dd.flip(_d); } catch (err6) { }
@@ -237,7 +239,7 @@ function resize() {
 	var width2 = Math.floor((w - 5 * 5) / 7.0);
 	var size2 = Math.floor((w - 5 * 5) / 7.0 / 3 * 2);
 	var font2 = size2 + 'px "' + fontname + '"';
-	if (only_hhmm) {
+	if (config.only_hhmm) {
 		width = Math.floor((w - 5 * 3) / 2.0);
 		size = Math.floor((w - 5 * 3) / 2.0 / 3 * 2);
 		font = size + 'px "' + fontname + '"';
@@ -245,7 +247,7 @@ function resize() {
 	
 	_set_wh('hh', width, size);
 	_set_wh('mm', width, size);
-	if (!only_hhmm) {
+	if (!config.only_hhmm) {
 		_set_wh('ss', width, size);
 
 		_set_wh('ww', width2 * 2, size2);
@@ -264,7 +266,7 @@ function resize() {
 	if (hh) {
 		hh.resize(font);
 		mm.resize(font);
-		if (!only_hhmm) {
+		if (!config.only_hhmm) {
 			ss.resize(font);
 			
 			ww.resize(font2);
@@ -284,7 +286,7 @@ function resize() {
 		yy = new Flip('yy', '    ', font2);
 		window.setTimeout(update_clock, 100);
 		}
-	if (only_hhmm) {
+	if (config.only_hhmm) {
 		document.getElementById('pad').style.height = ((h - size) / 2) + 'px';
 		}
 	else {
@@ -306,16 +308,16 @@ function onkeyup(evt) {
 			onclick();
 			break;
 		case '2':
-			is24 = !is24;
-			localStorage['is24'] = JSON.stringify(is24);
+			config.is24 = !config.is24;
+			localStorage['config'] = JSON.stringify(config);
 			resize();
 			break;
 		}
 	}
 
 function onclick() {
-	only_hhmm = !only_hhmm;
-	localStorage['only_hhmm'] = JSON.stringify(only_hhmm);
+	config.only_hhmm = !config.only_hhmm;
+	localStorage['config'] = JSON.stringify(config);
 	resize();
 	}
 </script>
