@@ -289,16 +289,18 @@ function resize() {
 function load() {
 	window.onresize = resize;
 	resize();
-	document.body.addEventListener('dblclick', ondblclick, false);
-	document.body.addEventListener('keyup', onkeyup, false);
+	document.ondblclick = dblclick;
+	document.onkeyup = keyup;
 	document.onselectstart = function () {return false;};
+	document.onmousedown = function () {return false;};
 	}
 
-function onkeyup(evt) {
+function keyup(evt) {
 	var ch = String.fromCharCode(evt.keyCode);
+
 	switch (ch) {
 		case ' ':
-			ondblclick();
+			dblclick();
 			break;
 		case '2':
 			config.is24 = !config.is24;
@@ -308,7 +310,7 @@ function onkeyup(evt) {
 		}
 	}
 
-function ondblclick() {
+function dblclick() {
 	config.only_hhmm = !config.only_hhmm;
 	localStorage['config'] = JSON.stringify(config);
 	resize();
