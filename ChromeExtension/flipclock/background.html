@@ -1,0 +1,16 @@
+<!DOCTYPE html>
+<html>
+<head>
+<script type="text/javascript">
+function onload(){
+	// Hook the clock page
+	chrome.browserAction.onClicked.addListener(function(tab) {
+		chrome.tabs.create({url: chrome.extension.getURL('clock.html')});
+		});
+	}
+</script>
+</head>
+<body onload='onload()'>
+</body>
+</html>
+<!-- vim: set ts=2 sw=2 sts=2 ai: -->

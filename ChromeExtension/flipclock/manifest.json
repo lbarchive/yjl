@@ -1,0 +1,14 @@
+{
+"name": "Flip Clock",
+"version": "0.1",
+"description": "Flip Clock for F11",
+"icons": {"48": "icon48.png", "128": "icon128.png"},
+"background_page": "background.html",
+"browser_action": {
+  "default_title": "Open flip clock",
+  "default_icon": "icon48.png"
+  },
+"permissions": [
+  "tabs"
+  ]
+}

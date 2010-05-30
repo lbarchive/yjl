@@ -1,0 +1,262 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<style>
+body {background-color: #000; overflow: hidden; margin: 5px}
+</style>
+<script>
+
+Flip.prototype = new Object();
+function Flip(target, text, font) {
+	if (target == undefined)
+		return
+	this.target = document.getElementById(target);
+	this.text = text;
+	this._from = document.createElement('canvas');
+	this._from.width = this.target.width;
+	this._from.height = this.target.height;
+	this._to = document.createElement('canvas');
+	this._to.width = this.target.width;
+	this._to.height = this.target.height;
+	this.font = font;
+	this.fontsize = /^\d+/.exec(font)[0];
+	this.step == null;
+	this.max_steps = 10;
+
+	// Calculate gap
+	var gap = Math.floor(this.target.width * 0.01);
+	if (gap < 2) gap = 2;
+	if (gap > 20) gap = 20;
+	this.gap = gap;
+
+	// First draw
+	this._draw(this.target, this.text);
+	}
+Flip.prototype.constructor = Flip;
+Flip.prototype.resize = function (font) {
+	this._from.width = this.target.width;
+	this._from.height = this.target.height;
+	this._to.width = this.target.width;
+	this._to.height = this.target.height;
+	this.font = font;
+	this.fontsize = /^\d+/.exec(font)[0];
+	if (this.step != null) {
+		this._draw(this._from, this._oldtext);
+		this._draw(this._to, this.text);
+		}
+	else
+		this._draw(this.target, this.text);
+	}
+
+Flip.prototype._draw = function (target, text) {
+	var ctx = target.getContext('2d');
+	
+	ctx.clearRect(0, 0, target.width, target.height);
+	ctx.fillStyle = '#222';
+	var r = Math.floor(this.fontsize * 0.1);
+	ctx.beginPath();
+	ctx.moveTo(r - 1, 0);
+	ctx.lineTo(target.width - r - 1, 0);
+	ctx.quadraticCurveTo(target.width - 1, 0, target.width - 1, r - 1);
+	ctx.lineTo(target.width - 1, target.height - r - 1);
+	ctx.quadraticCurveTo(target.width - 1, target.height - 1, target.width - r - 1, target.height - 1);
+	ctx.lineTo(r - 1, target.height - 1);
+	ctx.quadraticCurveTo(0, target.height - 1, 0, target.height - r - 1);
+	ctx.lineTo(0, r - 1);
+	ctx.quadraticCurveTo(0, 0, r - 1, 0);
+	ctx.fill();
+
+	ctx.fillStyle = '#fff';
+	ctx.font = this.font;
+	ctx.textAlign = 'center';
+	ctx.textBaseline = 'middle';
+	
+	ctx.fillText(text, target.width / 2, target.height / 2);
+
+	// Middle gap
+	ctx.fillStyle = '#000';
+	ctx.fillRect(0, target.height / 2 - this.gap / 2, target.width, this.gap);
+	}
+
+Flip.prototype.flip = function (new_text) {
+		if (this.text == new_text)
+			return
+		if (this.step != null)
+			// TODO add queue to get rid of this
+			throw "I'm busy flipping your text!"
+
+		// set up _from, _to
+		this._draw(this._from, this.text);
+		this._draw(this._to, new_text);
+		this.step = 0;
+		this._flip(this);
+		this._oldtext = this.text; // in case of resizing
+		this.text = new_text;
+		}
+
+Flip.prototype._flip = function () {
+	function flipit (flip) {
+		var cd = flip.target.getContext('2d');
+		var csf = flip._from.getContext('2d');
+		var cst = flip._to.getContext('2d');
+		var w = flip.target.width;
+		var h = flip.target.height;
+		
+		if (flip.step <= flip.max_steps / 2) {
+			cd.drawImage(flip._to,
+				0, 0, w, h / 2,
+				0, 0, w, h / 2);
+
+			var sf_top = 1.0 * flip.step / (flip.max_steps / 2) * h / 2;
+			cd.drawImage(flip._from,
+				0, 0, w, h / 2,
+				0, sf_top, w, h / 2 - sf_top);
+			}
+		cd.drawImage(flip._from,
+			0, h / 2, w, h / 2,
+			0, h / 2, w, h / 2);
+		if (flip.step >= flip.max_steps / 2) {
+			var st_top = (1.0 * flip.step / (flip.max_steps / 2) - 1) * h / 2;
+			cd.drawImage(flip._to,
+				0, h / 2, w, h / 2,
+				0, h / 2, w, st_top);
+			}
+
+		if (++flip.step<flip.max_steps)
+			setTimeout(function () {
+				flipit(flip);
+				}, 10)
+		else {
+			cd.drawImage(flip._to,
+				0, h / 2, w, h / 2,
+				0, h / 2, w, h / 2);
+			flip.step = null;
+			}
+		}
+
+	flipit(this);
+	}
+
+function FlipHour(target, hour, font) {
+	Flip.call(this, target, hour, font);
+	this._draw(this.target, hour);
+	}
+FlipHour.prototype = new Flip();
+
+FlipHour.prototype._draw = function (target, text) {
+	var hour = Number(text);
+	Flip.prototype._draw.call(this, target, (hour > 12) ? hour - 12 : hour);
+	var ctx = target.getContext('2d');
+	ctx.save();
+	ctx.font = Math.floor(this.target.height * 0.1) + 'px Arial';
+	ctx.fillStyle = '#fff';
+	ctx.textAlign = 'left';
+	var offset = Math.floor(this.target.height * 0.05);
+	if (hour >= 12) {
+		ctx.textBaseline = 'bottom';
+		ctx.fillText('PM', offset, this.target.height - offset)
+		}
+	else {
+		ctx.textBaseline = 'top';
+		ctx.fillText('AM', offset, offset);
+		}
+	ctx.restore();
+	}
+FlipHour.prototype.constructor = FlipHour;
+
+var hh, mm, ss;
+
+function update_clock() {
+	var d = new Date();
+	var w = ['SUN', 'MON', 'TUE', 'WED', 'THU', 'FRI', 'SAT'][d.getDay()];
+	var M = ['JAN', 'FEB', 'MAR', 'APR', 'MAY', 'JUN', 'JUL', 'AUG', 'SEP', 'OCT', 'NOV', 'DEC'][d.getMonth()];
+	var _d = String(d.getDate());
+	var y = String(d.getFullYear());
+	var h = String(d.getHours());
+	var m = String(d.getMinutes());
+	var s = String(d.getSeconds());
+	if (m.length < 2) m = '0' + m;
+	if (s.length < 2) s = '0' + s;
+	
+	try { ss.flip(s);	}	catch (e) {	};
+	try {	mm.flip(m); }	catch (e) { };
+	try {	hh.flip(h);	}	catch (e) {	};
+	try {	ww.flip(w);	}	catch (e) {	};
+	try { MM.flip(M);	}	catch (e) {	};
+	try {	dd.flip(_d); }	catch (e) { };
+	try {	yy.flip(y);	}	catch (e) {	};
+	
+	setTimeout(update_clock, 100);
+	}
+
+function resize() {
+	var fontname = 'Arial';
+	var w = window.innerWidth;
+	var h = window.innerHeight;
+	var width  = Math.floor((w - 5 * 4) / 3.0);
+	var size = Math.floor((w - 5 * 4) / 3.0 / 3 * 2);
+	var font = size + 'px "' + fontname + '"';
+	var width2 = Math.floor((w - 5 * 5) / 7.0);
+	var size2 = Math.floor((w - 5 * 5) / 7.0 / 3 * 2);
+	var font2 = size2 + 'px "' + fontname + '"';
+	document.getElementById('hh').width = width;
+	document.getElementById('hh').height = size;
+	document.getElementById('mm').width = width;
+	document.getElementById('mm').height = size;
+	document.getElementById('ss').width = width;
+	document.getElementById('ss').height = size;
+	document.getElementById('ww').width = width2 * 2;
+	document.getElementById('ww').height = size2;
+	document.getElementById('MM').width = width2 * 2;
+	document.getElementById('MM').height = size2;
+	document.getElementById('dd').width = width2;
+	document.getElementById('dd').height = size2;
+	document.getElementById('yy').width = width2 * 2;
+	document.getElementById('yy').height = size2;
+	if (hh) {
+		hh.resize(font);
+		mm.resize(font);
+		ss.resize(font);
+		
+		ww.resize(font2);
+		MM.resize(font2);
+		dd.resize(font2);
+		yy.resize(font2);
+		}
+	else {
+		hh = new FlipHour('hh', '  ', font);
+		mm = new Flip('mm', '  ', font);
+		ss = new Flip('ss', '  ', font);
+		
+		ww = new Flip('ww', '   ', font2);
+		MM = new Flip('MM', '   ', font2);
+		dd = new Flip('dd', '  ', font2);
+		yy = new Flip('yy', '    ', font2);
+		setTimeout(update_clock, 100);
+		}
+	
+	document.getElementById('pad').style.height = ((h - (size + size2 + 10)) / 2) + 'px';
+	}
+
+function onload() {
+	window.onresize = resize;
+	resize();
+	}
+</script>
+</head>
+<body onload='onload()'>
+<div id="pad"></div>
+<div>
+<canvas id='hh' width="120" height="80"></canvas>
+<canvas id='mm' width="120" height="80"></canvas>
+<canvas id='ss' width="120" height="80"></canvas>
+</div>
+<div>
+<canvas id='ww' width="200" height="80"></canvas>
+<canvas id='MM' width="200" height="80"></canvas>
+<canvas id='dd' width="120" height="80"></canvas>
+<canvas id='yy' width="240" height="80"></canvas>
+</div>
+</body>
+</html>
+<!-- vim: set ts=2 sw=2 sts=2 ai: -->
