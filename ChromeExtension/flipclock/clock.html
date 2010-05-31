@@ -7,6 +7,7 @@ body {background-color: #000; overflow: hidden; margin: 5px}
 </style>
 <script>
 var hh, mm, ss, ww, MM, dd, yy;
+var timer;
 var config = localStorage['config'];
 if (config == undefined) {
 	config = {
@@ -142,7 +143,7 @@ Flip.prototype = {
 
 			flip.step++;
 			if (flip.step<flip.max_steps) {
-				setTimeout(function () {flipit(flip);}, 10);
+				window.setTimeout(function () {flipit(flip);}, 10);
 				}
 			else {
 				cd.drawImage(flip._to,
@@ -213,7 +214,7 @@ function update_clock() {
 		try { dd.flip(_d); } catch (err6) { }
 		try { yy.flip(y); } catch (err7) { }
 		}	
-	window.setTimeout(update_clock, 100);
+	timer = window.setTimeout(update_clock, 100);
 	}
 
 function _set_wh(id, w, h) {var e = document.getElementById(id); e.style.visibility = 'visible'; e.width = w; e.height = h;}
@@ -274,7 +275,7 @@ function resize() {
 		MM = new Flip('MM', '   ', font2);
 		dd = new Flip('dd', '  ', font2);
 		yy = new Flip('yy', '    ', font2);
-		window.setTimeout(update_clock, 100);
+		timer = window.setTimeout(update_clock, 100);
 		}
 	if (config.only_hhmm) {
 		document.body.style.paddingTop = ((h - size) / 2) + 'px';
@@ -288,11 +289,25 @@ function resize() {
 
 function load() {
 	window.onresize = resize;
+	window.onunload = unload;
 	resize();
 	document.ondblclick = dblclick;
 	document.onkeyup = keyup;
 	document.onselectstart = function () {return false;};
 	document.onmousedown = function () {return false;};
+	}
+
+function unload() {
+	window.clearTimeout(timer);
+	timer = undefined;
+	hh = undefined;
+	mm = undefined;
+	ss = undefined;
+	ww = undefined;
+	MM = undefined;
+	dd = undefined;
+	yy = undefined;
+	config = undefined;
 	}
 
 function keyup(evt) {
