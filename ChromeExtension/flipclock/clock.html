@@ -48,8 +48,11 @@ Flip.prototype = {
 			this._to.width = this.target.width;
 			this._to.height = this.target.height;
 			}
+		
+		this.font = font;
+		this.fontsize = /^\d+/.exec(font)[0];
 		// Calculate gap
-		var gap = Math.floor(this.target.width * 0.01);
+		var gap = Math.floor(Number(this.fontsize) * 0.01);
 		if (gap < 2) {
 			gap = 2;
 			}
@@ -58,8 +61,6 @@ Flip.prototype = {
 			}
 		this.gap = gap;
 		
-		this.font = font;
-		this.fontsize = /^\d+/.exec(font)[0];
 		if (this.step !== null) {
 			this._draw(this._from, this._oldtext);
 			this._draw(this._to, this.text);
@@ -169,7 +170,7 @@ FlipHour.prototype._draw = function (target, text) {
 		Flip.prototype._draw.call(this, target, hour);
 		return;
 		}
-	Flip.prototype._draw.call(this, target, (hour > 12) ? hour - 12 : hour);
+	Flip.prototype._draw.call(this, target, (hour > 12) ? hour - 12 : ((hour == 0)? '12' : hour));
 	var ctx = target.getContext('2d');
 	ctx.save();
 	ctx.font = Math.floor(this.target.height * 0.1) + 'px Arial';
