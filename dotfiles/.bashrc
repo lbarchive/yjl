@@ -55,11 +55,13 @@ AT_COLOR='\[\e[1;36m\]'
 NEW_PWD='$(
 p=${PWD/$HOME/}
 [[ $p != $PWD ]] && echo -n "'"$DIR_HOME_COLOR"'~"
+if [[ $p != "" ]]; then
 until [[ $p == $d ]]; do
     p=${p#*/}
     d=${p%%/*}
     dirnames[${#dirnames[@]}]=$d
 done
+fi
 for (( i=0; i<${#dirnames[@]}; i++ )); do
     if (( i == 0 )) || (( i == ${#dirnames[@]} - 1 )) || (( ${#dirnames[$i]} < '"$STR_MAX_LENGTH"' )); then
         echo -n "'"$DIR_SEP_COLOR"'/'"$DIR_COLOR"'${dirnames[$i]}"
