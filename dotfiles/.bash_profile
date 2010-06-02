@@ -1,13 +1,11 @@
 # .bash_profile
 
 # Get the aliases and functions
-if [ -f ~/.bashrc ]; then
-	. ~/.bashrc
-fi
+[[ -f $HOME/.bashrc ]] && . $HOME/.bashrc
 
 # User specific environment and startup programs
 
-PATH=$PATH:$HOME/bin:/sbin:/usr/sbin:/usr/games/bin:
+PATH=$PATH:$HOME/bin:/sbin:/usr/sbin:/usr/games/bin
 MANPATH=$MANPATH:$HOME/man
 PYTHONPATH="$HOME/lib/python2.5:/usr/local/lib64/python2.6:$PYTHONPATH"
 XDG_CONFIG_HOME=~/.config

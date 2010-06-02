@@ -16,16 +16,14 @@ alias lhl='less -R'
 #alias shell-fm="$HOME/bin/shell-fm -i localhost"
 
 # for root
-if [ `id -u` -eq 0 ]; then
+if (( UID == 0 )); then
 	alias rm='rm -i'
 	alias cp='cp -i'
 	alias mv='mv -i'
 fi
 
 # Source global definitions
-if [ -f /etc/bashrc ]; then
-	. /etc/bashrc
-fi
+[[ -f /etc/bashrc ]] && . /etc/bashrc
 
 export XMODIFIERS="@im=gcin"
 export GTK_IM_MODULE="gcin"
@@ -34,62 +32,59 @@ export QT_IM_MODULE="gcin"
 #export GTK_IM_MODULE="ibus"
 #export QT_IM_MODULE="ibus"
 
-[[ -f $HOME/p/yjl/Bash/g ]] && . /home/livibetter/p/yjl/Bash/g || echo "Can not found g script!"
+[[ -f $HOME/p/yjl/Bash/g ]] && . $HOME/p/yjl/Bash/g || echo "Can not found g script!"
 
-for comp in ~/.bash_completion.d/* ; do
-    if [ -r "$comp" ] ; then
-        . "$comp"
-    fi
+for comp in $HOME/.bash_completion.d/* ; do
+    [[ -r "$comp" ]] && . "$comp"
 done
 unset comp
 
-if [[ $RUNDIALOG == 1 ]]; then
-	. /home/livibetter/.runrc
+if (( RUNDIALOG == 1 )); then
+	. $HOME/.runrc
 else
 # Prompt
-[ $TERM == 'linux' ] && STR_MAX_LENGTH=2 || STR_MAX_LENGTH=3
+[[ $TERM == 'linux' ]] && STR_MAX_LENGTH=2 || STR_MAX_LENGTH=3
 DIR_COLOR='\[\e[1;32m\]'
+DIR_HOME_COLOR='\[\e[1;35m\]'
 DIR_SEP_COLOR='\[\e[1;31m\]'
 ABBR_DIR_COLOR='\[\e[1;37m\]'
 HOSTNAME_COLOR='\[\e[1;33m\]'
 AT_COLOR='\[\e[1;36m\]'
-[ $UID == '0' ] && USER_COLOR='\[\e[1;31m\]' || USER_COLOR='\[\e[1;34m\]'
+(( UID == 0 )) && USER_COLOR='\[\e[1;31m\]' || USER_COLOR='\[\e[1;34m\]'
 
 NEW_PWD='$(
-p="${PWD/$HOME/}";
-[ "$p" != "$PWD" ] && echo -n "~";
-i=0;
-until [ "$p" = "$d" ]; do
-    p=${p#*/};
-    d=${p%%/*};
-    dirnames[i]=$d;
-    (( i += 1 ));
-done;
-for i in $(seq 0 $((${#dirnames[@]} - 1))); do
-    if [ $i -eq 0 ] || [ $i -eq $((${#dirnames[@]} - 1)) ] || [ ${#dirnames[$i]} -le '"$STR_MAX_LENGTH"' ]; then
-        echo -n "'"$DIR_SEP_COLOR"'/'"$DIR_COLOR"'${dirnames[$i]}";
+p=${PWD/$HOME/}
+[[ $p != $PWD ]] && echo -n "'"$DIR_HOME_COLOR"'~"
+until [[ $p == $d ]]; do
+    p=${p#*/}
+    d=${p%%/*}
+    dirnames[${#dirnames[@]}]=$d
+done
+for (( i=0; i<${#dirnames[@]}; i++ )); do
+    if (( i == 0 )) || (( i == ${#dirnames[@]} - 1 )) || (( ${#dirnames[$i]} < '"$STR_MAX_LENGTH"' )); then
+        echo -n "'"$DIR_SEP_COLOR"'/'"$DIR_COLOR"'${dirnames[$i]}"
     else
-        echo -n "'"$DIR_SEP_COLOR"'/'"$ABBR_DIR_COLOR"'${dirnames[$i]:0:'"$STR_MAX_LENGTH"'}";
-    fi;
+        echo -n "'"$DIR_SEP_COLOR"'/'"$ABBR_DIR_COLOR"'${dirnames[$i]:0:'"$STR_MAX_LENGTH"'}"
+    fi
 done
 )'
+
 PS1_ERROR='$(
-ret=$?;
-if [ $ret -gt 0 ]; then
-    (( i = 3 - ${#ret} ));
-    echo -n "\[\e[41;1;37m\] [";
-    [ $i -gt 0 ] && echo -n " ";
-    echo -n "$ret";
-    [ $i -eq 2 ] && echo -n " ";
-    echo -n "] \[\e[0m\]";
-fi
+ret=$?
+(( ret == 0 )) && exit 0
+(( i = 3 - ${#ret} ))
+echo -n "\[\e[41;1;37m\] ["
+(( i > 0 )) && echo -n " "
+echo -n "$ret"
+(( i == 2 )) && echo -n " "
+echo -n "] \[\e[0m\]"
 )'
 
-if [ $TERM == 'screen' ]; then
+if [[ $TERM == 'screen' ]]; then
     PS1="$PS1_ERROR$USER_COLOR\u$AT_COLOR@$HOSTNAME_COLOR\h $DIR_COLOR$NEW_PWD"'\[\033k\033\\\]'" $USER_COLOR> \[\e[0m\]"
 else
     PS1="$PS1_ERROR$USER_COLOR\u$AT_COLOR@$HOSTNAME_COLOR\h $DIR_COLOR$NEW_PWD $USER_COLOR> \[\e[0m\]"
 fi
 
-unset STR_MAX_LENGTH DIR_COLOR DIR_SEP_COLOR ABBR_DIR_COLOR HOSTNAME_COLOR AT_COLOR USER_COLOR NEW_PWD PS1_ERROR
+unset STR_MAX_LENGTH DIR_COLOR DIR_HOME_COLOR DIR_SEP_COLOR ABBR_DIR_COLOR HOSTNAME_COLOR AT_COLOR USER_COLOR NEW_PWD PS1_ERROR
 fi
