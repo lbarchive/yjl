@@ -15,9 +15,23 @@ function keep_two() {
       }
     });
   }
+function close_second(tab) {
+  if (tab.index != 2)
+    return
+  chrome.tabs.getAllInWindow(tab.windowId, function(tabs){
+    if (tabs.length == 3 && tabs[1].url == 'chrome://newtab/')
+      chrome.tabs.remove(tabs[1].id);
+    });
+  }
 keep_two();
 chrome.tabs.onRemoved.addListener(function(tabId) {
   keep_two()
+  });
+chrome.tabs.onCreated.addListener(function(tab) {
+  var close_second_tab = localStorage["close_second_tab"];
+  close_second_tab = (close_second_tab == 1);
+  if (close_second_tab)
+    close_second(tab);
   });
 </script>
 </head>

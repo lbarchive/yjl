@@ -10,6 +10,12 @@ function save_options() {
   else
     localStorage["select_new_created"] = 0;
 
+  var close_second_tab = document.getElementById("close_second_tab");
+  if (close_second_tab.checked)
+    localStorage["close_second_tab"] = 1;
+  else
+    localStorage["close_second_tab"] = 0;
+
   // Update status to let user know options were saved.
   var status = document.getElementById("status");
   status.innerHTML = "Options Saved.";
@@ -24,6 +30,10 @@ function restore_options() {
   if (select_new_created == 1) {
   	document.getElementById("select_new_created").checked = true;
   }
+  var close_second_tab = localStorage["close_second_tab"];
+  if (close_second_tab == 1) {
+  	document.getElementById("close_second_tab").checked = true;
+  }
 }
 
 </script>
@@ -32,6 +42,10 @@ function restore_options() {
 
 <div>
 Select new created tab? <input type="checkbox" id="select_new_created" name="select_new_created" value="true"/>
+</div>
+
+<div>
+Close second tab if there were only two tabs when open new tab and second tab is the New Tab page (chrome://newtab/)? <input type=checkbox id="close_second_tab" name="close_second_tab" value="true"/>
 </div>
 
 <div>
