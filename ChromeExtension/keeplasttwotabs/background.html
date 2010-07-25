@@ -16,11 +16,15 @@ function keep_two() {
     });
   }
 function close_second(tab) {
-  if (tab.index != 2)
-    return
   chrome.tabs.getAllInWindow(tab.windowId, function(tabs){
-    if (tabs.length == 3 && tabs[1].url == 'chrome://newtab/')
-      chrome.tabs.remove(tabs[1].id);
+    console.log(tabs.length);
+    if (tabs.length<3)
+      return;
+    for (var i=0, closed=0; i<tabs.length && closed < tabs.length-2; i++)
+      if (tabs[i].url == 'chrome://newtab/') {
+        chrome.tabs.remove(tabs[i].id);
+        closed++;
+        }
     });
   }
 keep_two();
