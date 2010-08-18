@@ -351,7 +351,8 @@ def sigexit(signum, frame):
 
   if 'session' in __builtin__.__dict__:
     session.close()
-  termios.tcsetattr(fd, termios.TCSANOW, old_settings)
+  if fd is not None and old_settings is not None:
+    termios.tcsetattr(fd, termios.TCSANOW, old_settings)
   p('\033[?25h')
 
 
@@ -530,14 +531,17 @@ class Source(object):
 
     if self.exclude:
       for key, excludes in self.exclude:
-        #XXX
         try:
-          entry_key = tpl('@!entry%s.lower()!@' % key)(entry=entry)
-          if any([exclude.lower() in entry_key for exclude in excludes]):
-            p_dbg('Excluded: %s of %s' % (entry_key, key))
+          # FIXME Dangerous
+          value = eval('entry%s' % key)
+          r_exclude = re.compile(u'(' + u'|'.join(excludes) + u')', re.I | re.U)
+          if r_exclude.search(value):
+#          entry_key = tpl('@!entry%s.lower()!@' % key)(entry=entry)
+#          if any([exclude.lower() in entry_key for exclude in excludes]):
+            p_dbg('Excluded %s: %s' % (key, value))
             return True
         except Exception, e:
-          p_err('[%s] %s' % (self.session_id, repr(e)))
+          p_err('[%s][is_excluded] %s' % (self.session_id, repr(e)))
           raise e
     return False
 
@@ -1085,20 +1089,27 @@ class GoogleBase(Feed):
 
     auth_url = 'https://www.google.com/accounts/ClientLogin'
     self.email = src['email']
-    auth_req_data = urllib.urlencode({'Email': self.email,
-                                      'Passwd': src['password']})
+    auth_req_data = urllib.urlencode({
+        'accountType': 'GOOGLE',
+        'Email': self.email,
+        'Passwd': src['password'],
+        'service': 'reader',
+        'source': 'YJL-clis-0',
+        })
     auth_req = urllib2.Request(auth_url, data=auth_req_data)
     auth_resp = urllib2.urlopen(auth_req)
     auth_resp_content = auth_resp.read()
+    p_dbg(auth_resp_content)
     auth_resp_dict = dict(x.split('=') for x in auth_resp_content.split('\n') if x)
-    self.SID = auth_resp_dict["SID"]
+    p_dbg(auth_resp_dict)
+    self.Auth = auth_resp_dict["Auth"]
 
   def get(self, url, header=None):
 
     if header is None:
       header = {}
 
-    header['Cookie'] = 'Name=SID;SID=%s;Domain=.google.com;Path=/;Expires=160000000000' % self.SID
+    header['Authorization'] = 'GoogleLogin auth=%s' % self.Auth
 
     req = urllib2.Request(url, None, header)
     f = urllib2.urlopen(req)
@@ -1462,7 +1473,7 @@ def load_config():
 def main():
 
   global fd, old_settings, p_stdin
-  global options, session
+  global options, session, width
 
   p('''clis (C) 2009, 2010 Yu-Jie Lin
 The code is licensed under the terms of the GNU General Public License (GPL).
@@ -1516,30 +1527,38 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
   # Give some time for server, better looking output
   time.sleep(0.1)
   p('Initialized.\n')
-
-  while True:
+  not_quit = True
+  while not_quit:
     try:
       for src in sources:
         src.update()
+        if getch() == "\x0d":
+          sys.stdout = sys.__stdout__
+          sys.stderr = sys.__stderr__
+          termios.tcsetattr(fd, termios.TCSANOW, old_settings)
+          p('\033[?25h')
+          cmd = raw_input('Command>')
+          p('\033[?25l')
+          tty.setraw(fd)
+#        p_stdin = select.poll()
+#        p_stdin.register(sys.stdin, select.POLLIN)
+          sys.stdout = STDOUT_R
+          sys.stderr = STDERR_R
+          if cmd == 'reload':
+            session.close()
+            sources, cfg = load_config()
+            del cfg
+            p('Configuration reloaded.\n')
+          elif cmd == 'clear':
+            # Clear screen
+            p('\033[2J\033[H')
+          elif cmd == 'quit':
+            not_quit = False
+            break
+          elif cmd == "":
+            # Entry key
+            p('\033[A\033[97;101m' + '-' * width + '\n\033[39;49m')
       session.do_sync(sources)
-      ch = getch()
-      if ch:
-        if ch == 'r':
-          session.close()
-          sources, cfg = load_config()
-          del cfg
-          p('Configuration reloaded.\n')
-        if ch == 'c':
-          # Clear screen
-          p('\033[2J\033[H')
-        if ch == 'q':
-          break
-        if ch == "\x03":
-          # Ctrl+C
-          break
-        if ch == "\x0d":
-          # Entry key
-          p('\033[97;101m' + '-' * width + '\n\033[39;49m')
     except select.error:
       # Conflict with signal
       # select.error: (4, 'Interrupted system call') on p.poll(1)
@@ -1548,7 +1567,10 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
 
 
 if __name__ == '__main__':
- 
+
+  fd = None
+  old_settings = None
+  
   try:
     main()
   except Exception, e:
