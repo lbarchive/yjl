@@ -1174,9 +1174,16 @@ class GoogleReader(GoogleBase):
     if len(crawl_times) != len(feed.entries):
       p_err('Lengths did not match, crawl times are not processed.')
       return feed
-    
+   
     for i in xrange(len(crawl_times)):
       feed.entries[i].published_parsed = datetime.utcfromtimestamp(float(crawl_times[i]) / 1000.0).timetuple()
+    
+    # remove read items
+    entries = []
+    for entry in feed.entries:
+      if not [True for category in entry.categories if category[1].endswith('/state/com.google/read')]:
+        entries.append(entry)
+    feed.entries = entries
     return feed
 
 
