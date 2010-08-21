@@ -19,19 +19,24 @@ def main():
   if not os.path.exists(DIRNAME):
     os.makedirs(DIRNAME)
 
-  # Get the list
-  u = urllib2.urlopen(STATUSES_FOLLOWERS)
-  now = dt.datetime.now()
-  raw = u.read()
-  u.close()
-
+  # Get the list(s)
   flers = {}
-  for fler in json.loads(raw):
-    new_fler = {}
-    for key in ['id', 'screen_name', 'followers_count', 'friends_count', 'statuses_count']:
-      new_fler[key] = fler[key]
-    new_fler['time'] = now
-    flers[fler['id']] = new_fler
+  next_cursor = -1
+  # If there is no more pages, next_cursor is 0.
+  while next_cursor:
+    u = urllib2.urlopen(STATUSES_FOLLOWERS + '?cursor=%d' % next_cursor)
+    now = dt.datetime.now()
+    j_flers = json.loads(u.read())
+    u.close()
+    
+    for fler in j_flers['users']:
+      new_fler = {}
+      for key in ['id', 'screen_name', 'followers_count', 'friends_count', 'statuses_count']:
+        new_fler[key] = fler[key]
+      new_fler['time'] = now
+      flers[fler['id']] = new_fler
+
+    next_cursor = j_flers['next_cursor']
 
   if not flers:
     # No followers, just leave (how come no followers?)

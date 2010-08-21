@@ -6,11 +6,11 @@
 # User specific environment and startup programs
 
 PATH=$PATH:$HOME/bin:/sbin:/usr/sbin:/usr/games/bin
-MANPATH=$MANPATH:$HOME/man
+MANPATH=$MANPATH:$HOME/share/man
 PYTHONPATH="$HOME/lib/python2.5:/usr/local/lib64/python2.6:$PYTHONPATH"
 XDG_CONFIG_HOME=~/.config
 XDG_DATA_HOME=~/.local/share
-BROWSER=/usr/bin/chromium-bin
+BROWSER=/usr/bin/chromium
 EDITOR=vim
 #OOO_FORCE_DESKTOP="gnome"
 
@@ -19,6 +19,7 @@ export MANPATH
 export PYTHONPATH
 export XDG_CONFIG_HOME
 export XDG_DATA_HOME
+export BROWSER
 export EDITOR
 #export OOO_FORCE_DESKTOP
 

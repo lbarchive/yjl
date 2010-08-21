@@ -39,9 +39,9 @@ for comp in $HOME/.bash_completion.d/* ; do
 done
 unset comp
 
-if (( RUNDIALOG == 1 )); then
-	. $HOME/.runrc
-else
+#if (( RUNDIALOG == 1 )); then
+#	. $HOME/.runrc
+#else
 # Prompt
 [[ $TERM == 'linux' ]] && STR_MAX_LENGTH=2 || STR_MAX_LENGTH=3
 DIR_COLOR='\[\e[1;32m\]'
@@ -86,7 +86,7 @@ if [[ $TERM == 'screen' ]]; then
     PS1="$PS1_ERROR$USER_COLOR\u$AT_COLOR@$HOSTNAME_COLOR\h $DIR_COLOR$NEW_PWD"'\[\033k\033\\\]'" $USER_COLOR> \[\e[0m\]"
 else
     PS1="$PS1_ERROR$USER_COLOR\u$AT_COLOR@$HOSTNAME_COLOR\h $DIR_COLOR$NEW_PWD $USER_COLOR> \[\e[0m\]"
-fi
+#fi
 
 unset STR_MAX_LENGTH DIR_COLOR DIR_HOME_COLOR DIR_SEP_COLOR ABBR_DIR_COLOR HOSTNAME_COLOR AT_COLOR USER_COLOR NEW_PWD PS1_ERROR
 fi

@@ -174,8 +174,13 @@ main () {
 		
 		T_ACCOUNT_VERIFY_CREDENTIALS='https://api.twitter.com/1/account/verify_credentials.json'
 		auth_header=$(OAuth_authorization_header 'X-Verify-Credentials-Authorization' 'http://api.twitter.com' '' '' 'GET' "$T_ACCOUNT_VERIFY_CREDENTIALS")
+		echo "Sending $tcli_file to TwitPic..."
 		ret=$(curl -s -H "X-Auth-Service-Provider=$T_ACCOUNT_VERIFY_CREDENTIALS" -H "$auth_header" -F "key=$twitpic_api" -F "message=$tcli_status" -F "media=@$tcli_file" http://twitpic.com/api/2/upload.xml)
-		echo "$ret"
+		rval=$?
+		(( $rval != 0 )) && echo "$ret" && exit $rval
+		
+		image_url=$(egrep -o 'http://twitpic\.com/[^<]*' <<< "$ret")
+		echo " Image uploaded: $image_url"
 		;;
 	twitpic_upload_post)
 		[[ "$twitpic_api" == "" ]] && read -p 'You TwitPic API Key: ' twitpic_api && echo "twitpic_api=\"$twitpic_api\"" >> "$TCLI_RC"
@@ -186,8 +191,15 @@ main () {
 		
 		T_ACCOUNT_VERIFY_CREDENTIALS='https://api.twitter.com/1/account/verify_credentials.json'
 		auth_header=$(OAuth_authorization_header 'X-Verify-Credentials-Authorization' 'http://api.twitter.com' '' '' 'GET' "$T_ACCOUNT_VERIFY_CREDENTIALS")
+		echo "Sending $tcli_file to TwitPic..."
 		ret=$(curl -s -H "X-Auth-Service-Provider=$T_ACCOUNT_VERIFY_CREDENTIALS" -H "$auth_header" -F "key=$twitpic_api" -F "message=$tcli_status" -F "media=@$tcli_file" http://twitpic.com/api/2/upload.xml)
+		rval=$?
+		(( $rval != 0 )) && echo "$ret" && exit $rval
+
 		image_url=$(egrep -o 'http://twitpic\.com/[^<]*' <<< "$ret")
+		echo " Image uploaded: $image_url"
+		
+		echo "Posting tweet..."
 		TO_statuses_update '' "$tcli_status $image_url" "$tcli_in_reply_to_status_id"
 		echo "$TO_ret"
 		return $TO_rval

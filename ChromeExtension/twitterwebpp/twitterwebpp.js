@@ -17,6 +17,8 @@ var before_reply_status = null;
 var RE_TT_DIM = [];
 var RE_TT_REMOVE = [];
 
+var RE_TWEET_USER_REMOVE = [];
+var RE_TWEET_TEXT_REMOVE = [];
 
 /**
  * Insert Quick Text into status box
@@ -343,10 +345,49 @@ function process_trending_topic() {
   }
 
 
+function process_tweet_filter() {
+  
+  // FIXME use class twpp-tweet-check for all processing.
+  $('li.status:not(.twpp-tweet-check)').each(function (idx, tweet) {
+    var $tweet = $(tweet);
+    $tweet.addClass('twpp-tweet-check');
+
+    var removed = false;
+    
+    $.each(RE_TWEET_USER_REMOVE, function (idx, ele) {
+        var tweet_screen_name = $tweet.find('span.status-content a.screen-name').text();
+        var re = new RegExp(ele, 'gi');
+        if (re.exec(tweet_screen_name)) {
+          console.debug('User Remove', tweet_screen_name, ele);
+          $tweet.remove();
+          removed = true;
+          return true
+          }
+        });
+
+    if (removed)
+      return
+
+    $.each(RE_TWEET_USER_REMOVE, function (idx, ele) {
+        var tweet_text = $tweet.find('span.entry-content').text();
+        var re = new RegExp(ele, 'gi');
+        if (re.exec(tweet_text)) {
+          console.debug('Tweet Remove', tweet_text, ele);
+          $tweet.remove();
+          return true
+          }
+        });
+    });
+
+  }
+
+
 /**
  * Process new stuff
  */
 function periodic_process() {
+
+  process_tweet_filter()
 
   if (config.self_reply_enabled)
     process_self_reply();
@@ -446,6 +487,27 @@ function initialize_trending_process() {
 
 
 /**
+ * Initialize Tweet Removal
+ */
+function initialize_tweet_removal() {
+
+  var re_tweet_user_remove = config.tweet_user_remove.split('\n');
+  var re_tweet_text_remove = config.tweet_text_remove.split('\n');
+
+  $.each(re_tweet_user_remove, function(idx, ele) {
+      if (ele)
+        RE_TWEET_USER_REMOVE.push(ele);
+       });
+
+  $.each(re_tweet_text_remove, function(idx, ele) {
+      if (ele)
+        RE_TWEET_TEXT_REMOVE.push(ele);
+       });
+
+  }
+
+
+/**
  * When there is a preload tweet status, the cursor should be after @reply, not
  * the end of tweet.
  */
@@ -514,6 +576,9 @@ function initialize() {
       initialize_reply();
     if (config.tt_dim_enabled || config.tt_remove_enabled)
       initialize_trending_process();
+    
+    // FIXME
+    initialize_tweet_removal();
 
     $twpp.animate({height: 'toggle', opacity: 'toggle'}, 'normal');
     }

@@ -149,7 +149,9 @@ chrome.extension.onRequest.addListener(function (request, sender, callback) {
             surl_services: get_surl_services(),
             quicktext: localStorage['quicktext'],
             tt_dim: localStorage['tt_dim'],
-            tt_remove: localStorage['tt_remove']
+            tt_remove: localStorage['tt_remove'],
+            tweet_user_remove: localStorage['tweet_user_remove'],
+            tweet_text_remove: localStorage['tweet_text_remove']
             };
         $.each(DEFAULT_ENABLED, function (key, value) {
           config[key] = localStorage[key] == 'true';
