@@ -1564,7 +1564,7 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
             break
           elif cmd == "":
             # Entry key
-            p('\033[A\033[97;101m' + '-' * width + '\n\033[39;49m')
+            p('\033[A\033[97;101m' + u'─' * width + '\n\033[39;49m')
       session.do_sync(sources)
     except select.error:
       # Conflict with signal
