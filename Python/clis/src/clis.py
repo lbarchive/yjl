@@ -1549,11 +1549,12 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
           sys.stderr = sys.__stderr__
           termios.tcsetattr(fd, termios.TCSANOW, old_settings)
           p('\033[?25h')
-          cmd = raw_input('Command>')
+          cmd = raw_input('Command > ')
           p('\033[?25l')
           tty.setraw(fd)
           sys.stdout = STDOUT_R
           sys.stderr = STDERR_R
+          cmd = re.sub('\W', '', cmd)
           if cmd == 'reload':
             session.close()
             sources, cfg = load_config()
