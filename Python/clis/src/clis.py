@@ -535,9 +535,14 @@ class Source(object):
           # FIXME Dangerous
           value = eval('entry%s' % key)
           r_exclude = re.compile(u'(' + u'|'.join(excludes) + u')', re.I | re.U)
-          if r_exclude.search(value):
-#          entry_key = tpl('@!entry%s.lower()!@' % key)(entry=entry)
-#          if any([exclude.lower() in entry_key for exclude in excludes]):
+          if key == '["tags"]':
+            # Specially for feed class
+            for tag in value:
+              if r_exclude.search(tag['term']):
+                p_dbg('Excluded %s: Category %s' % (key, tag['term']))
+                return True
+          elif r_exclude.search(value):
+            # The value of key is not a list
             p_dbg('Excluded %s: %s' % (key, value))
             return True
         except Exception, e:
@@ -1547,8 +1552,6 @@ clis_cfg-sample.py, read the file for more information.\n\n''')
           cmd = raw_input('Command>')
           p('\033[?25l')
           tty.setraw(fd)
-#        p_stdin = select.poll()
-#        p_stdin.register(sys.stdin, select.POLLIN)
           sys.stdout = STDOUT_R
           sys.stderr = STDERR_R
           if cmd == 'reload':
