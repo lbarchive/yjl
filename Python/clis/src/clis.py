@@ -427,6 +427,10 @@ class Source(object):
     self.highlight = src.get('highlight', [])
     self.hide_id = src.get('hide_id', False)
 
+    self.RE_EXCLUDE = {}
+    for key, excludes in self.exclude:
+      self.RE_EXCLUDE[key] = re.compile(u'(' + u'|'.join(excludes) + u')', re.I | re.U)
+
   def _init_session(self):
     
     session_id = '%s:%s' % (self.TYPE, self.src_id)
@@ -529,25 +533,23 @@ class Source(object):
 
   def is_excluded(self, entry):
 
-    if self.exclude:
-      for key, excludes in self.exclude:
-        try:
-          # FIXME Dangerous
-          value = eval('entry%s' % key)
-          r_exclude = re.compile(u'(' + u'|'.join(excludes) + u')', re.I | re.U)
-          if key == '["tags"]':
-            # Specially for feed class
-            for tag in value:
-              if r_exclude.search(tag['term']):
-                p_dbg('Excluded %s: Category %s' % (key, tag['term']))
-                return True
-          elif r_exclude.search(value):
-            # The value of key is not a list
-            p_dbg('Excluded %s: %s' % (key, value))
-            return True
-        except Exception, e:
-          p_err('[%s][is_excluded] %s' % (self.session_id, repr(e)))
-          raise e
+    for key in self.RE_EXCLUDE.keys():
+      try:
+        # FIXME Dangerous
+        value = eval('entry%s' % key)
+        if key == '["tags"]':
+          # Specially for feed class
+          for tag in value:
+            if self.RE_EXCLUDE[key].search(tag['term']):
+              p_dbg('Excluded %s: Category %s' % (key, tag['term']))
+              return True
+        elif self.RE_EXCLUDE[key].search(value):
+          # The value of key is not a list
+          p_dbg('Excluded %s: %s' % (key, value))
+          return True
+      except Exception, e:
+        p_err('[%s][is_excluded] %s' % (self.session_id, repr(e)))
+        raise e
     return False
 
   def process_highlight(self, entry):
@@ -587,6 +589,7 @@ class Source(object):
     if self.CHECK_LIST_SIZE < len(feed['entries'] * 2):
       self.CHECK_LIST_SIZE = len(feed['entries'] * 2)
       p_dbg('Changed CHECK_LIST_SIZE to %d' % self.CHECK_LIST_SIZE)
+    
     # Get entries after last_id
     for entry in feed['entries']:
       self.datetimeize(entry)
@@ -923,9 +926,12 @@ class Craigslist(Feed):
     self._load_check_list()
     if isinstance(self.check_list, dict):
       self.check_list = 0
+    # Use it to store check_list for comparison of a list of entries
+    self._check_list = None
 
   def _update_check_list(self):
     # It is not a list but a single int
+    self._check_list = None
     self.session['check_list'] = self.check_list
     session[self.session_id] = self.session
     p_dbg('Updated [%s] check_list' % self.session_id)
@@ -942,8 +948,11 @@ class Craigslist(Feed):
   def is_new_item(self, entry):
     '''Check if entry is new and also update check_list if it is new'''
     e_id = self.get_entry_id(entry)
-    if e_id > self.check_list:
-      self.check_list = e_id
+    if self._check_list is None:
+      self._check_list = self.check_list
+    if e_id > self._check_list:
+      if e_id > self.check_list:
+        self.check_list = e_id
       return True
     return False
 
