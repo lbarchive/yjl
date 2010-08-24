@@ -423,10 +423,14 @@ class Source(object):
   def __init__(self, src):
 
     self.last_accessed = 0
+    self.include = src.get('include', [])
     self.exclude = src.get('exclude', [])
     self.highlight = src.get('highlight', [])
     self.hide_id = src.get('hide_id', False)
 
+    self.RE_INCLUDE = {}
+    for key, includes in self.include:
+      self.RE_INCLUDE[key] = re.compile(u'(' + u'|'.join(includes) + u')', re.I | re.U)
     self.RE_EXCLUDE = {}
     for key, excludes in self.exclude:
       self.RE_EXCLUDE[key] = re.compile(u'(' + u'|'.join(excludes) + u')', re.I | re.U)
@@ -531,6 +535,27 @@ class Source(object):
     '''Convert UTC datetime to localtime datetime'''
     return datetime(*d[:6]).replace(tzinfo=utc).astimezone(local_tz)
 
+  def is_included(self, entry):
+
+    for key in self.RE_INCLUDE.keys():
+      try:
+        # FIXME Dangerous
+        value = eval('entry%s' % key)
+        if key == '["tags"]':
+          # Specially for feed class
+          for tag in value:
+            if self.RE_INCLUDE[key].search(tag['term']):
+              p_dbg('Included %s: Category %s' % (key, tag['term']))
+              return True
+        elif self.RE_INCLUDE[key].search(value):
+          # The value of key is not a list
+          p_dbg('Included %s: %s' % (key, value))
+          return True
+      except Exception, e:
+        p_err('[%s][is_included] %s' % (self.session_id, repr(e)))
+        raise e
+    return False
+
   def is_excluded(self, entry):
 
     for key in self.RE_EXCLUDE.keys():
@@ -603,6 +628,8 @@ class Source(object):
     entries.reverse()
     for entry in entries:
       p_dbg('ID: %s' % self.get_entry_id(entry))
+      if self.RE_INCLUDE and not self.is_included(entry):
+        continue
       if self.is_excluded(entry):
         continue
       # XXX
