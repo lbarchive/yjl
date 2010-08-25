@@ -1,6 +1,7 @@
 import datetime
 import os
 import os.path
+import urllib
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
@@ -20,7 +21,7 @@ class FontFile(webapp.RequestHandler):
 
   def get(self, fontpath):
 
-    fontpath = os.path.normpath(fontpath)
+    fontpath = os.path.normpath(urllib.unquote(fontpath))
     # Does someone try to get other files?
     if fontpath.startswith('.') or fontpath.startswith('/'):
       self.error(403)
