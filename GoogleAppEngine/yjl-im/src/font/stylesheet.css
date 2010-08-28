@@ -167,5 +167,5 @@
 @font-face {
 	font-family: 'Moms Typewriter';
 	src: url('MomsTypewriter/Moms_typewriter-webfont.eot');
-	src: local('☺'), url('MomsTypewriter/Moms_typewriter-webfont.woff') format('woff'), url('MomsTypewriter/Moms_typewriter-webfont.ttf') format('truetype'), url('MomsTypewriter/Moms_typewriter-webfont.svg#webfont') format('svg');
+	src: local('☺'), local('Mom´sTypewriter'), url('MomsTypewriter/Moms_typewriter-webfont.woff') format('woff'), url('MomsTypewriter/Moms_typewriter-webfont.ttf') format('truetype'), url('MomsTypewriter/Moms_typewriter-webfont.svg#webfont') format('svg');
 }
