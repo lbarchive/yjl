@@ -106,6 +106,7 @@ function get_track_info() {
 	_ret=$(wget "$URL" -O -)
 	# Parsing
 	userplaycount=$(extract_XML_value "userplaycount" "$_ret")
+	[[ "$userplaycount" == "" ]] && userplaycount=0
 	image_small=$(extract_XML_value 'image size="small"' "$_ret")
 	[[ "$image_small" == "" ]] && image_small="http://cdn.last.fm/flatness/catalogue/album/jewelcase_small.png"
 	image_medium=$(extract_XML_value 'image size="medium"' "$_ret")
