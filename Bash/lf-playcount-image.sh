@@ -116,7 +116,7 @@ function get_track_info() {
 	image_extralarge=$(extract_XML_value 'image size="extralarge"' "$_ret" 2> /dev/null)
 	echo "$song_hash $userplaycount $image_small $image_medium $image_large $image_extralarge" > "$CACHE_FILE"
 	# Wget image, Conky seems to be blocked?
-	mkdir -p /tmp/images
+	mkdir -p /tmp/lf-images
 	f_image_small="$(echo "$image_small" | tr -t \/ -)"
 	f_image_medium="$(echo "$image_medium" | tr -t \/ -)"
 	f_image_large="$(echo "$image_large" | tr -t \/ -)"
