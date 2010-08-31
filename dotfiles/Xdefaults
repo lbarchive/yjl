@@ -1,4 +1,9 @@
 #########
+# Bashrun
+
+bashrun*font: xft:Envy Code R:style=Bold Oblique:pixelsize=20
+
+#########
 # Bashpad
 
 bashpad*inheritPixmap: false
@@ -24,6 +29,7 @@ Rxvt*color0: #242424
 ##Rxvt*color1: #ff5d28
 ##Rxvt*color2: #b1d631
 ##Rxvt*color3: #e6ea50
+Rxvt*color4: #3333ff
 ##Rxvt*color4: #7e8aa2
 ##Rxvt*color5: #af5f5f
 ##Rxvt*color6: #acf0f2
@@ -33,6 +39,7 @@ Rxvt*color7: #a0a0a0
 ##Rxvt*color9: #ff5d28
 ##Rxvt*color10: #b1d631
 ##Rxvt*color11: #e6ea50
+Rxvt*color12: #3333ff
 ##Rxvt*color12: #7e8aa2
 ##Rxvt*color13: #af5f5f
 ##Rxvt*color14: #acf0f2
@@ -69,13 +76,21 @@ Rxvt*color15: #a0a0a0
 ###########
 # Rxvt misc
 
-Rxvt.font: xft:Envy Code B 10pt:style=Regular:size=10:antialias=false
+Rxvt.font: xft:Envy Code R:style=Regular:size=9:antialias=false
+#Rxvt.font: xft:Envy Code B 10pt:style=Regular:size=10:antialias=false
 Rxvt.scrollBar: False
 Rxvt.cursorBlink: True
 
 #######
 # URxvt
 
+URxvt.perl-lib: /home/livibetter/.urxvt/perl
 # Add url handler
-URxvt.perl-ext-common: default,matcher
-URxvt.urlLauncher: chromium
+#URxvt.perl-ext-common: default,matcher
+URxvt.urlLauncher: firefox-new-tab
+
+URxvt.perl-ext-common: default,url-select
+#URxvt.perl-ext-common: ...,url-select
+#URxvt.urlLauncher:     firefox
+URxvt.underlineURLs:   true
+URxvt.keysym.M-u:      perl:url-select:select_next

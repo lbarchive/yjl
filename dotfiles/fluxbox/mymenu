@@ -1,0 +1,78 @@
+[begin] (Fluxbox)
+[encoding] {UTF-8}
+#  [submenu] (t)
+#    [exec] (b    [Blogger Dashboard]) {xdg-open http://draft.blogger.com/home} <~/.fluxbox/icons/b.png>
+#    [exec] (f    [Flickr]) {xdg-open http://flickr.com} <~/.fluxbox/icons/f.png>
+#    [exec] (fr   [Flickr Recent]) {xdg-open http://www.flickr.com/photos/} <~/.fluxbox/icons/f.png>
+#    [exec] (fb   [Feedburner]) {xdg-open http://feedburner.google.com} <~/.fluxbox/icons/fb.png>
+#    [exec] (ff   [FriendFeed]) {xdg-open http://friendfeed.com} <~/.fluxbox/icons/ff.png>
+#    [exec] (ga   [Google Analytics]) {xdg-open http://www.google.com/analytics/} <~/.fluxbox/icons/g.png>
+#    [exec] (gad  [Google Adsense]) {xdg-open https://www.google.com/adsense/login/en_US/} <~/.fluxbox/icons/g.png>
+#    [exec] (gae  [Google App Engine Dashboard]) {xdg-open https://appengine.google.com} <~/.fluxbox/icons/g.png>
+#    [exec] (gaed [Google App Engine Python Docs]) {xdg-open http://code.google.com/appengine/docs/python/overview.html} <~/.fluxbox/icons/g.png>
+#    [exec] (gcal [Google Calendar]) {xdg-open https://www.google.com/calendar/render} <~/.fluxbox/icons/g.png>
+#    [exec] (gd   [Google Docs]) {xdg-open https://docs.google.com/} <~/.fluxbox/icons/gd.png>
+#    [exec] (gdy  [Google Dictionary]) {xdg-open https://www.google.com/dictionary} <~/.fluxbox/icons/g.png>
+#    [exec] (gg   [Google Groups]) {xdg-open https://groups.google.com/} <~/.fluxbox/icons/g.png>
+#    [exec] (gm   [Google Mail]) {xdg-open https://mail.google.com/mail} <~/.fluxbox/icons/gm.png>
+#    [exec] (gn   [Google News]) {xdg-open http://news.google.com} <~/.fluxbox/icons/gn.png>
+#    [exec] (gr   [Google Reader]) {xdg-open https://www.google.com/reader/view} <~/.fluxbox/icons/gr.png>
+#    [exec] (gs   [Google Sites]) {xdg-open https://sites.google.com} <~/.fluxbox/icons/gs.png>
+#    [exec] (gt   [Google Translate]) {xdg-open http://translate.google.com} <~/.fluxbox/icons/gt.png>
+#    [exec] (yt   [YouTube]) {xdg-open http://youtube.com} <~/.fluxbox/icons/yt.png>
+#  [end]
+  [exec] (Terminal) {urxvtc}
+  [exec] (Terminal [safe]) {urxvt}
+  [exec] (tmux) {urxvtc -e tmux -2}
+  [exec] (tmux attach) {urxvtc -e tmux -2 attach}
+#  [exec] (Chromium) {chromium} </usr/share/pixmaps/chromium-browser.png>
+#  [exec] (Chromium Bin) {chromium-bin} </usr/share/pixmaps/chromium-bin.png>
+#  [exec] (Chromium Bin) {XMODIFIERS=@im=gcin QT_IM_MODULE=gcin chromium-bin} </usr/share/pixmaps/chromium-bin.png>
+  [exec] (Firefox) {firefox} #</usr/share/pixmaps/firefox-icon.png>
+  [exec] (Firefox no-remote) {firefox --no-remote} #</usr/share/pixmaps/firefox-icon.png>
+#	  [exec] (CenterIM) {urxvtc -e tmux-cim.sh}
+  [exec] (Midnight Commander) {urxvtc -e mc}
+  [exec] (GIMP) {gimp} </usr/share/icons/hicolor/48x48/apps/gimp.png>
+  [exec] (Inkscape) {inkscape} </usr/share/pixmaps/inkscape.png>
+  [exec] (OO.o Writer) {XMODIFIERS=@im=gcin GTK_IM_MODULE=gcin oowriter} </usr/share/pixmaps/ooo-draw.png>
+  [exec] (OO.o Writer [gnome]) {OOO_FORCE_DESKTOP=gnome XMODIFIERS=@im=gcin GTK_IM_MODULE=gcin oowriter} </usr/share/pixmaps/ooo-draw.png>
+  [exec] (Leafpad) {leafpad} </usr/share/pixmaps/leafpad.png>
+  [exec] (Blog Draft) {leafpad /tmp/draft.html}
+  [exec] (KeepNote) {keepnote} </usr/share/icons/hicolor/48x48/apps/keepnote.png>
+  [separator]
+[submenu] (Depricated)
+  [exec] (Screen) {urxvtc -e screen}
+  [exec] (Screen -r) {urxvtc -e screen -r}
+  [exec] (CenterIM) {urxvtc -title centerim -e screen -c ~/.screen_centerimrc}
+  [separator]
+  [exec] (All Screens) {urxvtc -title clis:main -e screen clis.py -c ~/.clis/main ; urxvtc -title clis:craigslist -e screen clis.py -c ~/.clis/craigslist ; urxvtc -title clis:programming -e screen}
+  [exec] (clis:main) {urxvtc -title clis:main -e screen clis.py -c ~/.clis/main}
+  [exec] (clis:craigslist) {urxvtc -title clis:craigslist -e screen clis.py -c ~/.clis/craigslist}
+  [exec] (clis:programming) {urxvtc -title clis:programming -e screen}
+[end]
+[submenu] (Startup)
+#  [exec] (All Screens) {urxvtc -e tmux-clis.sh ; urxvtc -e tmux -2 new-session -s programming}
+  [separator]
+  [exec] (clis) {urxvtc -e tmux-clis.sh}
+  [exec] (cliscraig) {urxvtc -e tmux-clis-craig.sh}
+  [exec] (programming) {urxvtc -e tmux -2 new-session -s programming}
+[end]
+#  [separator]
+#  [exec]   (Run) {gmrun}
+[submenu] (Apps)
+  [include] (~/.fluxbox/menummaker)
+  [separator]
+  [exec] (Regenerate) {mmaker -c FluxBox > ~/.fluxbox/menummaker}
+  [separator]
+  [exec] (Enable Keyboard) {sudo /home/livibetter/bin/i8042-kbd-switcher}
+[end]
+  [separator]
+[submenu] (Session)
+  [exec] (Reboot) {sudo reboot}
+  [exec] (Poweroff) {sudo poweroff}
+  [separator]
+  [exit] (Exit)
+[end]
+[endencoding]
+[end]
+# vim: ts=2:sts=2:et: 
