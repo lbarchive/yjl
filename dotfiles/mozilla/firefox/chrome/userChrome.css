@@ -7,8 +7,8 @@
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"); /* set default namespace to XUL */
 
 #TabsToolbar {
-  background-color: #242424;
-  height: 24px;
+  background: #242424 !important;
+  height: 24px !important;
   -moz-box-shadow: none !important;
 }
 
@@ -32,7 +32,7 @@
 }
 
 .tabbrowser-tab[selected] {
-  background: #333 !important;
+  background: #666 !important;
 }
 
 /* Tab close button
