@@ -47,7 +47,7 @@ text_buffer_size 512
 minimum_size 200 5
 
 # Maximum width
-maximum_width 600
+maximum_width 400
 
 # Draw shades?
 draw_shades yes
@@ -118,7 +118,8 @@ use_spacer right
 #${execi 60 wget -q "http://download.finance.yahoo.com/d/quotes.csv?s=2891.TW&f=sl1d1t1&e=.csv" -O - | sed 's/\\.TW//;s/"//g;s/\r//;y/,/ /'}
 #${color lightblue}Volume :$color $if_mixer_mute${color #804040}$else${color #404080}$endif$mixerbar$color
 TEXT
-${font Brushstroke:size=16}${color #c0c080}${time %A}$color, ${color #8080c0}${time %B %d}$color, ${color #80c080}${time %Y}$alignr${color #c08040}${time %H:%M:%S}$font$color
+${font Brushstroke:size=16}${color #c0c080}${time %A}$color$alignr${color #c08040}${time %H:%M:%S}$font$color
+${font Brushstroke:size=16}${color #8080c0}$alignc${time %B %d}$color, ${color #80c080}${time %Y}$color$font
 
 $color${execpi 3600 cal -3s | ~/.conky/calhltoday.py}
 ${execpi 1800 ~/.conky/weather.sh TWXX0021}
@@ -159,5 +160,5 @@ ${alignc}${color red}$mpd_title$color
 ${alignc}${color #9999ff}$mpd_album$color              
 ${alignc}${color green}$mpd_artist$color              
 ${alignc}${color yellow}Played ${execi 6 lf-playcount-image.sh}${execi 6 cat "/tmp/lf-playcount-image" | cut -f 2 -d \ } times$color              
-[$mpd_elapsed/$mpd_length] ${color #ccddff}${mpd_bar 3,240}$color${execpi 6 echo "\${image /tmp/lf-images/$(cat "/tmp/lf-playcount-image" | cut -f 4 -d \  | tr -t \/ -) -p 325, 560 -s 75x75}"}${endif}
+[$mpd_elapsed/$mpd_length] ${color #ccddff}${mpd_bar 3,240}$color${execpi 6 echo "\${image /tmp/lf-images/$(cat "/tmp/lf-playcount-image" | cut -f 4 -d \  | tr -t \/ -) -p 325, 586 -s 75x75}"}${endif}
 ${image ~/Pictures/Works/Gentoo/GentooLogo-640.png -p 0,140 -s 400x400}
