@@ -8,23 +8,14 @@
 
 #TabsToolbar {
   background: #242424 !important;
-  height: 24px !important;
-  -moz-box-shadow: none !important;
 }
 
 .tabbrowser-tab {
-  -moz-appearance: none !important;
   background: transparent !important;
-  border: none !important;
   color: #fff !important;
   font-family: monospace;
   font-size: 12px;
   font-weight: bold;
-  height: 16px !important;
-  margin: 0 !important;
-  min-height: 0 !important;
-  padding: 0 0.5ex !important;
-  -moz-border-radius: 0 !important;
 }
 
 .tabbrowser-tab:hover {
@@ -33,87 +24,4 @@
 
 .tabbrowser-tab[selected] {
   background: #666 !important;
-}
-
-/* Tab close button
- * ================ */
-
-.tab-close-button {
-  -moz-appearance: none !important;
-  background: transparent !important;
-  border: none !important;
-  color: #c0c0c0 !important;
-  font-family: monospace !important;
-  font-size: 12px !important;
-  font-weight: bold !important;
-  margin: 0 !important;
-  padding: 0 1ex !important;
-}
-
-.tab-close-button:hover {
-  -moz-appearance: none !important;
-  background: transparent !important;
-  border: none !important;
-  color: red !important;
-  margin: 0 !important;
-  padding: 0 1ex !important;
-}
-
-.tab-close-button:before {
-  content: "☓";
-}
-
-.tab-close-button > .toolbarbutton-icon {
-  list-style-image: none;
-}
-
-/* New tab button
- * ============== */
-
-.tabs-newtab-button {
-  -moz-appearance: none !important;
-  border: none !important;
-  color: #c0c0c0 !important;
-  font-family: monospace !important;
-  font-size: 12px !important;
-  font-weight: bold !important;
-  margin: 0 !important;
-  padding: 0 !important;
-}
-
-.tabs-newtab-button > .toolbarbutton-icon {
-  list-style-image: none;
-}
-
-.tabs-newtab-button:hover {
-  border: none !important;
-  color: #fff !important;
-}
-
-.tabs-newtab-button:before {
-  content: "+";
-}
-
-/* All tabs list
- * ============= */
-
-#alltabs-button {
-  -moz-appearance: none !important;
-  border: none !important;
-}
-
-#alltabs-button:hover {
-  background-color: #404040 !important;
-}
-
-/* Also knows as "Group Your Tabs" in Firefox 4
- * ============================================ */
-
-#tabview-button {
-  -moz-appearance: none !important;
-  border: none !important;
-}
-
-#tabview-button:hover {
-  background-color: #404040 !important;
 }
