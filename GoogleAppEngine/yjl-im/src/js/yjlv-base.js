@@ -45,13 +45,18 @@ $(function(){
       if ($e.css("float") != "none" || $e.hasClass("no-autoresize")) return;
       if ($e.width() != max_width) $e.width(max_width);
       });
+  // jknav
+  $('h3').jknav();
+  $.jknav.init({up: 'l', down: 'h', reevaluate: true}); 
+  $('h3.post-title,.post-body h4,.post-body h5,.post-body h6').jknav(null, 'all-headers');
+  $.jknav.init({name: 'all-headers', reevaluate: true});
   });
 
 // Scope issue with getScript(), executing them directly seems fine.
 
 // Code highlighting
 if ($('pre code').length > 0)
-  $.getScript('http://lilbtn.yjl.im/js/highlight.pack.js', function() {
+  $.getScript('http://www.yjl.im/js/highlight.pack.js', function() {
       hljs.initHighlighting();
       // Collapse pre blocks
       collapse_pre();
@@ -61,14 +66,6 @@ else
   $(function(){
       collapse_pre();
       });
-
-// jknav
-$.getScript('http://lilbtn.yjl.im/js/jquery/jquery.jknav.min.js', function() {
-    $('h3').jknav();
-    $.jknav.init({up: 'l', down: 'h', reevaluate: true}); 
-    $('h3.post-title,.post-body h4,.post-body h5,.post-body h6').jknav(null, 'all-headers');
-    $.jknav.init({name: 'all-headers', reevaluate: true});
-    });
 
 // BRPS
 if ($('#gas-results').length > 0) {

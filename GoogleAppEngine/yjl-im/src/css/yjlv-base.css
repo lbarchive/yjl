@@ -1,5 +1,3 @@
-@import url(../font/stylesheet.css);
-
 body {
   font-family: "Gentium Book Basic", Arial, Tahoma, Helvetica, FreeSans, serif;
 }
@@ -9,37 +7,41 @@ a {
   transition: background-color 0.2s, color 0.2s;
   -webkit-transition: background-color 0.2s, color 0.2s;
 }
-div.PageList a {
+
+.PageList a {
   -webkit-border-radius: 0.5em;
   -moz-border-radius: 0.5em;
   border-radius: 0.5em;
+  font-family: "Existence", Arial, Tahoma, Helvetica, FreeSans, sans-serif !important;
   margin-bottom: 0.25em;
   margin-right: 0.5em;
   padding: 0.25em 0.5em !important;
 }
-div.PageList li:last-child a {
+
+.PageList a:last-child {
   margin-right: 0;
 }
-div.PageList a:hover {
+
+.PageList a:hover {
   background-color: #00B1BF !important;
   color: #FFF !important;
 }
 
-.BlogArchive #ArchiveList ul.flat {
+#ArchiveList ul {
 margin-left: 1.25em;
 list-style-type: disc;
 }
 
-.BlogArchive #ArchiveList ul.flat li {
+#ArchiveList li {
 list-style-type: disc;
+}
+
+.PopularPosts > .widget-content > ul > li {
+padding: 0;
 }
 
 .Header h1 {
   text-shadow: #000 0 0 3px;
-}
-
-.tabs-inner .widget li a {
-  font-family: "Existence", Arial, Tahoma, Helvetica, FreeSans, sans-serif;
 }
 
 h2.date-header {
@@ -49,14 +51,14 @@ h2.date-header {
   text-shadow: #aaa 0 0 2px;
 }
 
-h3.post-title {
+.post-title {
   font-size: 2em;
-  margin: 0.75em 0 0 -200px;
+  margin: 0.75em 0 0 -200px !important;
   text-align: center;
-  width: 1040px;
+  width: 1040px !important;
 }
 
-h3.post-title a {
+.post-title a {
   font-family: Prociono, Arial, Tahoma, Helvetica, FreeSans, sans-serif;
 }
 
@@ -138,7 +140,7 @@ figcaption {
   padding:5px;
 }
 
-.post-body pre code {
+.post-body pre > code {
   background-color: #444;
   -moz-border-radius:5px;
   -webkit-border-radius:5px;
