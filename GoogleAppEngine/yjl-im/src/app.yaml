@@ -16,6 +16,9 @@ handlers:
 - url: /font/.*
   script: font.py
 
+- url: /css
+  static_dir: css
+
 - url: /img
   static_dir: img
  
