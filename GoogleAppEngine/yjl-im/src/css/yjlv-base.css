@@ -8,6 +8,32 @@ a {
   -webkit-transition: background-color 0.2s, color 0.2s;
 }
 
+.tabs-inner {
+  min-width: 670px !important;
+  max-width: 670px !important;
+}
+
+#cse-search-box {
+  border-radius: 5px;
+  float: right;
+  margin-right: 27px;
+  padding: 3px;
+}
+#cse-search-box,
+#cse-search-box > div > input {
+  background-color: #ccc;
+  font-family: "Envy Code R", monospace;
+  font-size: 20px;
+}
+#cse-search-box > div > input[type=text] {
+  border: none;
+}
+
+.PageList {
+  margin: 0 0;
+  position: static;
+}
+
 .PageList a {
   -webkit-border-radius: 0.5em;
   -moz-border-radius: 0.5em;
