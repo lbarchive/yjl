@@ -78,7 +78,7 @@ if ($('#gas-results').length > 0) {
           'makeyjl.blogspot.com',
           'thebthing.blogspot.com'
           ],
-      remove_string_regexp: /^(YJL --verbose|Blogarbage|Tux Wears Fedora|Get Ctrl Back|make YJL|The B Thing): /,
+      remove_string_regexp: /(^(YJL --verbose|Blogarbage|Tux Wears Fedora|Get Ctrl Back|make YJL|The B Thing): | <<< \$\(YJL --verbose\)$)/,
       exclude_url_regexp: /(.*archive\.html|blog\.yjl\.im\/$|(blogarbage|fedoratux|getctrlback|makeyjl|thebthing)\.blogspot\.com\/$)/
       };
   $.getScript('http://brps.appspot.com/gas.js');
