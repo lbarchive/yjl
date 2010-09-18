@@ -1,136 +1,164 @@
 body {
-  font-family: "Gentium Book Basic", Arial, Tahoma, Helvetica, FreeSans, serif;
-}
-
-/* Customizations to default Simple template */
-a {
-  transition: background-color 0.2s, color 0.2s;
-  -webkit-transition: background-color 0.2s, color 0.2s;
-}
-
-.tabs-inner {
-  min-width: 670px !important;
-  max-width: 670px !important;
-}
-
-#cse-search-box {
-  border-radius: 5px;
-  float: right;
-  margin-right: 27px;
-  padding: 3px;
-}
-#cse-search-box,
-#cse-search-box > div > input {
-  background-color: #ccc;
-  font-family: "Envy Code R", monospace;
-  font-size: 20px;
-}
-#cse-search-box > div > input[type=text] {
-  border: none;
-}
-
-.PageList {
+  font-family: 'Gentium Book Basic';
+  font-size: 11pt;
   margin: 0 0;
-  position: static;
 }
 
-.PageList a {
-  -webkit-border-radius: 0.5em;
-  -moz-border-radius: 0.5em;
-  border-radius: 0.5em;
-  font-family: "Existence", Arial, Tahoma, Helvetica, FreeSans, sans-serif !important;
-  margin-bottom: 0.25em;
-  margin-right: 0.5em;
-  padding: 0.25em 0.5em !important;
+a {
+  color: #249FA3;
+  text-decoration: none;
 }
 
-.PageList a:last-child {
-  margin-right: 0;
+a:visited {
+  color: #7C93A1;
 }
 
-.PageList a:hover {
-  background-color: #00B1BF !important;
-  color: #FFF !important;
+a:hover {
+  color: #5DC2C0;
+  text-decoration: underline;
+}
+
+ul {
+  margin-left: 2em;
+  padding-left: 0;
+}
+
+.wrapper {
+  margin: 0 auto;
+  width: 640px;
+}
+
+/* Widgets
+========== */
+
+.widget > h2 {
+  font-family: Existence;
 }
 
 #ArchiveList ul {
-margin-left: 1.25em;
-list-style-type: disc;
+  margin-left: 2em !important;
+  list-style-type: disc !important;
 }
 
 #ArchiveList li {
-list-style-type: disc;
+  list-style-type: disc !important;
 }
 
 .PopularPosts > .widget-content > ul > li {
-padding: 0;
+  padding: 0;
 }
 
-.Header h1 {
+/* Blog header stuff
+==================== */
+
+#blog-header {
+  border-bottom: 1px solid #EEE;
+  padding-bottom: 10px;
+}
+
+#Header1 {
+  text-align: center;
+}
+
+#blog-title {
+  font-family: 'Moms Typewriter';
+  font-size: 4em;
+  margin: 0.5em 0 0 0;
   text-shadow: #000 0 0 3px;
 }
 
-h2.date-header {
-  color: #444;
-  font-family: inherit;
-  text-align: center;
-  text-shadow: #aaa 0 0 2px;
+#blog-title > a,
+#blog-title > a:hover,
+#blog-title > a:visited {
+  color: #000;
+  text-decoration: none;
 }
 
-.post-title {
-  font-size: 2em;
-  margin: 0.75em 0 0 -200px !important;
-  text-align: center;
-  width: 1040px !important;
+/* Pages and Search Box */
+
+#cse-search-box {
+  background-color: #eee;
+  border-radius: 0.5ex;
+  float: right;
+  font-family: "Envy Code R", monospace;
+  padding: 0.5ex;
 }
 
-.post-title a {
-  font-family: Prociono, Arial, Tahoma, Helvetica, FreeSans, sans-serif;
-}
-
-.post-body h4,
-.post-body h5,
-.post-body h6 {
-  font-family: "Bergamo Std";
-  margin: 0;
-  text-align: center;
-}
-
-.post-body h4 {
-  font-size: 1.5em;
-}
-
-.post-body h5 {
-  font-size: 1.25em;
-}
-
-.post-body h6 {
+#cse-search-box > div > input[type=text] {
+  background-color: transparent;
+  border: none;
+  font-family: "Envy Code R", monospace;
   font-size: 1em;
 }
 
-.post-body blockquote {
+#PageList1 {
+  font-family: Existence;
+  font-size: 1.25em;
+}
+
+#PageList1 > ul {
+  margin: 0 0;
+  padding: 0.5ex 0;
+}
+
+#PageList1 > ul > li {
+  display: inline-block;
+  list-style-type: none;
+}
+
+#PageList1 > ul > .selected {
+  font-weight: bold;
+}
+
+/* Blog post stuff
+================== */
+
+/* Post header */
+article > header {
+  text-align: center;
+}
+
+article > header > h1 {
+  font-family: Prociono;
+}
+
+article > header > time {
+  color: #444;
+  font-size: 1.5em;
+  text-shadow: #AAA 0 0 2px;
+}
+
+article h2,
+article h3,
+article h4,
+article h5,
+article h6 {
+  font-family: "Bergamo Std";
+  text-align: center;
+}
+
+article img {
+  height: auto !important;
+  padding: 5px;
+  border: 1px solid #eee;
+  -moz-box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
+  -webkit-box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
+  box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
+}
+
+.post-content blockquote {
   display: block;
   margin: 1ex 36px;
 }
 
-figure {
-  display: block;
-  text-align: center;
-}
-
-figcaption {
-  display: block;
-  text-align: center;
-}
-
-.post-body blockquote:before,
-.post-body blockquote:after {
+.post-content blockquote:before,
+.post-content blockquote:after {
   color: #ccc;
   display: block;
   font-size: 72px;
 }
 
-.post-body blockquote:before {
+.post-content blockquote:before {
 /* ldquo is not declared */
   content: "\201c";
   height: 18px;
@@ -138,7 +166,7 @@ figcaption {
   text-shadow: #666 -1px -1px 0px;
 }
 
-.post-body blockquote:after {
+.post-content blockquote:after {
   content: "\201d";
   height: 36px;
   margin-top: -48px;
@@ -146,7 +174,7 @@ figcaption {
   text-shadow: #666 1px 1px 0px;
 }
 
-.post-body code {
+.post-content code {
   background-color:#eee;
   font-family: "Envy Code R", "Courier New";
   -moz-border-radius:5px;
@@ -155,7 +183,7 @@ figcaption {
   padding: 0 0.5ex;
 }
 
-.post-body pre {
+.post-content pre {
   background-color:#eee;
   font-family: "Envy Code R", "Courier New";
   -moz-border-radius:5px;
@@ -166,19 +194,13 @@ figcaption {
   padding:5px;
 }
 
-.post-body pre > code {
+.post-content pre > code {
   background-color: #444;
   -moz-border-radius:5px;
   -webkit-border-radius:5px;
   border-radius:5px;
   padding: 0.5ex;
   overflow-x: auto;
-}
-
-/* AdSense */
-
-#AdSense1 {
-  margin-left: -44px;
 }
 
 /*
@@ -292,4 +314,59 @@ pre .doctype {
 pre .html .css,
 pre .html .javascript {
   opacity: 0.5;
+}
+
+figure {
+  display: block;
+  text-align: center;
+}
+
+figcaption {
+  display: block;
+  text-align: center;
+}
+
+#post-comments {
+  margin: 0 auto;
+  width: 640px;
+}
+
+/* Post footer */
+
+article > footer {
+  background-color: #F9F9F9;
+  border-bottom: 1px solid #EEE;
+  border-radius: 0.5ex;
+  color: #666;
+  font-size: 0.9em;
+  margin: 0 auto;
+  padding: 0.5ex 0.5ex;
+  width: 640px;
+}
+
+/* AdSense */
+
+#AdSense1 {
+  margin: 10px auto;
+  width: 728px;
+}
+
+/* Blog footer stuff
+==================== */
+
+#blog-footer {
+  border-top: 1px solid #EEE;
+  margin-top: 10px;
+}
+
+#footer-widgets-left {
+  border-right: 1px solid #EEE;
+  float: left;
+  padding-right: 10px;
+  width: 310px;
+}
+
+#footer-widgets-right {
+  float: right;
+  width: 310px;
 }

@@ -1,5 +1,5 @@
 function collapse_pre() {
-  $('.post-body pre').each(function (idx, pre) {
+  $('.post-content pre').each(function (idx, pre) {
     var $pre = $(pre);
     if ($pre.height() <= 200 || $pre.hasClass('no-collapse'))
       return
@@ -40,16 +40,17 @@ function collapse_pre() {
 $(function(){
   // Image resizing
   var max_width = 640 - 1*2 - 5*2;
-  $(".post-body img").each(function(i, e){
+  $(".post-content img").each(function(i, e){
       var $e = $(e);
       if ($e.css("float") != "none" || $e.hasClass("no-autoresize")) return;
       if ($e.width() != max_width) $e.width(max_width);
       });
-  // jknav
-  $('h3').jknav();
-  $.jknav.init({up: 'l', down: 'h', reevaluate: true}); 
-  $('h3.post-title,.post-body h4,.post-body h5,.post-body h6').jknav(null, 'all-headers');
-  $.jknav.init({name: 'all-headers', reevaluate: true});
+  // Disqus
+  var query = '?';
+  $.each($('a[href$=#disqus_thread]'), function (idx, ele) {
+      query += 'url' + idx + '=' + encodeURIComponent(ele.href) + '&';
+      });
+  $.getScript('http://disqus.com/forums/yjlv/get_num_replies.js' + query);
   });
 
 // Scope issue with getScript(), executing them directly seems fine.
