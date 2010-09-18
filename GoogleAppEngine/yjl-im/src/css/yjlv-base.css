@@ -346,7 +346,7 @@ article > footer {
   border-radius: 0.5ex;
   color: #666;
   font-size: 0.9em;
-  margin: 0 auto;
+  margin: 1em auto 0 auto;
   padding: 0.5ex 0.5ex;
   width: 640px;
 }
