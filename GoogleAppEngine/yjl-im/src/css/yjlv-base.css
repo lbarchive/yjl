@@ -153,6 +153,10 @@ article img {
   box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
 }
 
+.post-content {
+  line-height: 1.5em;
+}
+
 .post-content blockquote {
   display: block;
   margin: 1ex 36px;
