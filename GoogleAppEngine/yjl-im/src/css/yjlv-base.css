@@ -102,12 +102,19 @@ ul {
 }
 
 #PageList1 > ul > li {
+  background-color: #fff;
+  border-radius: 0.5ex;
   display: inline-block;
   list-style-type: none;
+  padding: 0.5ex;
 }
 
-#PageList1 > ul > .selected {
-  font-weight: bold;
+#PageList1 > ul > li:hover {
+  background-color: #eee;
+}
+
+#PageList1 > ul > li.selected {
+  background-color: #efe;
 }
 
 /* Blog post stuff
