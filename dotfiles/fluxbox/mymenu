@@ -25,11 +25,13 @@
   [exec] (Terminal [safe]) {urxvt}
   [exec] (tmux) {urxvtc -e tmux -2}
   [exec] (tmux attach) {urxvtc -e tmux -2 attach}
-#  [exec] (Chromium) {chromium} </usr/share/pixmaps/chromium-browser.png>
+  [exec] (Chromium) {chromium} </usr/share/pixmaps/chromium-browser.png>
 #  [exec] (Chromium Bin) {chromium-bin} </usr/share/pixmaps/chromium-bin.png>
 #  [exec] (Chromium Bin) {XMODIFIERS=@im=gcin QT_IM_MODULE=gcin chromium-bin} </usr/share/pixmaps/chromium-bin.png>
-  [exec] (Firefox) {firefox} #</usr/share/pixmaps/firefox-icon.png>
-  [exec] (Firefox no-remote) {firefox --no-remote} #</usr/share/pixmaps/firefox-icon.png>
+#  [exec] (Firefox) {firefox} #</usr/share/pixmaps/firefox-icon.png>
+#  [exec] (Firefox no-remote) {firefox --no-remote} #</usr/share/pixmaps/firefox-icon.png>
+  [exec] (Firefox) {~/bin/firefox} #</usr/share/pixmaps/firefox-icon.png>
+  [exec] (Firefox no-remote) {~/bin/firefox --no-remote} #</usr/share/pixmaps/firefox-icon.png>
 #	  [exec] (CenterIM) {urxvtc -e tmux-cim.sh}
   [exec] (Midnight Commander) {urxvtc -e mc}
   [exec] (GIMP) {gimp} </usr/share/icons/hicolor/48x48/apps/gimp.png>

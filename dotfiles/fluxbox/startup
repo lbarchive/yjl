@@ -25,7 +25,6 @@ sleep 1
 {
 	#setxkbmap -model pc104 -layout us -option compose:rctrl
 	#setxkbmap -model pc104 -layout us -option compose:ralt
-	setxkbmap -model pc104 -layout us -option compose:menu
 	urxvtd -q -o -f
 	#ibus &
 	#nm-applet &
@@ -35,9 +34,10 @@ sleep 1
 #	urxvtc -e screen &
 	#start-pulseaudio-x11
 	[[ $(lsusb -v | grep -i mouse) ]] && synclient TouchpadOff=1 
-	xcompmgr -n &
+#	xcompmgr -n &
 #	ibus-daemon -d -x
 	gcin &
+	setxkbmap -model pc104 -layout us -option compose:menu
 } &
 sleep 1
 
