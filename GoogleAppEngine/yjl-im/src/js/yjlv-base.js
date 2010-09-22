@@ -51,6 +51,19 @@ $(function(){
       query += 'url' + idx + '=' + encodeURIComponent(ele.href) + '&';
       });
   $.getScript('http://disqus.com/forums/yjlv/get_num_replies.js' + query);
+  // Google Analytics
+  function _track() {
+    try { _gat._getTracker("UA-8340561-4")._trackPageview(); } 
+    catch (err) {}
+    }
+  if (window._gat) {
+    _track();
+    }
+  else {
+    $.getScript(('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js', function () {
+        _track();
+        });
+    }
   });
 
 // Scope issue with getScript(), executing them directly seems fine.
