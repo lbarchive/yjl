@@ -53,7 +53,7 @@ $(function(){
   $.getScript('http://disqus.com/forums/yjlv/get_num_replies.js' + query);
   // Google Analytics
   function _track() {
-    try { _gat._getTracker("UA-8340561-4")._trackPageview(); } 
+    try { _gat._getTracker("UA-15896368-3")._trackPageview(); } 
     catch (err) {}
     }
   if (window._gat) {
