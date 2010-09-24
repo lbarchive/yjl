@@ -53,16 +53,17 @@ $(function(){
   $.getScript('http://disqus.com/forums/yjlv/get_num_replies.js' + query);
   // Google Analytics
   function _track() {
-    try { _gat._getTracker("UA-15896368-3")._trackPageview(); } 
-    catch (err) {}
+    var _gaq = window._gaq || [];
+    _gaq.push(['_setAccount', 'UA-15896368-3']);
+    _gaq.push(['_trackPageview']);
+    if (!window._gaq)
+      window._gaq = _gaq;
     }
-  if (window._gat) {
+  if (window._gaq) {
     _track();
     }
   else {
-    $.getScript(('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js', function () {
-        _track();
-        });
+    $.getScript(('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js', _track);
     }
   });
 
