@@ -45,6 +45,8 @@ $(function(){
       if ($e.css("float") != "none" || $e.hasClass("no-autoresize")) return;
       if ($e.width() != max_width) $e.width(max_width);
       });
+  if (document.location.protocol == 'file:' || document.location.host == 'localhost')
+    return
   // Disqus
   var query = '?';
   $.each($('a[href$=#disqus_thread]'), function (idx, ele) {
