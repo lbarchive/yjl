@@ -142,7 +142,9 @@ article > header > time {
   border-radius: 3px;
   box-shadow: 0 0 3px pink;
   color: #3B6B9C;
+  margin-bottom: 1em;
   padding: 0.5ex;
+  width: 600px;
 }
 
 article h2,
@@ -360,6 +362,7 @@ article > footer {
   border-radius: 0.5ex;
   color: #666;
   font-size: 0.9em;
+  line-height: 1.5em;
   margin: 1em auto 0 auto;
   padding: 0.5ex 0.5ex;
   width: 640px;

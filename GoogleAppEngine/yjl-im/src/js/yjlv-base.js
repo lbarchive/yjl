@@ -87,6 +87,7 @@ else
 // BRPS
 if ($('#gas-results').length > 0) {
   window.brps_gas = {
+      remove_tags: ['OldBlogBlogarbage', 'OldBlogGetCtrlBack', 'OldBlogTheBThing', 'OldBlogTuxWearsFedora', 'OldBlogmakeYJL'],
       limit: 10,
       remove_string_regexp: /(^.*?: | &lt;&lt;.*$)/,
       exclude_url_regexp: /(archive\.html|blog\.yjl\.im\/|\.blogspot\.com\/)$/
