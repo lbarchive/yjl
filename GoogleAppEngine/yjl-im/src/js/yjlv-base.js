@@ -88,13 +88,6 @@ else
 if ($('#gas-results').length > 0) {
   window.brps_gas = {
       limit: 10,
-      add_sites: [
-          'blogarbage.blogspot.com',
-          'fedoratux.blogspot.com',
-          'getctrlback.blogspot.com',
-          'makeyjl.blogspot.com',
-          'thebthing.blogspot.com'
-          ],
       remove_string_regexp: /(^.*?: | &lt;&lt;.*$)/,
       exclude_url_regexp: /(archive\.html|blog\.yjl\.im\/|\.blogspot\.com\/)$/
       };

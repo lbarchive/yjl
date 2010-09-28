@@ -136,6 +136,15 @@ article > header > time {
   text-shadow: #AAA 0 0 2px;
 }
 
+.old-post-notice {
+  background-color: pink;
+  border: 3px solid pink;
+  border-radius: 3px;
+  box-shadow: 0 0 3px pink;
+  color: #3B6B9C;
+  padding: 0.5ex;
+}
+
 article h2,
 article h3,
 article h4,
