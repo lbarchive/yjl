@@ -171,7 +171,7 @@ article img {
 
 .post-content blockquote {
   display: block;
-  margin: 1ex 36px;
+  margin: 2em 36px 0;
 }
 
 .post-content blockquote:before,
@@ -184,15 +184,15 @@ article img {
 .post-content blockquote:before {
 /* ldquo is not declared */
   content: "\201c";
-  height: 18px;
+  height: 0;
   margin-left: -36px;
   text-shadow: #666 -1px -1px 0px;
 }
 
 .post-content blockquote:after {
   content: "\201d";
-  height: 36px;
-  margin-top: -48px;
+  height: 0;
+  margin-top: 0;
   margin-left: 568px; /* 640 - 36 - 36 */
   text-shadow: #666 1px 1px 0px;
 }
