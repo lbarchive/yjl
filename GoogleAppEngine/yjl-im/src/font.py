@@ -42,7 +42,7 @@ class FontFile(webapp.RequestHandler):
     if 'Origin' not in self.request.headers:
       self.response.headers.add_header('Access-Control-Allow-Origin', 'http://www.yjl.im')
     elif os.environ['SERVER_NAME'] == 'localhost' or \
-        self.request.headers['Origin'] in ['http://www.yjl.im', 'http://blog.yjl.im']:
+        self.request.headers['Origin'] in ['http://www.yjl.im', 'http://blog.yjl.im', 'null']:
       self.response.headers.add_header('Access-Control-Allow-Origin', self.request.headers['Origin'])
     else:
       self.response.headers.add_header('Access-Control-Allow-Origin', 'http://www.yjl.im')
