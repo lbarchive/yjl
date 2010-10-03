@@ -45,6 +45,22 @@ $(function(){
       if ($e.css("float") != "none" || $e.hasClass("no-autoresize")) return;
       if ($e.width() != max_width) $e.width(max_width);
       });
+  // Unwrapper
+  if ($('.wrapper').length > 0) {
+    $(window).resize(function(){
+      $.each($('.unwrapper'), function(idx, ele) {
+        var $e = $(ele);
+        // reset
+        $e.css('margin-left', '0px');
+        $e.css('margin-right', '0px');
+      
+        $e.css('margin-left', (-parseInt($e.offset().left) + parseInt($('body').css('margin-left')) + parseInt($('body').css('padding-left')))+ 'px');
+        $e.css('margin-right', (-$('body').outerWidth() + $e.outerWidth() + parseInt($('body').css('margin-right')) + parseInt($('body').css('padding-right'))) + 'px');
+        });
+      });
+    $(window).resize();
+    }
+  // Don't go below?
   if (document.location.protocol == 'file:' || document.location.host == 'localhost')
     return
   // Disqus
