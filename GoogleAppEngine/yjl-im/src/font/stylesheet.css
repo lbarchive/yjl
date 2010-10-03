@@ -2,7 +2,6 @@
 
 @font-face {
 	font-family: 'Envy Code R';
-	src: url('Envy Code R/Envy Code R.eot');
 	src: local('☺'), url('Envy Code R/Envy Code R.ttf') format('truetype');
 	font-weight: normal;
 	font-style: normal;
@@ -10,7 +9,6 @@
 
 @font-face {
 	font-family: 'Envy Code R';
-	src: url('Envy Code R/Envy Code R Italic.eot');
 	src: local('☺'), url('Envy Code R/Envy Code R Italic.ttf') format('truetype');
 	font-weight: normal;
 	font-style: italic;
@@ -18,7 +16,6 @@
 
 @font-face {
 	font-family: 'Envy Code R';
-	src: url('Envy Code R/Envy Code R Bold.eot');
 	src: local('☺'), url('Envy Code R/Envy Code R Bold.ttf') format('truetype');
 	font-weight: bold;
 	font-style: normal;
