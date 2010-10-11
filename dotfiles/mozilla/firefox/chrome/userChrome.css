@@ -25,18 +25,3 @@
 .tabbrowser-tab[selected] {
   background: #666 !important;
 }
-
-#addon-bar {
-  -moz-appearance: none !important;
-}
-
-#addon-bar,
-#addon-bar * {
-  background: #222 !important;
-  color: #ddc !important;
-}
-
-#liberator-statusline {
-  background-color: transparent !important;
-  width: 800px !important;
-}

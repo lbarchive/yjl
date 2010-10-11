@@ -4,8 +4,8 @@
 " Created for matching this GTK+ theme:
 "   http://www.gnome-look.org/content/show.php/Clearlooks+Zenburn?content=103035
 "
-" Last edited: 2010-01-14T23:05:16+0800
-" Edited by Yu-Jie Lin <http://j.mp/livibetter>
+" Last edited: 2010-10-12T03:43:36+0800
+" Edited by Yu-Jie Lin <http://j.mp/Google-livibetter>
 "
 " Original vimp:
 "  http://github.com/VoQn/vimperator-colorscheme/blob/master/colors/default.vimp
@@ -19,6 +19,12 @@ hi clear
 
 hi CompDesc					color: #999; width: 50%;
 hi CompItem[selected]		background: #666;
+
+" Used in Command Line
+" Entire bottom line
+hi CmdLine                  background: #333; font-family: monospace; padding: 2px; vertical-align: middle;
+" Wrapped by CmdLine
+hi CommandLine				color: #ddc; background: #333;-moz-transition: all 0.5s; /* transition is an default setting since 2.4pre */
 
 " Used in `js t<TAB>`, etc
 hi CompLess					color: white; background-color: #222; text-align: center; height: 0; line-height: .5ex; padding-top: 1ex; -moz-border-radius: 5px;height:1em; margin:0 1ex;
@@ -70,7 +76,7 @@ hi Question					color: #080; background: #222; font-weight: bold; -moz-border-ra
 
 hi Search					color: #333; background-color: #cc0; font-size: inherit; padding: 0; padding: 0;
 
-hi StatusLine				color: #ddc; background: #222;
+hi StatusLine				color: #ddc; background: #333;
 hi StatusLineBroken			color: #ddc; background: #f66;
 hi StatusLineSecure			color: #ddc; background: #383;
 hi StatusLineExtended		color: #ddc; background: #383;
@@ -92,7 +98,6 @@ hi URL:hover				color: #880; background-color: #222; -moz-border-radius: 5px; cu
 " Most of the following setting are unknown to me
 " ===============================================
 "hi Bell					border: 0 none; background-color: black;
-"hi CmdLine				font-family: monospace; padding: 1px;
 "hi CmdOutput				white-space: pre;
 "hi CompGroup	
 "hi CompGroup:not(:first-of-type)	margin-top: .5em;
