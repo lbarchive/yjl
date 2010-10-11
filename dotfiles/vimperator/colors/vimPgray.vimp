@@ -24,7 +24,7 @@ hi CompItem[selected]		background: #666;
 " Entire bottom line
 hi CmdLine                  background: #333; font-family: monospace; padding: 2px; vertical-align: middle;
 " Wrapped by CmdLine
-hi CommandLine				color: #ddc; background: #333;-moz-transition: all 0.5s; /* transition is an default setting since 2.4pre */
+hi CommandLine				color: #ddc; background: #333;
 
 " Used in `js t<TAB>`, etc
 hi CompLess					color: white; background-color: #222; text-align: center; height: 0; line-height: .5ex; padding-top: 1ex; -moz-border-radius: 5px;height:1em; margin:0 1ex;
