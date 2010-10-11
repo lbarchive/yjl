@@ -1,7 +1,7 @@
 colorscheme vimPgray
 
 set defsearch=g
-"set guioptions=rb
+set guioptions=rb
 "set popups=2
 "set popups=resized
 
@@ -14,3 +14,4 @@ autocmd LocationChange .* js modes.passAllKeys = /(mail\.google\.com|www\.google
 
 " Get my damn focus back
 autocmd PageLoad (www\\.youtube|groups.google)\\.com :normal <Esc>
+
