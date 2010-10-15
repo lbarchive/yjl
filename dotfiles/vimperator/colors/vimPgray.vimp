@@ -77,9 +77,6 @@ hi Question					color: #080; background: #222; font-weight: bold; -moz-border-ra
 hi Search					color: #333; background-color: #cc0; font-size: inherit; padding: 0; padding: 0;
 
 hi StatusLine				color: #ddc; background: #333;
-hi StatusLineBroken			color: #ddc; background: #f66;
-hi StatusLineSecure			color: #ddc; background: #383;
-hi StatusLineExtended		color: #ddc; background: #383;
 
 " Firefox's tabs
 hi TabIconNumber			color: #ddc; font-weight: bold; text-align: center; text-shadow: #000 -1px 0 0, #000 0 1px 0, #000 1px 0 0, #000 0 -1px 0;
