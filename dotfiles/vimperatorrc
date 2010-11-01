@@ -15,3 +15,5 @@ autocmd LocationChange .* js modes.passAllKeys = /(mail\.google\.com|www\.google
 " Get my damn focus back
 autocmd PageLoad (www\\.youtube|groups.google)\\.com :normal <Esc>
 
+" Auto reload
+autocmd PageLoad tw\\.finance\\.yahoo.com\\/pf\\/mypf js (function(){var t=getBrowser().tabs[<tab>-1];window.setTimeout(function(){getBrowser().reloadTab(t)},60000)})()

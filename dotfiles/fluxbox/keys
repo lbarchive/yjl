@@ -150,7 +150,7 @@ Mod4 P :Exec mp-ctrl.sh play
 
 # Miscellaneous keys
 # XF86Calculator
-148 :Exec urxvtc -e hc
+148 :Exec urxvtc -e urxvtc -e python
 # XF86Explorer
 152 :Exec urxvtc -e mc 
 
