@@ -4,10 +4,10 @@
 " Created for matching this GTK+ theme:
 "   http://www.gnome-look.org/content/show.php/Clearlooks+Zenburn?content=103035
 "
-" Last edited: 2010-10-12T03:43:36+0800
+" Last edited: 
 " Edited by Yu-Jie Lin <http://j.mp/Google-livibetter>
 "
-" Original vimp:
+" Original vimp: 2010-11-01T10:04:00+0800
 "  http://github.com/VoQn/vimperator-colorscheme/blob/master/colors/default.vimp
 "
 " Reference:
@@ -26,20 +26,9 @@ hi CmdLine                  background: #333; font-family: monospace; padding: 2
 " Wrapped by CmdLine
 hi CommandLine				color: #ddc; background: #333;
 
-" Used in `js t<TAB>`, etc
-hi CompLess					color: white; background-color: #222; text-align: center; height: 0; line-height: .5ex; padding-top: 1ex; -moz-border-radius: 5px;height:1em; margin:0 1ex;
-hi CompLess::after			content: "\2303" /* Unicode up arrowhead */
-hi CompMore					color: white; background-color: #222; text-align: center; height: .5ex; line-height: .5ex; margin-bottom: -.5ex; -moz-border-radius: 5px;height:1em; margin:0 1ex;
-hi CompMore::after			content: "\2304" /* Unicode down arrowhead */
-
 " Used in the URL column of `bmarks`
 hi CompResult				color: #aaa; width: 45%; overflow: hidden;
 hi CompTitle				color: #ddc; background: #333; font-weight: bold; text-shadow: #000 1px 1px 0
-
-" A pretty line under the completion titles
-hi Gradient					height: 1px; margin-bottom: -1px; margin-top: -1px;
-hi GradientLeft				background-color: #666;
-hi GradientRight			background-color: #333;
 
 " Hints!
 hi Hint						color: white; background-color: #800; border-color: ButtonShadow; font-family: monospace; font-size: 10px; font-weight: bold; border-width: 0px; border-style: solid; padding 0 1px;
