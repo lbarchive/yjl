@@ -153,7 +153,7 @@ Downld: ${downspeed wlan0}/s Total: ${totaldown wlan0}$alignr${downspeedgraph wl
 ${color lightblue}Volume :$color ${if_mixer_mute}${color red}$else${color green}$endif$mixer%$color
 ${color lightblue}Battery:$color $battery_percent% ${if_match "$battery_short" != "F"}$battery_short($battery_time)$endif$alignr${battery_bar 8,200}
 
-${color lightblue}Portage:$color ${execpi 600 thres=$((7*24*60*60));tsfile=/usr/portage/metadata/timestamp.chk;dur=$(($(date +%s) - $(date -d "$(cat $tsfile)" +%s)));((dur>=thres)) && echo $(date -d "$(cat $tsfile)" +%F\ %T) || echo "\${execbar echo $((100*dur/thres))}"}
+${color lightblue}Portage:$color ${execpi 600 thres=$((7*24*60*60));ts="$(cat /usr/portage/metadata/timestamp.chk)";dur=$(($(date +%s) - $(date -d "$ts" +%s)));((dur>=thres)) && echo $(date -d "$ts" +%F\ %T) || echo "\${execbar echo $((100*dur/thres))}"}
 
 ${if_running mpd}${color lightblue}MPD: ${color #408040}$mpd_status$color$alignr ${if_running mpdscribble}Scribble $endif${if_match "$mpd_repeat" == "On"}Repeat $endif${if_match "$mpd_random" == "On"}Random$endif $mpd_vol%              
 ${alignc}${color red}$mpd_title$color              
