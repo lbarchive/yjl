@@ -155,10 +155,10 @@ ${color lightblue}Battery:$color $battery_percent% ${if_match "$battery_short" !
 
 ${color lightblue}Portage:$color ${execpi 600 thres=$((7*24*60*60));ts="$(cat /usr/portage/metadata/timestamp.chk)";dur=$(($(date +%s) - $(date -d "$ts" +%s)));((dur>=thres)) && echo $(date -d "$ts" +%F\ %T) || echo "\${execbar echo $((100*dur/thres))}"}
 
-${if_running mpd}${color lightblue}MPD: ${color #408040}$mpd_status$color$alignr ${if_running mpdscribble}Scribble $endif${if_match "$mpd_repeat" == "On"}Repeat $endif${if_match "$mpd_random" == "On"}Random$endif $mpd_vol%              
+${if_running mpd}${color lightblue}MPD: ${color #408040}$mpd_status$color$alignr ${if_match "${execi 6 cut -f 7 -d \  "/tmp/lf-playcount-image"}" == "1"}${color red}♥$color $else${color black}♥$color $endif${if_running mpdscribble}Scribble $endif${if_match "$mpd_repeat" == "On"}Repeat $endif${if_match "$mpd_random" == "On"}Random$endif $mpd_vol%              
 ${alignc}${color red}$mpd_title$color              
 ${alignc}${color #9999ff}$mpd_album$color              
 ${alignc}${color green}$mpd_artist$color              
-${alignc}${color yellow}Played ${execi 6 lf-playcount-image.sh}${execi 6 cat "/tmp/lf-playcount-image" | cut -f 2 -d \ } times$color              
-[$mpd_elapsed/$mpd_length] ${color #ccddff}${mpd_bar 3,240}$color${execpi 6 echo "\${image /tmp/lf-images/$(cat "/tmp/lf-playcount-image" | cut -f 4 -d \  | tr -t \/ -) -p 325, 586 -s 75x75}"}${endif}
+${alignc}${color yellow}Played ${execi 6 lf-playcount-image.sh}${execi 6 cut -f 2 -d \  "/tmp/lf-playcount-image"} times$color              
+[$mpd_elapsed/$mpd_length] ${color #ccddff}${mpd_bar 3,240}$color${execpi 6 echo "\${image /tmp/lf-images/$(cut -f 4 -d \  "/tmp/lf-playcount-image" | tr -t \/ -) -p 325, 586 -s 75x75}"}${endif}
 ${image ~/Pictures/Works/Gentoo/GentooLogo-640.png -p 0,140 -s 400x400}
