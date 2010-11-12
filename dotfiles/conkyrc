@@ -154,7 +154,7 @@ ${color lightblue}Volume :$color ${if_mixer_mute}${color red}$else${color green}
 ${color lightblue}Battery:$color $battery_percent% ${if_match "$battery_short" != "F"}$battery_short($battery_time)$endif$alignr${battery_bar 8,200}
 
 ${color lightblue}Portage:$color ${execpi 600 thres=$((7*24*60*60));ts="$(cat /usr/portage/metadata/timestamp.chk)";dur=$(($(date +%s) - $(date -d "$ts" +%s)));((dur>=thres)) && echo $(date -d "$ts" +%F\ %T) || echo "\${execbar echo $((100*dur/thres))}"}
-
+${color lightblue}YouTube:$color ${execi 600 ls -1 ~/Videos/livibetter/videos | wc -l} downloaded / ${execi 600 ls -1 ~/Videos/livibetter/queue | wc -l} queued / ${execi 60 pgrep youtube-dl | wc -l} downloading
 ${if_running mpd}${color lightblue}MPD: ${color #408040}$mpd_status$color$alignr ${if_match "${execi 6 cut -f 7 -d \  "/tmp/lf-playcount-image"}" == "1"}${color red}♥$color $else${color black}♥$color $endif${if_running mpdscribble}Scribble $endif${if_match "$mpd_repeat" == "On"}Repeat $endif${if_match "$mpd_random" == "On"}Random$endif $mpd_vol%              
 ${alignc}${color red}$mpd_title$color              
 ${alignc}${color #9999ff}$mpd_album$color              
