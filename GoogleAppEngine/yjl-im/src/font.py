@@ -1,4 +1,5 @@
 import datetime
+import logging
 import os
 import os.path
 import urllib
@@ -24,12 +25,14 @@ class FontFile(webapp.RequestHandler):
     fontpath = os.path.normpath(urllib.unquote(fontpath))
     # Does someone try to get other files?
     if fontpath.startswith('.') or fontpath.startswith('/'):
+      logging.error('Suspicious Path: %s' % fontpath);
       self.error(403)
       return
 
     # Is requested file a font file?
     ext = os.path.splitext(fontpath)[1]
     if ext not in FontFile.EXT_TYPES.keys():
+      logging.error('Suspicious Path, Extension: %s %s' % (fontpath, ext));
       self.error(403)
       return
 
@@ -42,10 +45,15 @@ class FontFile(webapp.RequestHandler):
     if 'Origin' not in self.request.headers:
       self.response.headers.add_header('Access-Control-Allow-Origin', 'http://www.yjl.im')
     elif os.environ['SERVER_NAME'] == 'localhost' or \
-        self.request.headers['Origin'] in ['http://www.yjl.im', 'http://blog.yjl.im', 'null']:
+        self.request.headers['Origin'] in [
+            'http://www.yjl.im', 'http://blog.yjl.im',
+            'http://translate.googleusercontent.com',
+            'http://webcache.googleusercontent.com',
+            'null']:
       self.response.headers.add_header('Access-Control-Allow-Origin', self.request.headers['Origin'])
     else:
       self.response.headers.add_header('Access-Control-Allow-Origin', 'http://www.yjl.im')
+      logging.error('Suspicious Origin: %s' % self.request.headers['Origin']);
       self.error(403)
       return
     
