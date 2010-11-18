@@ -81,6 +81,8 @@ hi Tag						color: #0CC;
 hi URL						color: #080; text-decoration: none; padding: 0 2px;
 hi URL:hover				color: #880; background-color: #222; -moz-border-radius: 5px; cursor: pointer;
 
+hi ContentSeparator			border:none;
+
 " Most of the following setting are unknown to me
 " ===============================================
 "hi Bell					border: 0 none; background-color: black;
