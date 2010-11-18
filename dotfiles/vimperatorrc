@@ -5,15 +5,36 @@ set guioptions=rb
 "set popups=2
 "set popups=resized
 
+" Remove all key mappings
+mapclear
+
 map <F8> :set guioptions!=B<CR>
 map <F9> :set guioptions!=m<CR>
 map <F10> :set guioptions!=T<CR>
 
-" Enter passthrough mode automatically in Gmail, Reader
-autocmd LocationChange .* js modes.passAllKeys = /(mail\.google\.com|www\.google\.com\/reader\/)/.test(buffer.URL)
+" I hate when I want to press <C-w> but I hit q instead
+map <C-q> <Nop>
 
-" Get my damn focus back
-autocmd PageLoad (www\\.youtube|groups.google)\\.com :normal <Esc>
+" Clean up all auto commands
+:autocmd!
 
-" Auto reload
-autocmd PageLoad tw\\.finance\\.yahoo.com\\/pf\\/mypf js (function(){var t=getBrowser().tabs[<tab>-1];window.setTimeout(function(){getBrowser().reloadTab(t)},60000)})()
+:js << EOF
+switch (liberator.profileName) {
+	case 'Normal':
+		// Enter passthrough mode automatically in Gmail, Reader
+		liberator.execute('autocmd LocationChange .* js modes.passAllKeys = /(mail\\.google\\.com|www\\.google\\.com\\/reader\\/)/.test(buffer.URL)');
+
+		// Get my damn focus back
+		liberator.execute('autocmd PageLoad (www\\\\.youtube|groups.google)\\\\.com :normal <Esc>');
+
+		// Auto reload
+		liberator.execute('autocmd PageLoad tw\\\\.finance\\\\.yahoo.com\\\\/pf\\\\/mypf js (function(){var t=getBrowser().tabs[<tab>-1];window.setTimeout(function(){getBrowser().reloadTab(t)},60000)})()');
+		break;
+	case 'Test':
+		// Make command line red
+		for ([k, v] in Iterator(highlight)) {
+			highlight.set(k, highlight.get(k).value.replace('background: #333', 'background: #633'));
+			}
+		break;
+	}
+EOF
