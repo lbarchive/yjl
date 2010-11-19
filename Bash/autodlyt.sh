@@ -29,16 +29,24 @@ fi
 
 # Downloading feed
 TMPFILE="$(mktemp)"
-dllog="$(wget "http://gdata.youtube.com/feeds/api/users/$USERNAME/newsubscriptionvideos?prettyprint=true&fields=entry(link[@rel='alternate'](@href))" -O "$TMPFILE" 2>&1)"
-if (( $? != 0 )); then
-	echo "$dllog" > "$DESTDIR/errors/dlfeed"
-	echo "$dllog" 1>&2
-	rm "$TMPFILE"
+DLLOG="$(mktemp)"
+wget "http://gdata.youtube.com/feeds/api/users/$USERNAME/newsubscriptionvideos?prettyprint=true&fields=entry(link[@rel='alternate'](@href))" -O "$TMPFILE" &>"$DLLOG"
+if (( $? != 0 )) || [[ ! -s "$TMPFILE" ]]; then
+	cat "$DLLOG" >> "$DESTDIR/errors/dlfeed"
+	cat "$DLLOG" 1>&2
+	rm "$DLLOG" "$TMPFILE"
 	exit 1
 fi
 
 videos="$(grep link "$TMPFILE" | sed 's/.*v=\(.*\)&.*/\1/')"
-rm "$TMPFILE"
+if [[ -z "$videos" ]]; then
+	echo "No videos found." 1>&2
+	echo "No videos found. XML:" >> "$DESTDIR/errors/dlfeed"
+	cat "$TMPFILE" >> "$DESTDIR/errors/dlfeed"
+	rm "$DLLOG" "$TMPFILE"
+	exit 1
+fi
+rm "$DLLOG" "$TMPFILE"
 
 lastvideo="$(cat "$DESTDIR"/last 2>/dev/null)"
 
@@ -48,7 +56,7 @@ for v in $videos; do
 done
 
 newlastvideo="$(head -1 <<< "$videos")"
-[[ "$newlastvideo" != "$lastvideo" ]] && echo "Updating $DESTDIR/last" && echo "$newlastvideo" > "$DESTDIR"/last
+[[ "$newlastvideo" != "$lastvideo" ]] && echo "Updating $DESTDIR/last to $newlastvideo" && echo "$newlastvideo" > "$DESTDIR"/last
 
 videos="$(ls "$DESTDIR"/queue/* 2>/dev/null)"
 [[ "$videos" == "" ]] && exit
