@@ -18,10 +18,9 @@ function plural (n) {
 	return "s";
 	}
 function hrtime (s) {
-	mm = int(s/60);
-	ss = s-mm*60;
+	ss = s%60;
+	mm = int(s/60%60);
 	hh = int(s/3600);
-	mm = mm-hh*60;
 	t="";
 	if (hh>0) t=t sprintf("\033[32;1m%d\033[0m hour%s ", hh, plural(hh));
 	if (mm>0) t=t sprintf("\033[32;1m%d\033[0m minute%s ", mm, plural(mm));
