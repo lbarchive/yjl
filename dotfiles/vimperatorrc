@@ -30,6 +30,9 @@ switch (liberator.profileName) {
 
 		// Auto-pin
 		liberator.execute('autocmd PageLoad listen.grooveshark.com js if(!getBrowser().mCurrentTab.pinned) getBrowser().pinTab(getBrowser().mCurrentTab);');
+
+		// Auto-queue YouTube video for downloading
+		liberator.execute('map <S-q> :js (function(){var href=getBrowser().contentDocument.location.href; if(href.indexOf("youtube.com")>=0) {var m=/v=([-_a-zA-Z0-9]+)/.exec(href);if(m) {io.system(\'echo "\'+href+\'" \\> ~/Videos/livibetter/queue/\'+m[1]); commandline.echo(m[1]+" queued.");}};})()<CR>');
 		break;
 	case 'Test':
 		// Make command line red
