@@ -2,8 +2,6 @@ colorscheme vimPgray
 
 set defsearch=g
 set guioptions=rb
-"set popups=2
-"set popups=resized
 
 " Remove all key mappings
 mapclear
@@ -28,13 +26,18 @@ switch (liberator.profileName) {
 		liberator.execute('autocmd PageLoad (www\\\\.youtube|groups.google)\\\\.com :normal <Esc>');
 
 		// Auto reload
-		liberator.execute('autocmd PageLoad tw\\\\.finance\\\\.yahoo.com\\\\/pf\\\\/mypf js (function(){var t=getBrowser().tabs[<tab>-1];window.setTimeout(function(){getBrowser().reloadTab(t)},60000)})()');
+		liberator.execute('autocmd PageLoad tw\\\\.finance\\\\.yahoo.com\\\\/pf\\\\/mypf js (function(){var t=getBrowser().tabs[<tab>-1];if (!t.pinned) getBrowser().pinTab(t);window.setTimeout(function(){getBrowser().reloadTab(t)},60000)})()');
+
+		// Auto-pin
+		liberator.execute('autocmd PageLoad listen.grooveshark.com js if(!getBrowser().mCurrentTab.pinned) getBrowser().pinTab(getBrowser().mCurrentTab);');
 		break;
 	case 'Test':
 		// Make command line red
 		for ([k, v] in Iterator(highlight)) {
 			highlight.set(k, highlight.get(k).value.replace('background: #333', 'background: #633'));
 			}
+		// Source special config
+		io.source('~/.vimperator-Test.rc', false);
 		break;
 	}
 EOF
