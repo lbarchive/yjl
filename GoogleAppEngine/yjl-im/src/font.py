@@ -47,6 +47,7 @@ class FontFile(webapp.RequestHandler):
     elif os.environ['SERVER_NAME'] == 'localhost' or \
         self.request.headers['Origin'] in [
             'http://www.yjl.im', 'http://blog.yjl.im',
+            'http://draft.blogger.com',
             'http://translate.googleusercontent.com',
             'http://webcache.googleusercontent.com',
             'null']:
