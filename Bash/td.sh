@@ -27,4 +27,6 @@ print_td() {
 	echo "${result# }"
 	}
 
-[[ "$1" != "-s" ]] && print_td $1
+if [[ "$1" != "-s" ]]; then
+	print_td $1
+fi
