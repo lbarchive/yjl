@@ -10,3 +10,7 @@
 # xterm/urxvt
 "\e[d": backward-word
 "\e[c": forward-word
+
+# Automatic inputting '' or "" and move the cursor
+"\C-x\'": "'' \e[D\e[D"
+"\C-x\"": "\"\" \e[D\e[D"
