@@ -11,8 +11,8 @@ map <F9> :set guioptions!=m<CR>
 map <F10> :set guioptions!=T<CR>
 
 " Tab order rearragement
-map <C-S-PageUp> :js getBrowser().moveTabBackward()<CR>
-map <C-S-PageDown> :js getBrowser().moveTabForward()<CR>
+map <C-S-PageUp> :tabm -1<CR>
+map <C-S-PageDown> :tabm +1<CR>
 
 " I hate when I want to press <C-w> but I hit q instead
 map <C-q> <Nop>
