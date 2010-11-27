@@ -21,6 +21,47 @@ map <C-q> <Nop>
 :autocmd!
 
 :js << EOF
+function replace_gdic_flash() {
+	var doc = getBrowser().contentDocument;
+	var flashes = doc.getElementsByTagName('object');
+	var idx = 0;
+	while (idx<flashes.length) {
+		var f = flashes[idx];
+		var a = f.getElementsByTagName('a');
+		if (a.length != 1) {
+			idx++;
+			continue;
+			}
+		a = a[0];
+		a.audiosrc = a.href;
+		a.href = '#';
+		a.addEventListener('click', function() {
+			liberator.echomsg('Playing ' + this.audiosrc);
+			io.system('mplayer ' + this.audiosrc);
+			liberator.echomsg(this.audiosrc + ' played');
+			}, false);
+		f.parentNode.replaceChild(a, f);
+		}
+	}
+
+function play_gdic_default() {
+	var doc = getBrowser().contentDocument;
+	if (!/www\.google\.com\/dictionary/.test(doc.location.href)) {
+		liberator.echoerr('Not Google Dictionary page');
+		return;
+		}
+	var audios = doc.getElementsByTagName('a');
+	for (var idx in audios) {
+		var a = audios[parseInt(idx)];
+		if (!a.audiosrc)
+			continue;
+		liberator.echomsg('Playing ' + a.audiosrc);
+		io.system('mplayer ' + a.audiosrc);
+		liberator.echomsg(a.audiosrc + ' played');
+		break;
+		}
+	}
+
 switch (liberator.profileName) {
 	case 'Normal':
 		// Enter passthrough mode automatically in Gmail, Reader
@@ -48,3 +89,6 @@ switch (liberator.profileName) {
 		break;
 	}
 EOF
+
+autocmd PageLoad www\\.google\\.com\\/dictionary js replace_gdic_flash();
+map s :js play_gdic_default()<CR>
