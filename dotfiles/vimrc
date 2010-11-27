@@ -24,9 +24,9 @@ imap <C-X><Left> <ESC>:tabp<CR>
 nmap <C-X><Left> :tabp<CR>
 imap <C-X><Right> <ESC>:tabn<CR>
 nmap <C-X><Right> :tabn<CR>
-
-imap <F4> <C-R>=strftime("%FT%T%z")<CR>
-nmap <F4> "=strftime("%FT%T%z")<CR>p
+ 
+imap <F4> <C-R>=strftime("%FT%TZ", localtime()-8*3600)<CR>
+nmap <F4> "=strftime("%FT%TZ", localtime()-8*3600)<CR>p
 
 "nmap <F5><F5> :!bash sync<CR>
 
