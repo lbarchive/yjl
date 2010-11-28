@@ -105,18 +105,8 @@ override_utf8_locale yes
 # Add spaces to keep things from moving about?  This only affects certain objects.
 use_spacer right
 
+default_bar_size 100 8
 
-# ${color lightblue}Volume:$color ${exec amixer get Master | egrep -o "[0-9]+%" | head -1 | egrep -o "[0-9]*"} % $alignr${color blue}${exec amixer get Master | grep -o "\[on\]" | head -1}$color${color red}${exec amixer get Master | grep -o "\[off\]" | head -1}$color
-# ${image ~/.mpd-cover.jpg -p 0,820, -s 200x200}
-
-#lua_load ~/.conky/weather_icons.lua
-#${lua_parse conky_weather_icon TWXX0021}
-# stuff after 'TEXT' will be formatted on screen
-#PCM ${mixerbar pcm}
-#${if_running shell-fm}${execp ~/bin/conky-shell-fm}$endif
-#${execi 60 wget -q "http://download.finance.yahoo.com/d/quotes.csv?s=2888.TW&f=sl1d1t1&e=.csv" -O - | sed 's/\\.TW//;s/"//g;s/\r//;y/,/ /'}
-#${execi 60 wget -q "http://download.finance.yahoo.com/d/quotes.csv?s=2891.TW&f=sl1d1t1&e=.csv" -O - | sed 's/\\.TW//;s/"//g;s/\r//;y/,/ /'}
-#${color lightblue}Volume :$color $if_mixer_mute${color #804040}$else${color #404080}$endif$mixerbar$color
 TEXT
 ${font Brushstroke:size=16}${color #c0c080}${time %A}$color$alignr${color #c08040}${time %H:%M:%S}$font$color
 ${font Brushstroke:size=16}${color #8080c0}$alignc${time %B %d}$color, ${color #80c080}${time %Y}$color$font
@@ -125,9 +115,9 @@ $color${execpi 3600 cal -3s | ~/.conky/calhltoday.py}
 ${execpi 1800 ~/.conky/weather.sh TWXX0021}
 
 ${color lightblue}Uptime:$color $uptime$alignr${color lightblue}Users:$color $user_names $user_number$user_terms$user_times
-${color lightblue}CPU: ${color lightgreen}${acpitemp}°C$color ${cpubar 8,100}$alignr${color lightgreen}$cpu%$color       ${color lightblue}Kernel :$color $kernel
-CPU1 @ ${freq 1} MHz:$alignr${cpu cpu1}%       ${color lightblue}Process:       $color $running_processes / $processes
-CPU2 @ ${freq 2} MHz:$alignr${cpu cpu2}%       ${color lightblue}Load   :    $color $loadavg
+${color lightblue}CPU: ${color lightgreen}${acpitemp}°C$color ${cpubar 8,96} ${color lightgreen}$cpu%$color      ${color lightblue}Kernel :$color$alignr$kernel
+CPU1 @ ${freq 1} MHz:            ${cpu cpu1}%      ${color lightblue}Process:       $color$alignr$running_processes / $processes
+CPU2 @ ${freq 2} MHz:            ${cpu cpu2}%      ${color lightblue}Load   :    $color$alignr$loadavg
 
 ${color lightblue}Highest CPU:$color       PID    CPU%$alignr${color lightblue}Highest MEM:$color       PID    MEM%
 ${color #408040}${top name 1} ${top pid 1} ${top cpu 1}%$alignr${color #408040}${top_mem name 1} ${top_mem pid 1} ${top_mem mem 1}%
@@ -142,7 +132,7 @@ ${color lightblue}SWP: $color$swapmax - $swap = $swapfree$alignr${swapbar 8,200}
 ${color lightblue}DISK:$color Read $diskio_read Write $diskio_write$alignr${diskiograph 8,200 000000 ffffff}
 /   : ${fs_size /} - ${fs_used /} = ${color lightgreen}${fs_free /}$color$alignr${fs_bar_free 8,200 /}
 /tmp: ${fs_size /tmp} - ${fs_used /tmp} = ${fs_free /tmp}$alignr${fs_bar_free 8,200 /tmp}
-
+${if_mounted /home/livibetter/Documents/w}w   : ${execi 3600 du -sh /home/livibetter/Documents/w | cut -d $'\t' -f 1}$endif
 ${color lightblue}eth0:$color ${addr eth0} ${color lightblue}ppp0:$color ${addr ppp0} 
 Upload: ${upspeed eth0}/s Total: ${totalup eth0}$alignr${upspeedgraph eth0 8,200 000000 ffffff}
 Downld: ${downspeed eth0}/s Total: ${totaldown eth0}$alignr${downspeedgraph eth0 8,200 000000 ffffff}
@@ -153,7 +143,7 @@ Downld: ${downspeed wlan0}/s Total: ${totaldown wlan0}$alignr${downspeedgraph wl
 ${color lightblue}Volume :$color ${if_mixer_mute}${color red}$else${color green}$endif$mixer%$color
 ${color lightblue}Battery:$color $battery_percent% ${if_match "$battery_short" != "F"}$battery_short($battery_time)$endif$alignr${battery_bar 8,200}
 
-${color lightblue}Portage:$color ${execpi 600 thres=$((7*24*60*60));ts="$(cat /usr/portage/metadata/timestamp.chk)";dur=$(($(date +%s) - $(date -d "$ts" +%s)));((dur>=thres)) && echo $(date -d "$ts" +%F\ %T) || echo "\${execbar echo $((100*dur/thres))}"}
+${color lightblue}Portage:$color ${execpi 600 thres=$((7*24*60*60));ts="$(cat /usr/portage/metadata/timestamp.chk)";dur=$(($(date +%s) - $(date -d "$ts" +%s)));td="$(td.sh $((thres-dur)))";((dur>=thres)) && echo -n "T + $td" || echo -n "T - $td\$alignr\${execbar echo $((100*dur/thres))}"}
 ${color lightblue}YouTube:$color ${execi 600 ls -1 ~/Videos/livibetter/videos | wc -l} downloaded / ${execi 600 ls -1 ~/Videos/livibetter/queue | wc -l} queued / ${execi 60 pgrep youtube-dl | wc -l} downloading
 ${if_running mpd}${color lightblue}MPD: ${color #408040}$mpd_status$color$alignr ${if_match "${execi 6 cut -f 7 -d \  "/tmp/lf-playcount-image"}" == "1"}${color red}♥$color $else${color black}♥$color $endif${if_running mpdscribble}Scribble $endif${if_match "$mpd_repeat" == "On"}Repeat $endif${if_match "$mpd_random" == "On"}Random$endif $mpd_vol%              
 ${alignc}${color red}$mpd_title$color              
