@@ -108,6 +108,5 @@ if ($('#gas-results').length > 0) {
       remove_string_regexp: /(^.*?: | &lt;&lt;.*$)/,
       exclude_url_regexp: /(\/search\/label\/|(archive\.html|blog\.yjl\.im\/|\.blogspot\.com\/)$)/
       };
-  $.getScript('http://brps.appspot.com/gas.js');
   }
 // vim: set sw=2 ts=2 et:
