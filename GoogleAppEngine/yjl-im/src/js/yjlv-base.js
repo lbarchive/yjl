@@ -95,6 +95,13 @@ $(function(){
       query += 'url' + idx + '=' + encodeURIComponent(ele.href) + '&';
       });
   $.getScript('http://disqus.com/forums/yjlv/get_num_replies.js' + query);
+  // If visitors are led to comments, then load comments automatically.
+  var href = document.location.href;
+  if (href.indexOf('#disqus_thread') >= 0 || href.indexOf('#comment-') >=0) {
+    $.getScript('http://yjlv.disqus.com/embed.js');
+    $('#comments-loader-button').remove();
+    }
+
   // Google Analytics
   function _track() {
     var _gaq = window._gaq || [];
