@@ -60,6 +60,32 @@ $(function(){
       });
     $(window).resize();
     }
+
+  // Code highlighting
+  if ($('pre code').length > 0) {
+    $.getScript('http://www.yjl.im/js/highlight.pack.js', function() {
+        hljs.initHighlighting();
+        // Collapse pre blocks
+        collapse_pre();
+        });
+    }
+  else {
+    // Collapse pre blocks
+    $(function(){
+        collapse_pre();
+        });
+    }
+  
+  // BRPS
+  if ($('#gas-results').length > 0) {
+    window.brps_gas = {
+        remove_tags: ['OldBlogBlogarbage', 'OldBlogGetCtrlBack', 'OldBlogTheBThing', 'OldBlogTuxWearsFedora', 'OldBlogmakeYJL'],
+        limit: 10,
+        remove_string_regexp: /(^.*?: | &lt;&lt;.*$)/,
+        exclude_url_regexp: /(\/search\/label\/|(archive\.html|blog\.yjl\.im\/|\.blogspot\.com\/)$)/
+        };
+    }
+  
   // Don't go below?
   if (document.location.protocol == 'file:' || document.location.host == 'localhost')
     return
@@ -85,28 +111,4 @@ $(function(){
     }
   });
 
-// Scope issue with getScript(), executing them directly seems fine.
-
-// Code highlighting
-if ($('pre code').length > 0)
-  $.getScript('http://www.yjl.im/js/highlight.pack.js', function() {
-      hljs.initHighlighting();
-      // Collapse pre blocks
-      collapse_pre();
-      });
-else
-  // Collapse pre blocks
-  $(function(){
-      collapse_pre();
-      });
-
-// BRPS
-if ($('#gas-results').length > 0) {
-  window.brps_gas = {
-      remove_tags: ['OldBlogBlogarbage', 'OldBlogGetCtrlBack', 'OldBlogTheBThing', 'OldBlogTuxWearsFedora', 'OldBlogmakeYJL'],
-      limit: 10,
-      remove_string_regexp: /(^.*?: | &lt;&lt;.*$)/,
-      exclude_url_regexp: /(\/search\/label\/|(archive\.html|blog\.yjl\.im\/|\.blogspot\.com\/)$)/
-      };
-  }
 // vim: set sw=2 ts=2 et:
