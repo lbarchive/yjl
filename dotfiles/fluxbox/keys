@@ -59,6 +59,9 @@ Mod4 8 :Tab 8
 Mod4 9 :Tab 9
 
 Mod1 F1 :Exec monitorOff.sh
+Mod1 F2 :Exec monitorSwitch-xrander.sh
+Mod1 F3 :Exec monitorExpand.sh
+
 # open a dialog to run programs
 #Mod1 F2 :Exec RUNDIALOG=1 urxvtc -name bashpad
 #Mod1 F2 :Exec bashrun
@@ -143,6 +146,8 @@ Mod4 P :Exec mp-ctrl.sh play
 171 :Exec mp-ctrl.sh next
 # XF86AudioStop
 174 :Exec mp-ctrl.sh stop
+# XF86Tools (music icon on the button)
+179 :Exec pgrep mpd && ( killall mpdscribble ; mpd --kill ) || ( mpd ; mpdscribble )
 # Shell.FM Love
 #Mod4 L :Exec mp-ctrl.sh love
 # Shell.FM Ban

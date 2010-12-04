@@ -56,7 +56,7 @@ for v in $videos; do
 done
 
 newlastvideo="$(head -1 <<< "$videos")"
-[[ "$newlastvideo" != "$lastvideo" ]] && echo "Updating $DESTDIR/last to $newlastvideo" && echo "$newlastvideo" > "$DESTDIR"/last
+[[ ! -z "$newlastvideo" ]] && [[ "$newlastvideo" != "$lastvideo" ]] && echo "Updating $DESTDIR/last to $newlastvideo" && echo "$newlastvideo" > "$DESTDIR"/last
 
 videos="$(ls "$DESTDIR"/queue/* 2>/dev/null)"
 [[ "$videos" == "" ]] && exit

@@ -119,7 +119,7 @@ update_mpd () {
 	local mpd_text
 	pgrep mpd &>/dev/null && {
 		mpd_text="$(mpc -f '[%title% [- %artist%]]' | head -1)"
-		printf -v mpd_dzen "^ca(1,./status-mpd.sh)^i(icons/note.xbm) ^fg(#aa0)%-32s^fg()^ca()" "${mpd_text::32}"
+		printf -v mpd_dzen "^ca(1,./status-mpd.sh)^ca(3,bash -c 'killall status-mpd.sh &>/dev/null ; mpd --kill ; killall mpdscribble')^i(icons/note.xbm) ^fg(#aa0)%-32s^fg()^ca()" "${mpd_text::32}"
 		if [[ "$mpd_text" != "$old_mpd_text" ]]; then
 			# New song, popup info box!
 			killall status-mpd.sh &>/dev/null
@@ -127,6 +127,7 @@ update_mpd () {
 			old_mpd_text="$mpd_text"
 		fi
 	} || {
+		old_mpd_text=
 		mpd_dzen="^ca(1,mpd;mpdscribble)^fg(#888)^i(icons/note.xbm)^fg()^ca()"
 	}
 	update_next_ts mpd
