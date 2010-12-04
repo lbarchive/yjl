@@ -179,11 +179,9 @@ while :; do
 		[[ "$next_mpd" < "$ts_current" ]] && update_mpd
 
 		# Composing a new output
-		output="$cpu_dzen $mem_dzen $fs_dzen $network_dzen $thm_dzen $mpd_dzen $sound_dzen $clock_dzen "
+		output="$cpu_dzen $mem_dzen $fs_dzen $network_dzen $thm_dzen $mpd_dzen $sound_dzen $clock_dzen ^ca(1,./status-misc.sh)^i(icons/info_01.xbm)^ca()"
 		[[ "$last_output" != "$output" ]] && echo "$output" && last_output=output
 		update_next_ts output
 	fi
-	# Using built-in `read` with timeout instead of external `sleep $SLEEP`
-	#read -t $SLEEP
 	sleep $SLEEP
-done | dzen2 -bg "$BG" -fg "$FG" -fn "$FONT" -w $((s_width / 2)) -x $((s_width / 2)) -y -1 -ta right -e 'button3='
+done | dzen2 -bg "$BG" -fg "$FG" -fn "$FONT" -w $((s_width / 2)) -x $((s_width / 2)) -y -1 -ta right -e 'button3=;onstart=lower'

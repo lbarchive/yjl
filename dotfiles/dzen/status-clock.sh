@@ -12,6 +12,8 @@ read _ s_height <<< "$(xwininfo -root | egrep Height)"
 
 {
 echo '^fg(#a00)Calendar^fg()'
-cal -3s
+day=$(date +%d)
+day=${day#0}
+cal -3s | sed 's/\(.\{21\}.*\) '$day' \(.*.\{21\}\)/\1 ^fg(#a00)'$day'^fg() \2/;s/^/ /'
 echo '^uncollapse()'
-} | dzen2 -x $((s_width - width)) -y $((s_height - height - bottom_gap)) -w $width -l $lines -h $line_height -sa center -fn "Envy Code R:pixelsize=$font_pixelsize" -e 'leaveslave=exit;button3=exit;button4=scrollup;button5=scrolldown;onstart=scrollhome' -p
+} | dzen2 -x $((s_width - width)) -y $((s_height - height - bottom_gap)) -w $width -l $lines -h $line_height -sa left -fn "Envy Code R:pixelsize=$font_pixelsize" -e 'leaveslave=exit;button3=exit;button4=scrollup;button5=scrolldown;onstart=scrollhome' -p
