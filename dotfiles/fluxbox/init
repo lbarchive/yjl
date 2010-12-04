@@ -16,9 +16,9 @@ session.screen0.clientMenu.usePixmap:	true
 session.screen0.titlebar.left:	
 session.screen0.titlebar.right:	Minimize Maximize Close 
 session.screen0.menu.alpha:	216
-session.screen0.toolbar.widthPercent:	100
+session.screen0.toolbar.widthPercent:	50
 session.screen0.toolbar.autoHide:	false
-session.screen0.toolbar.tools:	clock, iconbar, systemtray
+session.screen0.toolbar.tools:	systemtray, iconbar
 session.screen0.toolbar.onhead:	1
 session.screen0.toolbar.layer:	Dock
 session.screen0.toolbar.height:	0

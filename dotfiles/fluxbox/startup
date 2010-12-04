@@ -30,7 +30,8 @@ sleep 1
 	#nm-applet &
 	#gkrellm -w &
     #mpd
-	conky -q &
+#	conky -q &
+	dzen-status.sh &
 #	urxvtc -e screen &
 	#start-pulseaudio-x11
 	[[ $(lsusb -v | grep -i mouse) ]] && synclient TouchpadOff=1 

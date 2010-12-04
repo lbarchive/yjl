@@ -34,3 +34,9 @@
 	[app] (title=.*Minefield)
 	[app] (title=.*Vimperator)
 [end]
+
+# dzen
+[app] (name=dzen-status-.*)
+	[Position] (CENTER) {0 0}
+	[Layer] {2}
+[end]
