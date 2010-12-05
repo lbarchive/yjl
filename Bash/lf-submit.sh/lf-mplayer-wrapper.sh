@@ -30,10 +30,12 @@ fi
 	done <<< "$block"
 
 	if [[ ! -z "$new_file" ]]; then
-		# Scrobbling last_file
-		[[ ! -z "$last_file" ]] && lf-scrobble.sh -s $last_ts "$last_file" &
-		# Submitting now playing on new_file
-		{ sleep 1 ; lf-scrobble.sh -n $new_ts "$new_file" ; } &
+		{
+			# Scrobbling last_file
+			[[ ! -z "$last_file" ]] && lf-scrobble.sh -s $last_ts "$last_file"
+			# Submitting now playing on new_file
+			lf-scrobble.sh -n $new_ts "$new_file"
+		} &
 		last_file="$new_file"
 		last_ts="$new_ts"
 		new_file=
