@@ -9,6 +9,7 @@ APIKEY='f0ab6ac5878f072182851c5d165e4283'
 SECRET='e9d11d35208f083ab549210685c4814e'
 
 APPNAME='lf-submit.sh'
+USERAGENT="--user-agent '$APPNAME/0'"
 
 API_BASE='http://ws.audioscrobbler.com/2.0/'
 API_AUTH='http://www.last.fm/api/auth/'
@@ -66,7 +67,7 @@ setup_config () {
 	params[${#params[@]}]="api_sig=$signature"
 	gen_http_param_string "${params[@]}"
 	
-	resp=$(curl -s -G --data "$http_param_string" "$API_BASE?$http_param_string")
+	resp=$(curl -s -G --data "$http_param_string" $USERAGENT "$API_BASE?$http_param_string")
 	token="$(extract_XML_value 'token' "$resp")"
 
 	echo "Please go to
@@ -86,7 +87,7 @@ to authenticate $APPNAME.
 	params[${#params[@]}]="api_sig=$signature"
 	gen_http_param_string "${params[@]}"
 	
-	resp=$(curl -s -G --data "$http_param_string" "$API_BASE?$http_param_string")
+	resp=$(curl -s -G --data "$http_param_string" $USERAGENT "$API_BASE?$http_param_string")
 	SK="$(extract_XML_value 'key' "$resp")"
 
 	# Writing to config file
@@ -124,7 +125,7 @@ if source "$CONFIG_FILE" &>/dev/null; then
 			params[${#params[@]}]="api_sig=$signature"
 			gen_http_param_string "${params[@]}"
 			
-			resp=$(curl -s --data "$http_param_string" "$API_BASE?$http_param_string")
+			resp=$(curl -s --data "$http_param_string" $USERAGENT "$API_BASE?$http_param_string")
 			get_lfm_status "$resp"
 			[[ "$lfm_status" != "ok" ]] && exit 1
 			;;
@@ -141,7 +142,7 @@ if source "$CONFIG_FILE" &>/dev/null; then
 			params[${#params[@]}]="api_sig=$signature"
 			gen_http_param_string "${params[@]}"
 			
-			resp=$(curl -s --data "$http_param_string" "$API_BASE?$http_param_string")
+			resp=$(curl -s --data "$http_param_string" $USERAGENT "$API_BASE?$http_param_string")
 			get_lfm_status "$resp"
 			[[ "$lfm_status" != "ok" ]] && exit 1
 			;;
