@@ -24,7 +24,7 @@ fi
 			new_file="$last_file"
 			new_ts=$(date +%s)
 		elif [[ $line =~ Exiting.* ]]; then
-			lf-scrobble.sh -s $last_ts "$last_file"
+			[[ $line =~ .*'End of file'.* ]] && lf-scrobble.sh -s $last_ts "$last_file"
 			echo
 		fi
 	done <<< "$block"
@@ -32,6 +32,8 @@ fi
 	if [[ ! -z "$new_file" ]]; then
 		{
 			# Scrobbling last_file
+			# FIXME: If user skip file, the file is still submitted, it
+			# shouldn't be.
 			[[ ! -z "$last_file" ]] && lf-scrobble.sh -s $last_ts "$last_file"
 			# Submitting now playing on new_file
 			lf-scrobble.sh -n $new_ts "$new_file"
