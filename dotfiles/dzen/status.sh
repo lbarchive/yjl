@@ -60,7 +60,7 @@ update_mem () {
 	mem_used_MB=$((mem_used / 1024 / 1024))
 	mem_used_percentage=$((100 * mem_used / mem_total))
 
-	printf -v mem_dzen "^ca(1,./status-mem.sh)^i(icons/mem.xbm)^ca() %sMB %s%%" ${mem_used_MB} ${mem_used_percentage}
+	printf -v mem_dzen "^ca(1,./status-mem.sh)^i(icons/mem.xbm)^ca() %4sMB %2s%%" ${mem_used_MB} ${mem_used_percentage}
 
 	update_next_ts mem
 	}
@@ -111,7 +111,7 @@ update_network () {
 	rxb=$n_rxb
 	txb=$n_txb
 
-	printf -v network_dzen "^i(icons/net_wired.xbm) %3s/%3s KB/s" $tx_rate $rx_rate
+	printf -v network_dzen "^i(icons/net_wired.xbm) %3s/%4s KB/s" $tx_rate $rx_rate
 	update_next_ts network
 	}
 
