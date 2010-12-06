@@ -47,6 +47,9 @@ Mod4 Next :NextTab
 # Prior is Page Up key
 Mod4 Prior :PrevTab
 
+Mod4 Up :exec move-active-win.sh u
+Mod4 Down :exec move-active-win.sh d
+
 # go to a specific tab in the current window
 Mod4 1 :Tab 1
 Mod4 2 :Tab 2
