@@ -29,7 +29,8 @@ kbd {
   border-right: 2px solid #aaa;
   border-bottom: 2px solid #aaa;
   border-radius: 3px;
-  padding: 3px;
+  font-family: "Envy Code R", "Courier New";
+  padding: 0 3px;
 }
 
 .wrapper {
