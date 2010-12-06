@@ -9,10 +9,6 @@
 # Configuration
 ###############
 
-BG='#303030'
-FG='#aaa'
-FONT='Envy Code R-9'
-
 # UI = update interval, PAD is for padding nano seconds
 PAD="000000000"
 ui_cpu="1$PAD"
@@ -49,7 +45,8 @@ update_cpu () {
 
 	ocpu=("${ncpu[@]}")
 
-	printf -v cpu_dzen "^ca(1,./status-cpu.sh)^i(icons/cpu.xbm)^ca() %3s%%" $cpu_percentage
+	used_color $cpu_percentage 75
+	printf -v cpu_dzen "^ca(1,./status-cpu.sh)^i(icons/cpu.xbm)^ca() ^fg(%s)%3s%%^fg()" $color $cpu_percentage
 	update_next_ts cpu
 	}
 
@@ -60,7 +57,8 @@ update_mem () {
 	mem_used_MB=$((mem_used / 1024 / 1024))
 	mem_used_percentage=$((100 * mem_used / mem_total))
 
-	printf -v mem_dzen "^ca(1,./status-mem.sh)^i(icons/mem.xbm)^ca() %4sMB %2s%%" ${mem_used_MB} ${mem_used_percentage}
+	used_color $mem_used_percentage 50
+	printf -v mem_dzen "^ca(1,./status-mem.sh)^i(icons/mem.xbm)^ca() ^fg(%s)%4sMB %2s%%^fg()" $color ${mem_used_MB} ${mem_used_percentage}
 
 	update_next_ts mem
 	}
@@ -69,14 +67,17 @@ update_fs () {
 	# 0:dev 1:size 2:used 3:free 4:percentage 5:mount point
 	read _ _ fs_root_used _ fs_root_percentage _ <<< "$(df -h / | tail -1)"
 
-	fs_dzen="^ca(1,./status-fs.sh)^i(icons/diskette.xbm)^ca() ${fs_root_used}B $fs_root_percentage"
+	used_color ${fs_root_percentage%\%}
+	fs_dzen="^ca(1,./status-fs.sh)^i(icons/diskette.xbm)^ca() ^fg($color)${fs_root_used}B $fs_root_percentage^fg()"
 
 	update_next_ts fs
 	}
 
 update_thm () {
 	read _ thm _ </proc/acpi/thermal_zone/THM/temperature
-	thm_dzen="^i(icons/temp.xbm) ${thm}°C"
+
+	used_color $thm 70 '' 40
+	thm_dzen="^i(icons/temp.xbm) ^fg($color)${thm}°C^fg()"
 
 	update_next_ts thm
 	}
@@ -91,13 +92,15 @@ update_sound () {
 	read _ _ _ _ volume _ sound_enabled <<< "$(amixer get Master | grep 'Front Left:')"
 
 	volume=${volume#[}
-	volume=${volume%]}
-	sound_enabled=${sound_enabled#[}
-	sound_enabled=${sound_enabled%]}
+	volume=${volume%\%]}
 
 	sound_dzen="^ca(1,urxvtc -name 'dzen-status-sound' -title 'Sound Mixer' -geometry 160x40 -e alsamixer)^i(icons/spkr_01.xbm)^ca() "
-	[[ "$sound_enabled" == "on" ]] && sound_dzen="$sound_dzen^fg(#0a0)" || sound_dzen="$sound_dzen^fg(#a00)"
-	sound_dzen="$sound_dzen$volume^fg()"
+
+	if [[ "$sound_enabled" == "[on]" ]]; then
+		printf -v sound_dzen "$sound_dzen^fg(#%02xaaaa)%3s%%^fg()" $((176-volume*176/100)) $volume
+	else
+		printf -v sound_dzen "$sound_dzen^fg(#a00)%3s%%^fg()" $volume
+	fi
 
 	update_next_ts sound
 	}
@@ -111,7 +114,7 @@ update_network () {
 	rxb=$n_rxb
 	txb=$n_txb
 
-	printf -v network_dzen "^i(icons/net_wired.xbm) %3s/%4s KB/s" $tx_rate $rx_rate
+	printf -v network_dzen "^i(icons/net_wired.xbm) %3s/%4s KB/s" ${tx_rate::3} ${rx_rate::4}
 	update_next_ts network
 	}
 
@@ -150,6 +153,8 @@ update_next_ts () {
 
 cd ~/.dzen
 
+source status-func.sh
+
 update_ts_current
 update_cpu
 update_mem
@@ -162,8 +167,6 @@ update_mpd
 
 # Main loop
 ###########
-
-read _ s_width <<< "$(xwininfo -root | egrep Width)"
 
 while :; do
 	update_ts_current
@@ -185,4 +188,11 @@ while :; do
 		update_next_ts output
 	fi
 	sleep $SLEEP
-done | dzen2 -bg "$BG" -fg "$FG" -fn "$FONT" -w $((s_width / 2)) -x $((s_width / 2)) -y -1 -ta right -e 'button3=;onstart=lower'
+done |
+dzen2 \
+	-bg $BG -fg $FG \
+	-fn "$FONT" \
+	-x $((S_WIDTH/2)) -y $S_HEIGHT \
+	-w $((S_WIDTH/2)) \
+	-ta right \
+	-e 'button3=;onstart=lower'
