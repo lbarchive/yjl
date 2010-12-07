@@ -24,7 +24,7 @@ fi
 			new_file="$last_file"
 			new_ts=$(date +%s)
 		elif [[ $line =~ Exiting.* ]]; then
-			[[ $line =~ .*'End of file'.* ]] && lf-scrobble.sh -s $last_ts "$last_file"
+			[[ $line =~ .*'End of file'.* ]] && lf-scrobble.sh -s $last_ts "$last_file" &
 			echo
 		fi
 	done <<< "$block"

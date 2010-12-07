@@ -97,6 +97,10 @@ SK=$SK" > "$CONFIG_FILE"
 	echo "done"
 	}
 
+log () {
+	[[ $LOG ]] && echo "[$(date -u +%FT%TZ)] $@" >> "$LOG_FILE"
+	}
+
 # Checking configuration
 
 XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-~/.config}"
@@ -108,6 +112,10 @@ CONFIG_FILE="$CONFIG_DIR"/config
 if source "$CONFIG_FILE" &>/dev/null; then
 	# Source successfully, checking required informations
 	[[ -z "$USERNAME" || -z "$SK" ]] && setup_config
+
+	[[ $LOG ]] && LOG_FILE=${LOG_FILE:-/tmp/$APPNAME.$(date -u +%FZ).log}
+	log "$@"
+
 	case "$1" in
 		-r|reset)
 			setup_config
@@ -126,6 +134,7 @@ if source "$CONFIG_FILE" &>/dev/null; then
 			gen_http_param_string "${params[@]}"
 			
 			resp=$(curl -s --data "$http_param_string" $USERAGENT "$API_BASE?$http_param_string")
+			log "$resp"
 			get_lfm_status "$resp"
 			[[ "$lfm_status" != "ok" ]] && exit 1
 			;;
@@ -143,6 +152,7 @@ if source "$CONFIG_FILE" &>/dev/null; then
 			gen_http_param_string "${params[@]}"
 			
 			resp=$(curl -s --data "$http_param_string" $USERAGENT "$API_BASE?$http_param_string")
+			log "$resp"
 			get_lfm_status "$resp"
 			[[ "$lfm_status" != "ok" ]] && exit 1
 			;;
