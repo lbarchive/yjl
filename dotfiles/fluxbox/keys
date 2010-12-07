@@ -5,6 +5,7 @@ OnDesktop Mouse2 :WorkspaceMenu
 OnDesktop Mouse3 :RootMenu
 
 Mod4 space :RootMenu
+Mod4 Mouse2 :WorkspaceMenu
 Mod4 Mouse3 :RootMenu
 
 # scroll on the desktop to change workspaces
@@ -38,6 +39,13 @@ OnTitlebar Mouse3 :WindowMenu
 # alt-tab
 Mod1 Tab :NextWindow {groups}
 Mod1 Shift Tab :PrevWindow {groups}
+
+# Easier to select window
+Mod4 T T :exec better-alt-tab.sh t
+Mod4 T F :exec better-alt-tab.sh f
+Mod4 T M :exec better-alt-tab.sh m
+Mod4 T K :exec better-alt-tab.sh k
+Mod4 T Mod4 T :WorkspaceMenu
 
 # cycle through tabs in the current window
 Mod4 Tab :NextTab
