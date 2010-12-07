@@ -8,7 +8,7 @@ source status-func.sh
 {
 print_status_title 'Memory Status'
 printf "^fg(#0aa)%5s %5s %5s %4s %s^fg()\n" '%MEM' '%CPU' 'PID' 'USER' 'COMMAND'
-ps -eo pmem,pcpu,pid,user,comm,args --no-headers | sort -k 1 -n -r | head -$LINES |
+ps -eo pmem,pcpu,pid,user,comm,args --no-headers | sort -k 1 -n -r | head -$SP_LINES |
 while read _PMEM _PCPU _PID _USER _COMM _COMMAND; do
 	dzen_COMMAND="$(fold -w $CMD_TW -s <<< "${_COMMAND/$_COMM/^fg(#f00)$_COMM^fg()}" | sed '2~1 s/^/                       /')"
 	printf "%5s %5s %5s %4s %s\n" $_PMEM $_PCPU $_PID ${_USER::4} "$dzen_COMMAND"
