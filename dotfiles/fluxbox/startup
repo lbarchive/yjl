@@ -31,15 +31,17 @@ sleep 1
 	#gkrellm -w &
     #mpd
 #	conky -q &
-	dzen-status.sh &
 #	urxvtc -e screen &
 	#start-pulseaudio-x11
-	[[ $(lsusb -v | grep -i mouse) ]] && synclient TouchpadOff=1 
+	[[ $(lsusb -v | grep -i mouse) ]] && toggle-touchpad.sh 
 #	xcompmgr -n &
 #	ibus-daemon -d -x
-	gcin &
 	setxkbmap -model pc104 -layout us -option compose:menu
 } &
-sleep 1
+sleep 5
+{
+	gcin &
+	dzen-status.sh &
+} &
 
 wait $fbpid

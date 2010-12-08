@@ -11,22 +11,21 @@
 
 # UI = update interval, PAD is for padding nano seconds
 PAD="000000000"
+PAD_MS="000000"
 ui_cpu="1$PAD"
 ui_mem="10$PAD"
 ui_fs="60$PAD"
 ui_thm="10$PAD"
-ui_sound="200000000"
+ui_sound="200$PAD_MS"
 ui_clock="1$PAD"
 ui_mpd="1$PAD"
+ui_network="1$PAD"
+unset PAD
 # Controlling final refresh rate, the following is 0.2 seconds
-ui_output="200000000"
+ui_output="200$PAD_MS"
 
 # Interval of each iteration of main loop, should be equal to or smaller than $ui_output
 SLEEP=0.2
-
-# Should not be changed
-ui_network="1$PAD"
-unset PAD
 
 # Components update functions
 #############################
@@ -106,15 +105,17 @@ update_sound () {
 	}
 
 update_network () {
-	local ifx=ppp0 n_rxb n_txb
+	local ifx=ppp0 n_rxb n_txb net_check_ts=$(date +%s%N)
 	read n_rxb < /sys/class/net/$ifx/statistics/rx_bytes
 	read n_txb < /sys/class/net/$ifx/statistics/tx_bytes
-	rx_rate=$(((n_rxb - rxb) / 1024))
-	tx_rate=$(((n_txb - txb) / 1024))
+	local net_check_dur=$((net_check_ts - net_last_check_ts))
+	rx_rate=$(((n_rxb - rxb) * 1000000000 / 1024 / net_check_dur))
+	tx_rate=$(((n_txb - txb) * 1000000000 / 1024 / net_check_dur))
+	net_last_check_ts=$net_check_ts
 	rxb=$n_rxb
 	txb=$n_txb
 
-	printf -v network_dzen "^i(icons/net_wired.xbm) %3s/%4s KB/s" ${tx_rate::3} ${rx_rate::4}
+	printf -v network_dzen "^i(icons/net_wired.xbm) %3s/%4s KB/s" $tx_rate $rx_rate
 	update_next_ts network
 	}
 
