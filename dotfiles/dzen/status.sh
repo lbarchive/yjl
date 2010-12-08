@@ -45,7 +45,7 @@ SLEEP=0.2
 #############################
 
 update_cpu () {
-	local ncpu cpu_val cpu_maxval, cpu_total
+	local ncpu cpu_val cpu_maxval cpu_total
 	# 0 1:user 2:unice 3:sys 4:idle 5:iowait 6:irq 7:softirq 8:steal 9:guest 10:?
 	ncpu=($(line</proc/stat))
 	local sum="${ncpu[@]:1}"
