@@ -52,7 +52,7 @@ update_cpu () {
 	# Ported from gcpubar.c
 	local ncpu cpu_val cpu_maxval
 	# 0 1:user 2:unice 3:sys 4:idle 5:iowait
-	ncpu=($(grep 'cpu ' /proc/stat))
+	ncpu=($(line </proc/stat))
 	
 	cpu_val=$((ncpu[2]-ocpu[2] + ncpu[2]-ocpu[2] + ncpu[3]-ocpu[3] + ncpu[5]-ocpu[5]))
 	cpu_maxval=$((cpu_val + ncpu[4]-ocpu[4]))
