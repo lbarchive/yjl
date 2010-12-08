@@ -26,6 +26,7 @@
 <xsl:text>  </xsl:text>
 <xsl:text>Temperature: ^fg(#0a0)</xsl:text><xsl:value-of select="tmp"/><xsl:value-of select="/weather/head/ut"/><xsl:text>^fg()</xsl:text>
 <xsl:if test="tmp != flik">
+<xsl:text>  </xsl:text>
 <xsl:text>Feels Like: ^fg(#0a0)</xsl:text><xsl:value-of select="flik"/><xsl:value-of select="/weather/head/ut"/><xsl:text>^fg()</xsl:text>
 </xsl:if>
 <xsl:text>
