@@ -202,7 +202,7 @@ update_bat () {
 
 	# Formating icon
 	case "$bat_state" in
-		charged)    bat_dzen="^fg(#0a0)" ;;
+		charged)    bat_dzen="^fg(#0a0)" bat_remaining_percentage=100 ;;
 		charging)   bat_dzen="^fg(#0aa)" ;;
 		discharging)bat_dzen="^fg(#aa0)" ;;
 		*)          bat_dzen="^fg(#a00)" ;;
