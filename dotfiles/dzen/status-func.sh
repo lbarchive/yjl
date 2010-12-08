@@ -45,3 +45,23 @@ used_color () {
 	printf -v c "%02x" $((color_max-(v-min)*color_max/(max-min)))
 	printf -v color "#%02x$c$c" $color_max
 }
+
+ma () {
+	# mavg ma_name new_sample [samples:default=3]
+	# new_sample will be stored at the beginning of array of what ma_name
+	# points at.
+	local ma_name="$1"
+	local ma_ref="$ma_name[@]"
+	local ma_samples=("${!ma_ref}")
+	local samples=${3:-5}
+
+	# Put new sample in
+	ma_samples=($2 "${ma_samples[@]}")
+	ma_samples=("${ma_samples[@]::$samples}")
+
+	# calculation moving average
+	local dummy="${ma_samples[@]}"
+	local avg=$(((${dummy// /+})/samples))
+	eval $ma_name'=("${ma_samples[@]}")'
+	eval "${ma_name}_ma=$avg"
+}

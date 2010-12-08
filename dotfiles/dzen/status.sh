@@ -44,8 +44,10 @@ update_cpu () {
 
 	ocpu=("${ncpu[@]}")
 
-	used_color $cpu_percentage 75
-	printf -v cpu_dzen "^ca(1,./status-cpu.sh)^i(icons/cpu.xbm)^ca() ^fg(%s)%3s%%^fg()" $color $cpu_percentage
+	ma cpu_percentage $cpu_percentage 3
+	used_color $cpu_percentage_ma 75 '' 10
+
+	printf -v cpu_dzen "^ca(1,./status-cpu.sh)^i(icons/cpu.xbm)^ca() ^fg(%s)%3s%%^fg()" $color $cpu_percentage_ma
 	update_next_ts cpu
 	}
 
@@ -56,7 +58,7 @@ update_mem () {
 	mem_used_MB=$((mem_used / 1024 / 1024))
 	mem_used_percentage=$((100 * mem_used / mem_total))
 
-	used_color $mem_used_percentage 50
+	used_color $mem_used_MB 1024 '' 100
 	printf -v mem_dzen "^ca(1,./status-mem.sh)^i(icons/mem.xbm)^ca() ^fg(%s)%4sMB %2s%%^fg()" $color ${mem_used_MB} ${mem_used_percentage}
 
 	update_next_ts mem
@@ -66,7 +68,7 @@ update_fs () {
 	# 0:dev 1:size 2:used 3:free 4:percentage 5:mount point
 	read _ _ fs_root_used _ fs_root_percentage _ <<< "$(df -h / | tail -1)"
 
-	used_color ${fs_root_percentage%\%}
+	used_color ${fs_root_used%G} 60 '' 10
 	fs_dzen="^ca(1,./status-fs.sh)^i(icons/diskette.xbm)^ca() ^fg($color)${fs_root_used}B $fs_root_percentage^fg()"
 
 	update_next_ts fs
@@ -109,13 +111,29 @@ update_network () {
 	read n_rxb < /sys/class/net/$ifx/statistics/rx_bytes
 	read n_txb < /sys/class/net/$ifx/statistics/tx_bytes
 	local net_check_dur=$((net_check_ts - net_last_check_ts))
-	rx_rate=$(((n_rxb - rxb) * 1000000000 / 1024 / net_check_dur))
-	tx_rate=$(((n_txb - txb) * 1000000000 / 1024 / net_check_dur))
 	net_last_check_ts=$net_check_ts
+	
+	# rate in bytes
+	rx_rate=$(((n_rxb - rxb) * 1000000000 / net_check_dur))
+	tx_rate=$(((n_txb - txb) * 1000000000 / net_check_dur))
 	rxb=$n_rxb
 	txb=$n_txb
+	
+	ma rx_rate $rx_rate
+	ma tx_rate $tx_rate
 
-	printf -v network_dzen "^i(icons/net_wired.xbm) %3s/%4s KB/s" $tx_rate $rx_rate
+	# to Kbytes
+	((rx_rate/=1024))
+	((rx_rate_ma/=1024))
+	((tx_rate/=1024))
+	((tx_rate_ma/=1024))
+
+	used_color rx_rate 500
+	rx_color=$color
+	used_color tx_rate 200
+	tx_color=$color
+
+	printf -v network_dzen "^i(icons/net_wired.xbm) ^fg($tx_color)%3s^fg()/^fg($rx_color)%4s^fg() KB/s" $tx_rate_ma $rx_rate_ma
 	update_next_ts network
 	}
 
