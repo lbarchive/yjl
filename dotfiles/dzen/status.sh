@@ -9,6 +9,18 @@
 # Configuration
 ###############
 
+# How many characters should be displayed?
+MPD_TEXT_SIZE=20
+
+# What icon should be shown above the battery remaining capacity left
+# Colors:
+#   green is charged, yellow is discharing, blue is recharging,
+#   red is unknown to this script,
+#   yellow-red flashing is meaning battery capacity is low
+#   yellow-cyan flashing is meaning battery capacity is low and charging
+BAT_FULL=50
+BAT_LOW=10
+
 # UI = update interval, PAD is for padding nano seconds
 PAD="000000000"
 PAD_MS="000000"
@@ -19,7 +31,13 @@ ui_thm="10$PAD"
 ui_sound="200$PAD_MS"
 ui_clock="1$PAD"
 ui_mpd="1$PAD"
-ui_network="1$PAD"
+ui_network="5$PAD"
+# On my laptop, /proc/acpi/battery/... update interval is 15 seconds
+# Normal update interval when capacity is more than low capacity
+ui_bat_normal="5$PAD"
+# Flashing rate when in low capacity, the default is 500ms for red, 500ms for yellow/cyan
+ui_bat_flash="500$PAD_MS"
+ui_bat=$ui_bat_normal
 unset PAD
 # Controlling final refresh rate, the following is 0.2 seconds
 ui_output="200$PAD_MS"
@@ -139,20 +157,82 @@ update_network () {
 
 update_mpd () {
 	local mpd_text
-	pgrep mpd &>/dev/null && {
-		mpd_text="$(mpc -f '[%title% [- %artist%]]' | head -1)"
-		printf -v mpd_dzen "^ca(1,./status-mpd.sh)^ca(3,bash -c 'killall status-mpd.sh &>/dev/null ; mpd --kill ; killall mpdscribble')^i(icons/note.xbm) ^fg(#aa0)%-32s^fg()^ca()" "${mpd_text::32}"
+	if pgrep mpd &>/dev/null; then
+		mpd_text="$(mpc | line)"
+		local pos=0
 		if [[ "$mpd_text" != "$old_mpd_text" ]]; then
 			# New song, popup info box!
 			killall status-mpd.sh &>/dev/null
 			./status-mpd.sh 10 &
 			old_mpd_text="$mpd_text"
+			mpd_text_pos=
+			mpd_text_dir=
 		fi
-	} || {
+		if [[ ${#mpd_text} -gt $MPD_TEXT_SIZE ]]; then
+			# Text is too long, need to scroll
+			if [[ $mpd_text_dir ]]; then
+				# scroll right
+				if ((++mpd_text_pos >= ${#mpd_text} + 5 - MPD_TEXT_SIZE)); then
+					mpd_text_pos=$((${#mpd_text} - MPD_TEXT_SIZE))
+					mpd_text_dir=
+				fi
+			else
+				# scroll left, will be first direction since $mpd_text_dir is unset by default
+				if ((--mpd_text_pos <= -5)); then
+					mpd_text_pos=0
+					mpd_text_dir=1
+				fi
+			fi
+			pos=$mpd_text_pos
+			[[ $pos -lt 0 ]] && pos=0
+			((pos > ${#mpd_text} - MPD_TEXT_SIZE)) && pos=$((${#mpd_text} - MPD_TEXT_SIZE))
+		fi
+		local scrobble_color='#a00'
+		pgrep mpdscribble &>/dev/null && scrobble_color='#0a0'
+		printf -v mpd_dzen "^ca(1,./status-mpd.sh)^ca(3,bash -c 'killall status-mpd.sh &>/dev/null ; mpd --kill ; killall mpdscribble')^fg($scrobble_color)^i(icons/note.xbm)^fg()^ca()^ca() ^fg(#aa0)%-${MPD_TEXT_SIZE}s^fg()" "${mpd_text:$pos:$MPD_TEXT_SIZE}"
+	else
 		old_mpd_text=
-		mpd_dzen="^ca(1,mpd;mpdscribble)^fg(#888)^i(icons/note.xbm)^fg()^ca()"
-	}
+		mpd_dzen="^ca(1,mpd;mpdscribble)^fg(#aaa)^i(icons/note.xbm)^fg()^ca()"
+	fi
 	update_next_ts mpd
+	}
+
+update_bat () {
+	read bat_full_capacity <<< "$(sed '/last full capacity:/ {s/[^0-9]//g;q} ; d' </proc/acpi/battery/BAT0/info)"
+	read _ _ bat_state <<< "$(grep 'charging state:' </proc/acpi/battery/BAT0/state)"
+	read bat_remaining <<< "$(sed '/remaining capacity:/ {s/[^0-9]//g;q} ; d' </proc/acpi/battery/BAT0/state)"
+
+	bat_remaining_percentage=$((100*bat_remaining/bat_full_capacity))
+
+	# Formating icon
+	case "$bat_state" in
+		charged)    bat_dzen="^fg(#0a0)" ;;
+		charging)   bat_dzen="^fg(#0aa)" ;;
+		discharging)bat_dzen="^fg(#aa0)" ;;
+		*)          bat_dzen="^fg(#a00)" ;;
+	esac
+	ui_bat=$ui_bat_normal
+	if [[ $bat_remaining_percentage -ge $BAT_FULL ]]; then
+		bat_dzen="$bat_dzen^i(icons/bat_full_01.xbm)"
+	elif [[ $bat_remaining_percentage -ge $BAT_LOW ]]; then
+		bat_dzen="$bat_dzen^i(icons/bat_low_01.xbm)"
+	else
+		ui_bat=$ui_bat_flash
+		if [[ $bat_flash ]]; then
+			bat_dzen="$bat_dzen^fg(#a00)"
+			bat_flash=
+		else
+			bat_flash=1
+		fi
+		bat_dzen="$bat_dzen^i(icons/bat_empty_01.xbm)"
+	fi
+	bat_dzen="$bat_dzen^fg()"
+
+	used_color $((100-bat_remaining_percentage))
+
+	printf -v bat_dzen "$bat_dzen ^fg($color)%3s%%^fg()" $bat_remaining_percentage
+
+	update_next_ts bat
 	}
 
 # Controlling timestamp functions
@@ -183,6 +263,7 @@ update_thm
 update_clock
 update_sound
 update_mpd
+update_bat
 
 # Main loop
 ###########
@@ -200,9 +281,10 @@ while :; do
 		[[ "$next_sound" < "$ts_current" ]] && update_sound
 		[[ "$next_clock" < "$ts_current" ]] && update_clock
 		[[ "$next_mpd" < "$ts_current" ]] && update_mpd
+		[[ "$next_bat" < "$ts_current" ]] && update_bat
 
 		# Composing a new output
-		output="$cpu_dzen $mem_dzen $fs_dzen $network_dzen $thm_dzen $mpd_dzen $sound_dzen $clock_dzen ^ca(1,./status-misc.sh)^i(icons/info_01.xbm)^ca()"
+		output="$cpu_dzen $mem_dzen $fs_dzen $network_dzen $thm_dzen $bat_dzen $mpd_dzen $sound_dzen $clock_dzen ^ca(1,./status-misc.sh)^i(icons/info_01.xbm)^ca()"
 		[[ "$last_output" != "$output" ]] && echo "$output" && last_output=output
 		update_next_ts output
 	fi
