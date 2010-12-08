@@ -1,10 +1,6 @@
 #!/bin/bash
 # Copyright 2010 Yu-Jie Lin
 # BSD License
-# 
-#  * update_cpu() is a partially ported version of gcpubar.c from dzen source
-#    code, which is licensed under the MIT/X Consortium License,
-#    copyright Robert Manea.
 
 # Configuration
 ###############
@@ -49,17 +45,18 @@ SLEEP=0.2
 #############################
 
 update_cpu () {
-	# Ported from gcpubar.c
-	local ncpu cpu_val cpu_maxval
-	# 0 1:user 2:unice 3:sys 4:idle 5:iowait
-	ncpu=($(line </proc/stat))
-	
-	cpu_val=$((ncpu[2]-ocpu[2] + ncpu[2]-ocpu[2] + ncpu[3]-ocpu[3] + ncpu[5]-ocpu[5]))
-	cpu_maxval=$((cpu_val + ncpu[4]-ocpu[4]))
+	local ncpu cpu_val cpu_maxval, cpu_total
+	# 0 1:user 2:unice 3:sys 4:idle 5:iowait 6:irq 7:softirq 8:steal 9:guest 10:?
+	ncpu=($(line</proc/stat))
+	local sum="${ncpu[@]:1}"
 
+	cpu_total=$((${sum// /+}))
+	cpu_maxval=$((cpu_total - ocpu_total))
+	cpu_val=$((cpu_maxval - (ncpu[4]-ocpu[4])))
 	cpu_percentage=$((100 * cpu_val / cpu_maxval))
 
 	ocpu=("${ncpu[@]}")
+	ocpu_total=$cpu_total
 
 	ma cpu_percentage $cpu_percentage 3
 	used_color $cpu_percentage_ma 75 '' 10
