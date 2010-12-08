@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SP_LINES=6
+SP_LINES=9
 SP_TW=80
 
 source status-func.sh
@@ -8,10 +8,18 @@ source status-func.sh
 {
 print_status_title 'Miscellaneous'
 
+read l1 l2 l3 procs upsec <<< "$(</proc/loadavg)"
+updur="$(td.sh $upsec)"
+
 thres=$((7*24*60*60))
-ts="$(cat /usr/portage/metadata/timestamp.chk)"
+ts="$(</usr/portage/metadata/timestamp.chk)"
 dur=$(($(date +%s) - $(date -d "$ts" +%s)))
 td="$(td.sh $((thres-dur)))"
+
+# Formating
+echo " Uptime : $updur"
+echo " Loadavg: $l1 $l2 $l3   Processes: $procs"
+echo
 
 echo -n " Portage: "
 ((dur>=thres)) && echo -n "T + " || echo -n "T - "
