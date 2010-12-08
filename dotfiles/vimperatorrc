@@ -65,10 +65,7 @@ function play_gdic_default() {
 switch (liberator.profileName) {
 	case 'Normal':
 		// Enter passthrough mode automatically in Gmail, Reader
-		liberator.execute('autocmd LocationChange .* js modes.passAllKeys = /(mail\\.google\\.com|www\\.google\\.com\\/reader\\/)/.test(buffer.URL)');
-
-		// Get my damn focus back
-		liberator.execute('autocmd PageLoad (www\\\\.youtube|groups.google)\\\\.com :normal <Esc>');
+		liberator.execute('autocmd LocationChange .* js modes.passAllKeys = /((mail|groups)\\.google\\.com|www\\.google\\.com\\/reader\\/)/.test(buffer.URL)');
 
 		// Auto reload
 		liberator.execute('autocmd PageLoad tw\\\\.finance\\\\.yahoo.com\\\\/pf\\\\/mypf js (function(){var t=getBrowser().tabs[<tab>-1];if (!t.pinned) getBrowser().pinTab(t);window.setTimeout(function(){getBrowser().reloadTab(t)},60000)})()');
