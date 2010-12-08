@@ -8,8 +8,9 @@ source status-func.sh
 {
 print_status_title 'Miscellaneous'
 
-read l1 l2 l3 procs upsec <<< "$(</proc/loadavg)"
-updur="$(td.sh $upsec)"
+read l1 l2 l3 procs _ <<< "$(</proc/loadavg)"
+read upsec _ <<< "$(</proc/uptime)"
+updur="$(td.sh ${upsec%.*})"
 
 thres=$((7*24*60*60))
 ts="$(</usr/portage/metadata/timestamp.chk)"
