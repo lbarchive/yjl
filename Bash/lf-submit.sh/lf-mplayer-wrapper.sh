@@ -14,7 +14,7 @@ fi
 # msglevel 6 to know when new start happens.
 [[ "${@:$#-2}" =~ '-loop '[0-9]+ ]] && is_loop=1 && msglevel='-msglevel all=6'
 
-{ "$mplayer_cmd" $* $msglevel ; echo -n $'\r' ; } | while read -d $'\r' block; do
+{ "$mplayer_cmd" "$@" $msglevel ; echo -n $'\r' ; } | while read -d $'\r' block; do
 	# Finding newly played file
 	while read line; do
 		if [[ $line =~ Playing.* ]]; then
