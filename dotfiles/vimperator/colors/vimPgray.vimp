@@ -22,13 +22,12 @@ hi CompItem[selected]		background: #666;
 
 " Used in Command Line
 " Entire bottom line
-hi CmdLine                  background: #333; font-family: monospace; padding: 2px; vertical-align: middle;
-" Wrapped by CmdLine
-hi CommandLine				color: #ddc; background: #333;
+hi CmdLine                  color: #aaa; background: #333; font-family: monospace; padding: 2px; vertical-align: middle;
 
 " Used in the URL column of `bmarks`
 hi CompResult				color: #aaa; width: 45%; overflow: hidden;
-hi CompTitle				color: #ddc; background: #333; font-weight: bold; text-shadow: #000 1px 1px 0
+hi CompTitle				color: #ddc; background: #333; font-weight: bold;
+hi CompTitle>*				color: #aaa; font-weight: bold; border-top: 1px solid gray; border-bottom: 1px solid #BBB; padding: 1px 0.5ex;
 
 " Hints!
 hi Hint						color: white; background-color: #800; border-color: ButtonShadow; font-family: monospace; font-size: 10px; font-weight: bold; border-width: 0px; border-style: solid; padding 0 1px;
@@ -68,12 +67,10 @@ hi Search					color: #333; background-color: #cc0; font-size: inherit; padding: 
 hi StatusLine				color: #ddc; background: #333;
 
 " Firefox's tabs
-hi TabIconNumber			color: #ddc; font-weight: bold; text-align: center; text-shadow: #000 -1px 0 0, #000 0 1px 0, #000 1px 0 0, #000 0 -1px 0;
 hi TabNumber				color: #ddc; font-weight: bold; margin: 0; padding-right: .3ex; text-shadow: #000 -1px 0 0, #000 0 1px 0, #000 1px 0 0, #000 0 -1px 0;
-hi TabText					color: #ddc; text-shadow: #000 1px 1px 0;
 
 " Used in `pageinfo` or `jumps`
-hi Title					color: #ddc; background: #333; font-weight: bold; text-shadow: #000 1px 1px 0
+hi Title					color: #ddc; background: #333; font-weight: bold;
 
 " Used in items of Info field of `bmarks`
 hi Keyword					color: #CC0;
@@ -82,27 +79,5 @@ hi URL						color: #080; text-decoration: none; padding: 0 2px;
 hi URL:hover				color: #880; background-color: #222; -moz-border-radius: 5px; cursor: pointer;
 
 hi ContentSeparator			border:none;
-
-" Most of the following setting are unknown to me
-" ===============================================
-"hi Bell					border: 0 none; background-color: black;
-"hi CmdOutput				white-space: pre;
-"hi CompGroup	
-"hi CompGroup:not(:first-of-type)	margin-top: .5em;
-"hi CompIcon				width: 16px; min-width: 16px; display: inline-block; margin-right: .5ex;
-"hi CompIcon>img				max-width: 16px; max-height: 16px; vertical-align: middle;
-"hi CompItem				
-"hi CompItem>*				padding: 0 .5ex;
-"hi CompMsg				font-style: italic; margin-left: 16px;
-"hi CompTitle>*				padding: 0 .5ex;
-"hi Filter				font-weight: bold;
-"hi FrameIndicator			background-color: red; opacity: 0.5; z-index: 999; position: fixed; top: 0; bottom: 0; left: 0; right: 0;
-"hi Indicator				color: blue;
-"hi Message				white-space: normal; min-width: 100%; padding-left: 2em; text-indent: -2em; display: block;
-"hi NonText				color: blue; min-height: 16px; padding-left: 2px;
-"hi Preview				color: gray;
-"hi TabClose
-"hi TabIcon				
-"hi WarningMsg				color: red; background: #333;
 
 " vim:set filetype=vim:
