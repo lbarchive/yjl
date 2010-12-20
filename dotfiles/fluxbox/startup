@@ -41,7 +41,7 @@ sleep 1
 sleep 5
 {
 	gcin &
-	dzen-status.sh &
+	dzen-status &
 } &
 
 wait $fbpid
