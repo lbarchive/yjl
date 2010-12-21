@@ -168,8 +168,8 @@ void update_net(int ID) {
 	fclose(f);
 	
 	// rate in bytes
-	rx_rate = (n_rxb - o_rxb) / (update_funcs[ID].interval / 1000000);
-	tx_rate = (n_txb - o_txb) / (update_funcs[ID].interval / 1000000);
+	rx_rate = (unsigned long) ((n_rxb - o_rxb) / (1.0 * update_funcs[ID].interval / 1000000));
+	tx_rate = (unsigned long) ((n_txb - o_txb) / (1.0 * update_funcs[ID].interval / 1000000));
 	o_rxb = n_rxb;
 	o_txb = n_txb;
 	
