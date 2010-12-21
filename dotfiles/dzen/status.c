@@ -261,9 +261,9 @@ void update_bat(int ID) {
 
 // get sockaddr, IPv4 or IPv6:
 void *get_in_addr(struct sockaddr *sa) {
-    if (sa->sa_family == AF_INET)
-        return &(((struct sockaddr_in*)sa)->sin_addr);
-    return &(((struct sockaddr_in6*)sa)->sin6_addr);
+	if (sa->sa_family == AF_INET)
+		return &(((struct sockaddr_in*)sa)->sin_addr);
+	return &(((struct sockaddr_in6*)sa)->sin6_addr);
 	}
 
 int mpd_send(int sockfd, char *data) {
@@ -278,7 +278,7 @@ char *mpd_recv(int sockfd) {
 	
 	if ((numbytes = recv(sockfd, buf, MAXDATASIZE-1, 0)) == -1)
 		return NULL;
-    buf[numbytes] = '\0';
+	buf[numbytes] = '\0';
 	return buf;
 	}
 
@@ -288,32 +288,35 @@ int mpd_connect() {
 	const char *MPD_PORT = "6600";
 	struct addrinfo hints, *servinfo, *p;
 	int sockfd, rv, numbytes;
-    char s[INET6_ADDRSTRLEN];
-	
+	char s[INET6_ADDRSTRLEN];
+
 	memset(&hints, 0, sizeof hints);
-    hints.ai_family = AF_UNSPEC;
-    hints.ai_socktype = SOCK_STREAM;
+	hints.ai_family = AF_UNSPEC;
+	hints.ai_socktype = SOCK_STREAM;
 
-    if ((rv = getaddrinfo(MPD_HOST, MPD_PORT, &hints, &servinfo)) != 0)
-        return -1;
+	if ((rv = getaddrinfo(MPD_HOST, MPD_PORT, &hints, &servinfo)) != 0) {
+		freeaddrinfo(servinfo);
+		return -1;
+		}
+	// loop through all the results and connect to the first we can
+	for(p = servinfo; p != NULL; p = p->ai_next) {
+		if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
+			continue;
 
-    // loop through all the results and connect to the first we can
-    for(p = servinfo; p != NULL; p = p->ai_next) {
-        if ((sockfd = socket(p->ai_family, p->ai_socktype, p->ai_protocol)) == -1)
-            continue;
+		if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
+			close(sockfd);
+			continue;
+			}
+		break;
+		}
 
-        if (connect(sockfd, p->ai_addr, p->ai_addrlen) == -1) {
-            close(sockfd);
-            continue;
-    	    }
-        break;
-	    }
+	if (p == NULL) {
+		freeaddrinfo(servinfo);
+		return -1;
+		}
 
-    if (p == NULL)
-        return -1;
-
-    inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
-    freeaddrinfo(servinfo); // all done with this structure
+	inet_ntop(p->ai_family, get_in_addr((struct sockaddr *)p->ai_addr), s, sizeof s);
+	freeaddrinfo(servinfo); // all done with this structure
 	// get connected message
 	mpd_recv(sockfd);
 
@@ -432,7 +435,7 @@ void update_sound(int ID) {
 	snd_mixer_selem_id_alloca(&sid);
 	snd_mixer_selem_id_set_index(sid, 0);
 	snd_mixer_selem_id_set_name(sid, SELEM_NAME);
-    
+
 	elem = snd_mixer_find_selem(h_mixer, sid);
 
 	snd_mixer_selem_get_playback_volume(elem, CHANNEL, &vol);
@@ -474,7 +477,7 @@ int main(void) {
 	chdir("/home/livibetter/.dzen");
 	
 	dzen = popen("dzen2 -bg '#303030' -fg '#aaa' -fn 'Envy Code R-9' -x 840 -y 2084 -w 840 -ta right -e 'button3=;onstart=lower'", "w");
-    if (!dzen) {
+	if (!dzen) {
 		fprintf (stderr, "can not open dzen2.\n");
 		return 1;
 		}
@@ -504,7 +507,7 @@ int main(void) {
 				strcat(new_dzen, " ");
 			strcat(new_dzen, tmp_dzen[i]);
 			}
- 		strcat(new_dzen, " ^ca(1,./status-misc.sh)^i(icons/info_01.xbm)^ca()");
+		strcat(new_dzen, " ^ca(1,./status-misc.sh)^i(icons/info_01.xbm)^ca()");
 
 		if (strcmp(old_dzen, new_dzen)) {
 			fprintf(dzen, "%s\n", new_dzen);
