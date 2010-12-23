@@ -101,12 +101,6 @@ function start_animation(){
     .delay('slow')
     .delay('slow')
     .queue(function(){
-      $('#social').fadeTo('slow', 1);
-      $(this).dequeue();
-      })
-    .delay('slow')
-    .delay('slow')
-    .queue(function(){
       $('#blog').fadeTo('slow', 1);
       $(this).dequeue();
       })
@@ -136,7 +130,7 @@ a:hover {color: #fff; text-shadow: #fff 0 0 2px;}
 #bio {font-family: "Existence", "Trebuchet MS", Helvetica; text-shadow: #000 1px 1px 0}
 footer {font-family: "Existence", "Trebuchet MS", Helvetica}
 
-#social h1, #blog h1 {font-family: "Prociono", "Lucida Sans Unicode", "Lucida Grande"}
+#blog h1, #more h1 {font-family: "Prociono", "Lucida Sans Unicode", "Lucida Grande"}
 
 section ul {list-style-type: none; padding-left: 0;}
 
@@ -169,13 +163,6 @@ header, section, footer {display: block; margin: auto auto; width: 700px;}
       <h2 id="bio"><span itemprop="role"><span title="01001101000I1011">Lazy</span> coder</span>, <a href="http://en.wikipedia.org/wiki/STS-1">$age_needs_calculation</a>, <span title="8====D (NSFW!)">&#9794;</span>, <span itemprop="address" itemscope itemtype="http://data-vocabulary.org/Address"><span itemprop="country-name">Taiwan</span></span>ese, <span title="Where is Taylor, the Caramel Macchiato girl?">Caffeinated</span>, Temporary <span title="S">Barrel</span> for Beer, <span title="Many years to be such master, it's not easy!">Master of Idling</span>, <span itemprop="title"><span title="Hate this prefix">Un</span>professional Blogger</span>, and <span title="You can let your mouse to rest, no more, really.">more</span> unlisted.</h2>
     </hgroup>
   </header>
-
-  <section id="social">
-  <h1>So-called Social!</h1>
-  <ul>
-    <li><a itemprop="url" href="http://friendfeed.com/livibetter" title="FriendFeed">FriendFeed</a></li>
-  </ul>
-  </section>
 
   <section id="blog">
   <h1>Booooolog?</h1>
