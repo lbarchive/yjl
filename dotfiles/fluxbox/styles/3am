@@ -79,7 +79,7 @@ menu.hilite.color:				#404040
 ################################################################### TOOLBAR ###
 
 toolbar.bevelWidth:				0
-toolbar.borderWidth:			0
+toolbar.borderWidth:			1
 
 toolbar.button.picColor:		#c0c0c0
 toolbar.button.pressed.picColor:#000000
@@ -87,8 +87,9 @@ toolbar.button.pressed.picColor:#000000
 toolbar.iconbar.borderWidth:	0
 
 toolbar.iconbar.empty.color:	#303030
+toolbar.iconbar.focused.color:	#303030
 
-toolbar.iconbar.focused:		raised
+toolbar.iconbar.focused:		flat
 
 #################################################################### WINDOW ###
 

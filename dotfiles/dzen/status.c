@@ -12,7 +12,7 @@
 #include <sys/time.h>
 #include <time.h>
 #include <unistd.h>
-#include "alsa/asoundlib.h"
+#include <alsa/asoundlib.h>
 
 #define SLEEP 100000
 
@@ -476,7 +476,7 @@ int main(void) {
 
 	chdir("/home/livibetter/.dzen");
 	
-	dzen = popen("dzen2 -bg '#303030' -fg '#aaa' -fn 'Envy Code R-9' -x 840 -y 2084 -w 840 -ta right -e 'button3=;onstart=lower'", "w");
+	dzen = popen("dzen2 -bg '#303030' -fg '#aaa' -fn 'Envy Code R-9' -x 840 -y 2084 -w 840 -h 18 -ta right -e 'button3=;onstart=lower'", "w");
 	if (!dzen) {
 		fprintf (stderr, "can not open dzen2.\n");
 		return 1;
@@ -503,11 +503,13 @@ int main(void) {
 
 		new_dzen[0] = 0;
 		for (i=0; i<UPDATE_FUNCS; i++) {
+//			printf("%d: %d\n", i, (unsigned int) strlen(tmp_dzen[i]));
 			if (i>0)
 				strcat(new_dzen, " ");
 			strcat(new_dzen, tmp_dzen[i]);
 			}
 		strcat(new_dzen, " ^ca(1,./status-misc.sh)^i(icons/info_01.xbm)^ca()");
+//		printf("*: %d\n", (unsigned int) strlen(new_dzen));
 
 		if (strcmp(old_dzen, new_dzen)) {
 			fprintf(dzen, "%s\n", new_dzen);
