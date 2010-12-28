@@ -24,9 +24,9 @@ export EDITOR
 
 # .bashrc ####################################################################
 
-export XMODIFIERS="@im=gcin"
-export GTK_IM_MODULE="xim"
-export QT_IM_MODULE="xim"
+#export XMODIFIERS="@im=gcin"
+#export GTK_IM_MODULE="xim"
+#export QT_IM_MODULE="xim"
 #export XIM_PROGRAM="gcin"
 
 # .xinitrc ###################################################################
