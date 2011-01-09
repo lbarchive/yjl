@@ -1,15 +1,14 @@
 #!/bin/bash
 
-SP_LINES=8
-SP_TW=66
+SP_LINES=28
+SP_TW=74
 
 source status-func.sh
 
 {
 print_status_title 'Calendar'
-day=$(date +%d)
-day=${day#0}
-cal -3s | sed 's/\(.\{21\}.*\) '$day' \(.*.\{21\}\)/\1 ^fg(#a00)'$day'^fg() \2/;s/^/ /'
+gcal --cc-holiday=TW+US_NY --holiday-list=short --highlighting=\<:\>:[:] . |
+sed 's/</ ^fg(#a00)^bg(#fff)/g;s/\[/ ^fg(#fff)^bg(#0a0)/g;s/\(>\|]\)/^bg()^fg() /g'
 echo '^uncollapse()'
 } |
 dzen2 \
