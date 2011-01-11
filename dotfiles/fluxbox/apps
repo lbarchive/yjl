@@ -27,6 +27,11 @@
   [Layer]   {2}
   [Hidden]  {yes}
 [end]
+
+[group]
+	[app] (title=.*OpenOffice\.org Writer)
+[end]
+
 [group]
 	[app] (chrome)
 #	[app] (/usr/lib64/mozilla-firefox/firefox)

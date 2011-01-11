@@ -505,7 +505,7 @@ int main(void) {
 	update_ts = (uint64_t *)malloc(UPDATE_FUNCS * sizeof(uint64_t));
 	tmp_dzen = (char **)malloc(UPDATE_FUNCS * sizeof(char *));
 	for (i=0; i< UPDATE_FUNCS; i++) {
-		tmp_dzen[i] = (char *)malloc(256);
+		tmp_dzen[i] = (char *)malloc(320);
 		// initalizing
 		update_funcs[i].fp(i);
 		}
