@@ -30,8 +30,8 @@
 // Flashing rate when in low capacity, the default is 500ms for red, 500ms for yellow/cyan
 #define UI_BAT_FLASH 500000
 
-char old_dzen[1024];
-char new_dzen[1024];
+char old_dzen[2048];
+char new_dzen[2048];
 
 uint64_t *update_ts;
 char **tmp_dzen;
@@ -337,6 +337,7 @@ void update_mpd(int ID) {
 	static char dir = 0;
 	const int MPD_TEXT_SIZE = 20;
 	char t_text[MPD_TEXT_SIZE+1];
+	int time_pos, time_total;
 
 	if (sockfd == -1)
 		sockfd = mpd_connect();
@@ -410,6 +411,22 @@ void update_mpd(int ID) {
 		t_text[len] = 0;
 		sprintf(dzen_str, "^ca(1,./status-mpd.sh)^ca(3,bash -c 'killall status-mpd.sh &>/dev/null ; mpd --kill ; killall mpdscribble')^i(icons/note.xbm)^ca()^ca() ^fg(#aa0)%-20s^fg()", t_text);
 		}
+	if (mpd_send(sockfd, "status\n") != -1) {
+		if ((buf = mpd_recv(sockfd)) == NULL || strlen(buf) <= 0)
+			return;
+		// find time
+		idx = strstr(buf, "time: ");
+		if (idx != NULL) {
+			idx += strlen("time: ");
+			len = strstr(idx, "\n") - idx;
+			*(idx+len) = 0;
+			*(strstr(idx, ":")) = 0;
+			time_pos = atoi(idx);
+			time_total = atoi(idx+strlen(idx) + 1);
+			const int width = 136;
+			sprintf(dzen_str+strlen(dzen_str), "^ib(1)^fg(#aaa)^p(_BOTTOM)^p(-%d;-3)^p(_LOCK_X)^ro(%dx3)^fg(#aaa)^p(1;1)^r(%dx1)^p(_UNLOCK_X)^p(%d)^p()^ib(0)", width+2, width, width*time_pos/time_total, width-1);
+			}
+		}
 	}
 
 
@@ -449,6 +466,9 @@ void update_sound(int ID) {
 		sprintf(dzen_str+strlen(dzen_str), "^fg(#%02xaaaa)%3d%%^fg()", 176-percentage*176/100, percentage);
 	else
 		sprintf(dzen_str+strlen(dzen_str), "^fg(#a00)%3d%%^fg()", percentage);
+
+	const int width = 40;
+	sprintf(dzen_str+strlen(dzen_str), "^ib(1)^fg(#aaa)^p(_BOTTOM)^p(-%d;-3)^p(_LOCK_X)^ro(%dx3)^fg(#aaa)^p(1;1)^r(%dx1)^p(_UNLOCK_X)^p(%d)^p()^ib(0)", width+2, width, width*percentage/100, width-1);
 	}
 
 void update_clock(int ID) {
