@@ -148,15 +148,28 @@ article > header > time {
   text-shadow: #AAA 0 0 2px;
 }
 
-.old-post-notice {
-  background-color: pink;
-  border: 3px solid pink;
+.notice {
+  background-color: LemonChiffon;
+  border: 3px solid LemonChiffon;
   border-radius: 3px;
-  box-shadow: 0 0 3px pink;
+  box-shadow: 0 0 3px LemonChiffon;
   color: #3B6B9C;
   margin-bottom: 1em;
   padding: 0.5ex;
-  width: 600px;
+  width: 628px;
+}
+
+.notice.OldBlog {
+  background-color: Pink;
+  border: 3px solid Pink;
+  box-shadow: 0 0 3px Pink;
+}
+
+.notice.StatusDraft {
+  background-color: LightSkyBlue;
+  border: 3px solid LightSkyBlue;
+  box-shadow: 0 0 3px LightSkyBlue;
+  color: Tomato;
 }
 
 article h2,

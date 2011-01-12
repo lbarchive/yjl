@@ -79,7 +79,8 @@ $(function(){
   // BRPS
   if ($('#gas-results').length > 0) {
     window.brps_gas = {
-        remove_tags: ['OldBlogBlogarbage', 'OldBlogGetCtrlBack', 'OldBlogTheBThing', 'OldBlogTuxWearsFedora', 'OldBlogmakeYJL'],
+        remove_tags: ['OldBlogBlogarbage', 'OldBlogGetCtrlBack', 'OldBlogTheBThing', 'OldBlogTuxWearsFedora', 'OldBlogmakeYJL',
+            'StatusDraft'],
         limit: 10,
         remove_string_regexp: /(^.*?: | &lt;&lt;.*$)/,
         exclude_url_regexp: /(\/search\/label\/|(archive\.html|blog\.yjl\.im\/|\.blogspot\.com\/)$)/
