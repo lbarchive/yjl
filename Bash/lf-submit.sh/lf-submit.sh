@@ -103,7 +103,7 @@ log () {
 
 # Checking configuration
 
-XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-~/.config}"
+XDG_CONFIG_HOME="${XDG_CONFIG_HOME:-$HOME/.config}"
 CONFIG_DIR="$XDG_CONFIG_HOME"/"$APPNAME"
 CONFIG_FILE="$CONFIG_DIR"/config
 
