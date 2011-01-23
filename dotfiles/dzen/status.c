@@ -157,13 +157,23 @@ void update_net(int ID) {
 	char *dzen_str = tmp_dzen[ID];
 	char rx_color[8];
 	char *color;
+	char is_wifi = 0;
 	unsigned long n_rxb, n_txb, rx_rate, tx_rate;
 	static unsigned long o_rxb, o_txb;
 	FILE *f;
-	f = fopen("/sys/class/net/ppp0/statistics/rx_bytes", "r");
+	if ((f = fopen("/sys/class/net/ppp0/statistics/rx_bytes", "r"))==NULL) {
+		if ((f = fopen("/sys/class/net/ppp1/statistics/rx_bytes", "r"))==NULL) {
+			sprintf(dzen_str, "^fg(#a00)^i(icons/net_wired.xbm) ---/---- KB/s ^fg()");
+			return;
+			}
+		else
+			is_wifi = 1;
+		}
 	fscanf(f, "%ld", &n_rxb);
 	fclose(f);
-	f = fopen("/sys/class/net/ppp0/statistics/tx_bytes", "r");
+	if ((f = fopen("/sys/class/net/ppp0/statistics/tx_bytes", "r"))==NULL)
+		if ((f = fopen("/sys/class/net/ppp1/statistics/tx_bytes", "r"))==NULL)
+			return;
 	fscanf(f, "%ld", &n_txb);
 	fclose(f);
 	
@@ -181,7 +191,11 @@ void update_net(int ID) {
 	strcpy(rx_color, color);
 	color = used_color(tx_rate, 200, -1, -1);
 
-	sprintf(dzen_str, "^i(icons/net_wired.xbm) ^fg(%s)%3ld^fg()/^fg(%s)%4ld^fg() KB/s", color, tx_rate, rx_color, rx_rate);
+	if (is_wifi)
+		sprintf(dzen_str, "^i(icons/wifi_02.xbm)");
+	else
+		sprintf(dzen_str, "^i(icons/net_wired.xbm)");
+	sprintf(dzen_str+strlen(dzen_str), " ^fg(%s)%3ld^fg()/^fg(%s)%4ld^fg() KB/s", color, tx_rate, rx_color, rx_rate);
 	}
 
 void update_thm(int ID) {
