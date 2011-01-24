@@ -16,7 +16,7 @@ read _ s_height <<< "$(xwininfo -root | egrep Height)"
 while :; do
 # Update last fm play count and cover art
 lf-playcount-image.sh
-playcount=$(cut -f 2 -d \  "/tmp/lf-playcount-image")
+read _ playcount _ _ _ loved </tmp/lf-playcount-image
 # Preparing cover art
 image_filename="/tmp/lf-images/$(cut -f 4 -d \  "/tmp/lf-playcount-image" | tr -t \/ -)"
 image_filename_xpm="${image_filename%.*}.xpm"
@@ -29,7 +29,9 @@ mpc -f '%artist% - %title% - %album%' | while read line; do
 	((i++))
 done
 i=3
-echo -n "^pa(5;$((i*line_height + 5)))Played $playcount times"
+echo -n "^pa(5;$((i*line_height + 5)))Played $playcount times "
+[[ "$loved" == "1" ]] && echo -n "^fg(#a00)" || echo -n "^fg(#444)"
+echo -n "♥^fg()"
 echo "^pa($((width-80-5));5)^i($image_filename_xpm)"
 sleep 1
 [[ $1 -gt 0 ]] && [[ $(date +%s%N) > "$end_time" ]] && break
