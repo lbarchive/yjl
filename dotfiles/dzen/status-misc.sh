@@ -1,6 +1,6 @@
 #!/bin/bash
 
-SP_LINES=9
+SP_LINES=11
 SP_TW=80
 
 source status-func.sh
@@ -13,11 +13,13 @@ read upsec _ <<< "$(</proc/uptime)"
 updur="$(td.sh ${upsec%.*})"
 
 thres=$((7*24*60*60))
-ts="$(</usr/portage/metadata/timestamp.chk)"
-dur=$(($(date +%s) - $(date -d "$ts" +%s)))
+ts="$(date -d "$(</usr/portage/metadata/timestamp.chk)" +%s)"
+dur=$(($(date +%s) - ts))
 td="$(td.sh $((thres-dur)))"
 
 # Formating
+echo " $(uname -srv)"
+echo
 echo " Uptime : $updur"
 echo " Loadavg: $l1 $l2 $l3   Processes: $procs"
 echo
@@ -26,13 +28,7 @@ echo -n " Portage: "
 ((dur>=thres)) && echo -n "T + " || echo -n "T - "
 echo "$td"
 
-echo -n " YouTube: "
-echo -n "$(ls -1 ~/Videos/livibetter/videos | wc -l)"
-echo -n " downloaded / "
-echo -n "$(ls -1 ~/Videos/livibetter/queue | wc -l)"
-echo -n " queued / "
-echo "$(pgrep youtube-dl | wc -l) downloading"
-
+echo "          $(date --date=@$((ts + thres)) +'%A, %B %d, %Y %H:%M:%S')"
 echo
 
 echo "$(./weather.sh TWXX0021)" | sed 's/^/ /'
