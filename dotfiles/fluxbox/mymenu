@@ -2,8 +2,8 @@
 [encoding] {UTF-8}
   [exec] (Terminal) {urxvtc}
   [exec] (Terminal [safe]) {urxvt}
-  [exec] (tmux) {urxvtc -e tmux -2}
-  [exec] (tmux attach) {urxvtc -e tmux -2 attach}
+  [exec] (tmux) {urxvtc -sl 0 -e tmux -2}
+  [exec] (tmux attach) {urxvtc -sl 0 -e tmux -2 attach}
   [exec] (Chromium) {chromium} </usr/share/pixmaps/chromium-browser.png>
 #  [exec] (Chromium Bin) {chromium-bin} </usr/share/pixmaps/chromium-bin.png>
 #  [exec] (Chromium Bin) {XMODIFIERS=@im=gcin QT_IM_MODULE=gcin chromium-bin} </usr/share/pixmaps/chromium-bin.png>
