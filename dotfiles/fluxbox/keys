@@ -171,10 +171,8 @@ Mod4 P :Exec mp-ctrl.sh play
 152 :Exec urxvtc -e mc 
 
 # Print screen
-None Print :Exec xsnap -file "$HOME/tmp/ss/$(date +'%Y-%m-%d--%H:%M:%S.png')"
-#None Print Print :Exec scrot '%Y-%m-%d--%H:%M:%S_$wx$h.png' -e 'mv $f ~/tmp/ss'
-#None Print S :Exec scrot -s -d 1 '%Y-%m-%d--%H:%M:%S_$wx$h.png' -e 'mv $f ~/tmp/ss'
-#None Print B :Exec scrot -s -b -d 1 '%Y-%m-%d--%H:%M:%S_$wx$h.png' -e 'mv $f ~/tmp/ss'
+None Print Print :Exec xsnap -file "$HOME/tmp/ss/$(date +'%Y-%m-%d--%H:%M:%S.png')"
+None Print F :Exec xsnap -file "$HOME/tmp/ss/$(date +'%Y-%m-%d--%H:%M:%S.png')" -region "$(xwininfo -root | sed '/\(Width\|Height\)/ {s/[ :a-z-]//gi;p} ; d' | tr '\n' ' ' | cut -d ' ' -f1-2 | tr ' ' 'x')+0+0"
 
 # Lock screen
 # -dpmsoff 1 -> 30 seconds, covers -timeout 15 seconds
