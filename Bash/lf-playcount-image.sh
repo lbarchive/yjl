@@ -101,6 +101,7 @@ function get_track_info() {
 	image_large=$(extract_XML_value 'image size="large"' "$_ret")
 	[[ "$image_large" == "" ]] && image_large="http://cdn.last.fm/flatness/catalogue/album/jewelcase_large.png"
 	image_extralarge=$(extract_XML_value 'image size="extralarge"' "$_ret" 2> /dev/null)
+	[[ -z "$image_extralarge" ]] && image_extralarge="$image_large"
 	echo "$song_hash $userplaycount $image_small $image_medium $image_large $image_extralarge $userloved" > "$CACHE_FILE"
 	# Wget image, Conky seems to be blocked?
 	mkdir -p /tmp/lf-images
