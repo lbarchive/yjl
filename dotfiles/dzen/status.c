@@ -1,4 +1,4 @@
-// Copyright 2010 Yu-Jie Lin
+// Copyright 2010, 2011 Yu-Jie Lin
 // BSD License
 // gcc -lasound -o status status.c
 #include <netdb.h>
@@ -339,10 +339,10 @@ int mpd_connect() {
 
 void update_mpd(int ID) {
 	char *dzen_str = tmp_dzen[ID];
-	char *buf;
+	char *buf = NULL;
 	static int sockfd = -1;
 	char *idx;
-	int len;
+	size_t len;
 	char title[64], artist[64];
 	char new_text[128];
 	static char mpd_text[128];
@@ -352,42 +352,60 @@ void update_mpd(int ID) {
 	const int MPD_TEXT_SIZE = 20;
 	char t_text[MPD_TEXT_SIZE+1];
 	int time_pos, time_total;
+	FILE *fp;
+	char is_lf_submit = 0;
 
-	if (sockfd == -1)
+	if ((fp = fopen("/tmp/lf-submit.sh.currentsong", "r")) != NULL) {
+		is_lf_submit = -1;
+		getline(&buf, &len, fp);		// first line is track
+		strcpy(title, buf);
+		title[strlen(title)-1] = 0;		// remove the newline
+		getline(&buf, &len, fp);		// second line is artist
+		strcpy(artist, buf);
+		artist[strlen(artist)-1] = 0;	// remove the newline
+		// Clean up
+		free(buf);
+		buf = NULL;
+		fclose(fp);
+		}
+
+	if (!is_lf_submit && sockfd == -1)
 		sockfd = mpd_connect();
-	if (mpd_send(sockfd, "currentsong\n") == -1) {
+	if (!is_lf_submit && mpd_send(sockfd, "currentsong\n") == -1) {
 		sockfd = -1;
 		mpd_text[0] = 0;
 		sprintf(dzen_str, "^ca(1,mpd;mpdscribble)^fg(#aaa)^i(icons/note.xbm)^fg()^ca()");
 		}
 	else {
-		if ((buf = mpd_recv(sockfd)) == NULL || strlen(buf) <= 0) {
+		if (!is_lf_submit && ((buf = mpd_recv(sockfd)) == NULL || strlen(buf) <= 0)) {
 			sockfd = -1;
 			mpd_text[0] = 0;
 			sprintf(dzen_str, "^ca(1,mpd;mpdscribble)^fg(#aaa)^i(icons/note.xbm)^fg()^ca()");
 			return;
 			}
-		// find title
-		title[0] = 0;
-		idx = strstr(buf, "Title: ");
-		if (idx != NULL) {
-			idx += strlen("Title: ");
-			len = strstr(idx, "\n") - idx;
-			if (len >= sizeof(title) - 1)
-				len = sizeof(title) - 1;
-			strncpy(title, idx, len);
-			title[len] = 0;
-			}
-		// find artist
-		artist[0] = 0;
-		idx = strstr(buf, "Artist: ");
-		if (idx != NULL) {
-			idx += strlen("Artist: ");
-			len = strstr(idx, "\n") - idx;
-			if (len >= sizeof(artist) - 1)
-				len = sizeof(artist) - 1;
-			strncpy(artist, idx, len);
-			artist[len] = 0;
+		if (!is_lf_submit) {
+			// find title
+			title[0] = 0;
+			idx = strstr(buf, "Title: ");
+			if (idx != NULL) {
+				idx += strlen("Title: ");
+				len = strstr(idx, "\n") - idx;
+				if (len >= sizeof(title) - 1)
+					len = sizeof(title) - 1;
+				strncpy(title, idx, len);
+				title[len] = 0;
+				}
+			// find artist
+			artist[0] = 0;
+			idx = strstr(buf, "Artist: ");
+			if (idx != NULL) {
+				idx += strlen("Artist: ");
+				len = strstr(idx, "\n") - idx;
+				if (len >= sizeof(artist) - 1)
+					len = sizeof(artist) - 1;
+				strncpy(artist, idx, len);
+				artist[len] = 0;
+				}
 			}
 		strcpy(new_text, artist);
 		strcat(new_text, " - ");
@@ -423,9 +441,14 @@ void update_mpd(int ID) {
 		if (len > MPD_TEXT_SIZE)
 			len = MPD_TEXT_SIZE;
 		t_text[len] = 0;
-		sprintf(dzen_str, "^ca(1,./status-mpd.sh)^ca(3,bash -c 'killall status-mpd.sh &>/dev/null ; mpd --kill ; killall mpdscribble')^i(icons/note.xbm)^ca()^ca() ^fg(#aa0)%-20s^fg()", t_text);
+
+		sprintf(dzen_str, "^ca(1,./status-mpd.sh)%s^ca() ^fg(#aa0)%-20s^fg()",
+			is_lf_submit
+				? "^fg(#0a0)^i(icons/note.xbm)^fg()"
+				: "^ca(3,bash -c 'killall status-mpd.sh &>/dev/null ; mpd --kill ; killall mpdscribble')^i(icons/note.xbm)^ca()"
+			, t_text);
 		}
-	if (mpd_send(sockfd, "status\n") != -1) {
+	if (!is_lf_submit && mpd_send(sockfd, "status\n") != -1) {
 		if ((buf = mpd_recv(sockfd)) == NULL || strlen(buf) <= 0)
 			return;
 		// find time

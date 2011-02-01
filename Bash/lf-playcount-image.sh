@@ -1,5 +1,5 @@
 #!/bin/bash
-# copyright 2010 (c) Yu-Jie Lin
+# copyright 2010, 2011 (c) Yu-Jie Lin
 #
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -22,10 +22,12 @@
 ##########
 # Settings
 
-CFG_DIR=~/.lf-bash
+CFG_DIR=${XDG_CONFIG_HOME:-$HOME/.config}/lf-bash
 HOST=localhost
 PORT=6600
 CACHE_FILE=/tmp/lf-playcount-image
+# lf-submit.sh: http://s.yjl.im/lf-submit.sh
+LF_SUBMIT_CURRENTSONG=/tmp/lf-submit.sh.currentsong
 
 #################
 # End of Settings
@@ -34,9 +36,6 @@ MPD_TCP=/dev/tcp/$HOST/$PORT
 _ret=
 song_title=
 song_artist=
-song_album=
-song_time=
-current_time=
 
 TRACKINFO_API="http://ws.audioscrobbler.com/2.0/?method=track.getinfo"
 
@@ -70,20 +69,6 @@ function parse_song_info() {
 	song_title=$_ret
 	extract_field "Artist" "$_tmp"
 	song_artist=$_ret
-	extract_field "Album" "$_tmp"
-	song_album=$_ret
-	extract_field "Time" "$_tmp"
-	song_time=$_ret
-	fmt_time $song_time
-	song_time_f=$_ret
-	}
-
-function parse_time() {
-	request "status"
-	extract_field "time" "$_ret"
-	current_time=$(cut -f 1 -d : <<< "$_ret")
-#	fmt_time $current_time
-#	current_time_f=$_ret
 	}
 
 function urlencode() {
@@ -158,15 +143,20 @@ fi
 
 TRACKINFO_API="$TRACKINFO_API&api_key=$APIKEY&username=$USERNAME"
 
-# CHECK MPD
+if [[ -r "$LF_SUBMIT_CURRENTSONG" ]]; then
+	# lf-submit.sh
+	song_title="$(line <"$LF_SUBMIT_CURRENTSONG")"
+	song_artist="$(sed '2q;d' "$LF_SUBMIT_CURRENTSONG")"
+else
+	# CHECK MPD
 
-parse_song_info
-if (( $? != 0 )); then
-	echo "Something went wrong with MPD!"
-	exit 1
+	parse_song_info
+	if (( $? != 0 )); then
+		echo "Something went wrong with MPD!"
+		exit 1
+	fi
 fi
 
-parse_time
 song_hash="$(echo -n "${song_title}|${song_artist}" | md5sum | head -c 32)"
 
 if [[ ! -f "$CACHE_FILE" ]]; then

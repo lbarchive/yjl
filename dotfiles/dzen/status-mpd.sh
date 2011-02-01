@@ -1,6 +1,7 @@
 #!/bin/bash
 # $1 is the timeout (`dzen2 -p $1` doesn't seem to work in this script)
 
+LF_SUBMIT_CURRENTSONG=/tmp/lf-submit.sh.currentsong
 width=720
 font_pixelsize=16
 line_height=$((font_pixelsize + 4))
@@ -16,7 +17,7 @@ read _ s_height <<< "$(xwininfo -root | egrep Height)"
 while :; do
 # Update last fm play count and cover art
 lf-playcount-image.sh
-read _ playcount _ _ _ loved </tmp/lf-playcount-image
+read _ playcount _ _ _ _ loved </tmp/lf-playcount-image
 # Preparing cover art
 image_filename="/tmp/lf-images/$(cut -f 4 -d \  "/tmp/lf-playcount-image" | tr -t \/ -)"
 image_filename_xpm="${image_filename%.*}.xpm"
@@ -24,10 +25,17 @@ image_filename_xpm="${image_filename%.*}.xpm"
 
 echo -n '^ib(1)'
 i=0
-mpc -f '%artist% - %title% - %album%' | while read line; do
+if [[ -r "$LF_SUBMIT_CURRENTSONG" ]]; then
+	song_title="$(line <"$LF_SUBMIT_CURRENTSONG")"
+	song_artist="$(sed '2q;d' "$LF_SUBMIT_CURRENTSONG")"
+	line="$song_artist - $song_title"
 	echo -n "^pa(5;$((i*line_height + 5)))$line"
-	((i++))
-done
+else
+	mpc -f '%artist% - %title% - %album%' | while read line; do
+		echo -n "^pa(5;$((i*line_height + 5)))$line"
+		((i++))
+	done
+fi
 i=3
 echo -n "^pa(5;$((i*line_height + 5)))Played $playcount times "
 [[ "$loved" == "1" ]] && echo -n "^fg(#a00)" || echo -n "^fg(#444)"

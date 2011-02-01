@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2010 Yu-Jie Lin
+# Copyright 2010, 2011 Yu-Jie Lin
 # BSD License
 
 # Find real mplayer command
@@ -45,5 +45,5 @@ fi
 	fi
 	echo -n "$block"$'\r'
 done
-
+rm "/tmp/lf-submit.sh.currentsong" &>/dev/null
 echo

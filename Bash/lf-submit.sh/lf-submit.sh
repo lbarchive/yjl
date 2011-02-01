@@ -1,5 +1,5 @@
 #!/bin/bash
-# Copyright 2010 Yu-Jie Lin
+# Copyright 2010, 2011 Yu-Jie Lin
 # BSD License
 
 # ***** Please do not steal my secrets! :)
@@ -40,7 +40,7 @@ gen_http_param_string () {
 extract_XML_value () {
 	# $1 entity name
 	# $2 string to find
-	echo -n "$2" | egrep -o "<$1>[^<]+" | sed -e "s/<$1>//"
+	echo -n "$2" | egrep -o "<$1[^>]*>[^<]+" | sed -e "s/<$1[^>]*>//"
 	}
 
 get_lfm_status () {
@@ -115,6 +115,7 @@ if source "$CONFIG_FILE" &>/dev/null; then
 
 	[[ $LOG ]] && LOG_FILE=${LOG_FILE:-/tmp/$APPNAME.$(date -u +%FZ).log}
 	log "$@"
+	[[ $CURRENT_SONG_FILE ]] && CURRENT_SONG_FILE=/tmp/lf-submit.sh.currentsong
 
 	case "$1" in
 		-r|reset)
@@ -137,6 +138,8 @@ if source "$CONFIG_FILE" &>/dev/null; then
 			log "$resp"
 			get_lfm_status "$resp"
 			[[ "$lfm_status" != "ok" ]] && exit 1
+			
+			[[ $CURRENT_SONG_FILE ]] && rm "$CURRENT_SONG_FILE" 2>/dev/null
 			;;
 		-n|now_playing)
 			shift
@@ -155,6 +158,33 @@ if source "$CONFIG_FILE" &>/dev/null; then
 			log "$resp"
 			get_lfm_status "$resp"
 			[[ "$lfm_status" != "ok" ]] && exit 1
+
+			if [[ $CURRENT_SONG_FILE ]]; then
+				retry=10
+				# This script + the while loop = 2 processes
+				while (($(pgrep lf-submit.sh | wc -l) > 2)); do
+					if ((--retry<=0)); then
+						log "TIMEOUT on waiting other processes to finish before creating $CURRENT_SONG_FILE"
+						# Will create the file, anyway
+						break
+					fi
+					sleep 1
+				done
+				# Intend to delay, using the code above, because scrobble might
+				# kill $CURRENT_SONG_FILE which the following codes just
+				# create.
+
+				# Extract from Last.fm's response, because
+				#  a) Lazy to parse input parameters, and
+				#  b) The song information in response is corrected by Last.fm
+				#     if necessary.
+				track="$(extract_XML_value 'track' "$resp")"
+				artist="$(extract_XML_value 'artist' "$resp")"
+				album="$(extract_XML_value 'album' "$resp")"
+				echo "$track" >"$CURRENT_SONG_FILE"
+				echo "$artist" >>"$CURRENT_SONG_FILE"
+				echo "$album" >>"$CURRENT_SONG_FILE"
+			fi
 			;;
 	esac
 else
