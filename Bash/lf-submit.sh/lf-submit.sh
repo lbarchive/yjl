@@ -138,8 +138,6 @@ if source "$CONFIG_FILE" &>/dev/null; then
 			log "$resp"
 			get_lfm_status "$resp"
 			[[ "$lfm_status" != "ok" ]] && exit 1
-			
-			[[ $CURRENT_SONG_FILE ]] && rm "$CURRENT_SONG_FILE" 2>/dev/null
 			;;
 		-n|now_playing)
 			shift
@@ -160,20 +158,6 @@ if source "$CONFIG_FILE" &>/dev/null; then
 			[[ "$lfm_status" != "ok" ]] && exit 1
 
 			if [[ $CURRENT_SONG_FILE ]]; then
-				retry=10
-				# This script + the while loop = 2 processes
-				while (($(pgrep lf-submit.sh | wc -l) > 2)); do
-					if ((--retry<=0)); then
-						log "TIMEOUT on waiting other processes to finish before creating $CURRENT_SONG_FILE"
-						# Will create the file, anyway
-						break
-					fi
-					sleep 1
-				done
-				# Intend to delay, using the code above, because scrobble might
-				# kill $CURRENT_SONG_FILE which the following codes just
-				# create.
-
 				# Extract from Last.fm's response, because
 				#  a) Lazy to parse input parameters, and
 				#  b) The song information in response is corrected by Last.fm
