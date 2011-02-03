@@ -1,6 +1,7 @@
 // Copyright 2010, 2011 Yu-Jie Lin
 // BSD License
 // gcc -lasound -o status status.c
+#include <locale.h>
 #include <netdb.h>
 #include <netinet/in.h>
 #include <stdint.h>
@@ -343,26 +344,32 @@ void update_mpd(int ID) {
 	static int sockfd = -1;
 	char *idx;
 	size_t len;
-	char title[64], artist[64];
-	char new_text[128];
-	static char mpd_text[128];
+	#define title_size 64
+	#define artist_size 64
+	wchar_t title[title_size] = L"", artist[artist_size] = L"";
+	#define text_size 128
+	wchar_t new_text[text_size] = L"";
+	static wchar_t mpd_text[text_size];
 	static int pos = 0;
 	int t_pos;
 	static char dir = 0;
 	const int MPD_TEXT_SIZE = 20;
-	char t_text[MPD_TEXT_SIZE+1];
+	wchar_t t_text[MPD_TEXT_SIZE+1];
 	int time_pos, time_total;
 	FILE *fp;
 	char is_lf_submit = 0;
 
 	if ((fp = fopen("/tmp/lf-submit.sh.currentsong", "r")) != NULL) {
 		is_lf_submit = -1;
+		
 		getline(&buf, &len, fp);		// first line is track
-		strcpy(title, buf);
-		title[strlen(title)-1] = 0;		// remove the newline
+		mbstowcs(title, buf, title_size - 1);
+		title[wcslen(title)-1] = L'\0';		// remove the newline
+		
 		getline(&buf, &len, fp);		// second line is artist
-		strcpy(artist, buf);
-		artist[strlen(artist)-1] = 0;	// remove the newline
+		mbstowcs(artist, buf, artist_size - 1);
+		artist[wcslen(artist)-1] = L'\0';	// remove the newline
+		
 		// Clean up
 		free(buf);
 		buf = NULL;
@@ -373,56 +380,46 @@ void update_mpd(int ID) {
 		sockfd = mpd_connect();
 	if (!is_lf_submit && mpd_send(sockfd, "currentsong\n") == -1) {
 		sockfd = -1;
-		mpd_text[0] = 0;
+		mpd_text[0] = L'\0';
 		sprintf(dzen_str, "^ca(1,mpd;mpdscribble)^fg(#aaa)^i(icons/note.xbm)^fg()^ca()");
 		}
 	else {
 		if (!is_lf_submit && ((buf = mpd_recv(sockfd)) == NULL || strlen(buf) <= 0)) {
 			sockfd = -1;
-			mpd_text[0] = 0;
+			mpd_text[0] = L'\0';
 			sprintf(dzen_str, "^ca(1,mpd;mpdscribble)^fg(#aaa)^i(icons/note.xbm)^fg()^ca()");
 			return;
 			}
 		if (!is_lf_submit) {
 			// find title
-			title[0] = 0;
 			idx = strstr(buf, "Title: ");
 			if (idx != NULL) {
 				idx += strlen("Title: ");
-				len = strstr(idx, "\n") - idx;
-				if (len >= sizeof(title) - 1)
-					len = sizeof(title) - 1;
-				strncpy(title, idx, len);
-				title[len] = 0;
+				mbstowcs(title, idx, title_size - 1);
 				}
 			// find artist
-			artist[0] = 0;
 			idx = strstr(buf, "Artist: ");
 			if (idx != NULL) {
 				idx += strlen("Artist: ");
-				len = strstr(idx, "\n") - idx;
-				if (len >= sizeof(artist) - 1)
-					len = sizeof(artist) - 1;
-				strncpy(artist, idx, len);
-				artist[len] = 0;
+				mbstowcs(artist, idx, artist_size - 1);
 				}
 			}
-		strcpy(new_text, artist);
-		strcat(new_text, " - ");
-		strcat(new_text, title);
+		wcscpy(new_text, artist);
+		wcscat(new_text, L" - ");
+		wcscat(new_text, title);
 //printf("%s\n", new_text);
-		if (strcmp(new_text, mpd_text)) {
+		if (wcscmp(new_text, mpd_text)) {
 			system("killall status-mpd.sh &>/dev/null");
 			system("./status-mpd.sh 10 &");
-			strcpy(mpd_text, new_text);
+			wcscpy(mpd_text, new_text);
 			pos = 0;
 			dir = 0;
 			}
 		t_pos = 0;
-		if (strlen(mpd_text) > MPD_TEXT_SIZE) {
+		if (wcslen(mpd_text) > MPD_TEXT_SIZE) {
 			if (dir) {
-				if (++pos >= strlen(mpd_text) + 5 - MPD_TEXT_SIZE) {
-					pos = strlen(mpd_text) - MPD_TEXT_SIZE;
+				if (++pos >= wcslen(mpd_text) + 5 - MPD_TEXT_SIZE) {
+					pos = wcslen(mpd_text) - MPD_TEXT_SIZE;
 					dir = !dir;
 					}
 				}
@@ -433,16 +430,16 @@ void update_mpd(int ID) {
 					}
 				}
 			t_pos = (pos < 0) ? 0 : pos;
-			if (t_pos > strlen(mpd_text) - MPD_TEXT_SIZE)
-				t_pos = strlen(mpd_text) - MPD_TEXT_SIZE;
+			if (t_pos > wcslen(mpd_text) - MPD_TEXT_SIZE)
+				t_pos = wcslen(mpd_text) - MPD_TEXT_SIZE;
 			}
-		strncpy(t_text, mpd_text + t_pos, MPD_TEXT_SIZE);
-		len = strlen(mpd_text + t_pos);
+		wcsncpy(t_text, mpd_text + t_pos, MPD_TEXT_SIZE);
+		len = wcslen(mpd_text + t_pos);
 		if (len > MPD_TEXT_SIZE)
 			len = MPD_TEXT_SIZE;
-		t_text[len] = 0;
+		t_text[len] = L'\0';
 
-		sprintf(dzen_str, "^ca(1,./status-mpd.sh)%s^ca() ^fg(#aa0)%-20s^fg()",
+		sprintf(dzen_str, "^ca(1,./status-mpd.sh)%s^ca() ^fg(#aa0)%-20ls^fg()",
 			is_lf_submit
 				? "^fg(#0a0)^i(icons/note.xbm)^fg()"
 				: "^ca(3,bash -c 'killall status-mpd.sh &>/dev/null ; mpd --kill ; killall mpdscribble')^i(icons/note.xbm)^ca()"
@@ -530,6 +527,13 @@ int main(void) {
 	uint64_t ts_current;
 	struct timeval t;
 	FILE *dzen;
+
+	// http://www.cl.cam.ac.uk/~mgk25/unicode.html#c
+	if (!setlocale(LC_CTYPE, "")) {
+		fprintf(stderr, "Can't set the specified locale! "
+			"Check LANG, LC_CTYPE, LC_ALL.\n");
+		return 1;
+		}
 
 	chdir("/home/livibetter/.dzen");
 	
