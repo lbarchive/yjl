@@ -21,10 +21,9 @@ bashpad*scrollBar: false
 #############
 # Rxvt Colors
 
-Rxvt*background: #242424
-#Rxvt*foreground: #e2e2e5
-Rxvt*foreground: #a0a0a0
-Rxvt*color0: #242424
+Rxvt*background: #262626
+Rxvt*foreground: #a8a8a8
+Rxvt*color0: #262626
 #Rxvt*color0: #000000
 ##Rxvt*color1: #ff5d28
 ##Rxvt*color2: #b1d631
@@ -44,7 +43,7 @@ Rxvt*color12: #3333ff
 ##Rxvt*color13: #af5f5f
 ##Rxvt*color14: #acf0f2
 #Rxvt*color15: #e2e2e5
-Rxvt*color15: #a0a0a0
+Rxvt*color15: #a8a8a8
 
 #*background:    #000000
 #*foreground:    #FFFFFF
