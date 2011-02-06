@@ -87,5 +87,6 @@ switch (liberator.profileName) {
 	}
 EOF
 
+autocmd PageLoad about:blank js getBrowser().contentDocument.body.style.backgroundColor = "#333"
 autocmd PageLoad www\\.google\\.com\\/dictionary js replace_gdic_flash();
 map s :js play_gdic_default()<CR>
