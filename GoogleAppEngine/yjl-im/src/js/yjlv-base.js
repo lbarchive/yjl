@@ -50,6 +50,34 @@ $(function(){
       if ($e.width() != max_width)
         $e.width(max_width);
       });
+  // Processing special Labels
+  var SPECIAL_LABELS = [
+      ['StatusDraft', 'StatusDraft', 'This post is a draft.']
+      ];
+  $.each(['The B Thing', 'Get Ctrl Back', 'Blogarbage', 'make YJL', 'Tux Wears Fedora'], function(idx,name) {
+      SPECIAL_LABELS.push([
+          'OldBlog' + name.replace(/ /g, ''), 'OldBlog',
+          'This post was imported from my old blog &ldquo;' + name + '&rdquo; on 2010-09-28. ' +
+          'Some stuff in this post may be broken, please leave a comment if you see any, then I will try to fix it.'
+          ]);
+      });
+  $.each($("article span.post-labels a[rel=tag]"), function(idx, lbl) {
+    var $lbl = $(lbl);
+    var label = $lbl.text().replace(/\n/g, '');
+    // Only check label starts with 'OldBlog' or 'Status'
+    if (label.indexOf('OldBlog') != 0 && label.indexOf('Status') != 0)
+      return;
+    for (var idx=0; idx<SPECIAL_LABELS.length; idx++) {
+      var slabel = SPECIAL_LABELS[idx];
+      if (label == slabel[0]) {
+        $('<div/>')
+            .addClass('wrapper notice')
+            .addClass(slabel[1]).html(slabel[2])
+            .insertBefore($lbl.parents('article').children('.post-content'))
+            ;
+        }
+      }
+    });
   // Unwrapper
   if ($('.wrapper').length > 0) {
     $(window).resize(function(){
