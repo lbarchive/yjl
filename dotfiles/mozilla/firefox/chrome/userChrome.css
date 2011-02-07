@@ -79,8 +79,10 @@
   background-color: #404040 !important;
 }
 
+/* (Connection) Status panel */
+
 .statuspanel-label {
-  background: #333 !important;
+  background: rgba(48, 48, 48, 0.5) !important;
   border: none !important;
   color: #eee !important;
   font-family: "Envy Code R";
