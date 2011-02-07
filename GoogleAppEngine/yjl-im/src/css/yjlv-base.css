@@ -51,6 +51,10 @@ kbd {
   width: 640px;
 }
 
+.center {
+  text-align: center;
+}
+
 /* Widgets
 ========== */
 
@@ -199,6 +203,11 @@ article img {
   -moz-box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
   -webkit-box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
   box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
+}
+
+article img.original-640 {
+  margin-left: -6px;
+  margin-right: 6px;
 }
 
 .post-content {
