@@ -6,6 +6,11 @@ body {
   margin: 0 0;
 }
 
+body.Dark {
+  background-color: #222;
+  color: #aaa;
+}
+
 a {
   color: #249FA3;
   text-decoration: none;
@@ -31,6 +36,12 @@ a.highlighted {
   padding-right: 0.5ex;
 }
 
+body.Dark a.highlighted {
+  background-color: #888;
+  box-shadow: 0 0 0.5ex #888;
+  color: #aae;
+}
+
 ul {
   margin-left: 2em;
   padding-left: 0;
@@ -46,6 +57,14 @@ kbd {
   padding: 0 3px;
 }
 
+body.Dark kbd {
+  background-color: #444;
+  border: 2px solid #111;
+  border-right: 2px solid #333;
+  border-bottom: 2px solid #333;
+  color: #aaa;
+}
+
 .wrapper {
   margin: 0 auto;
   width: 640px;
@@ -53,6 +72,22 @@ kbd {
 
 .center {
   text-align: center;
+}
+
+#theme-switcher {
+  background-color: #aaa;
+  color: #222;
+  position: absolute;
+  left: 0;
+  top: 0;
+  padding: 0.5ex 1ex 0.5ex 0.5ex;
+  border-bottom-right-radius: 0.5ex;
+  cursor: pointer;
+}
+
+body.Dark #theme-switcher {
+  background-color: #444;
+  color: #aaa;
 }
 
 /* Widgets
@@ -83,6 +118,10 @@ kbd {
   padding-bottom: 10px;
 }
 
+body.Dark #blog-header {
+  border-bottom: 1px solid #444;
+}
+
 #Header1 {
   text-align: center;
 }
@@ -101,6 +140,12 @@ kbd {
   text-decoration: none;
 }
 
+body.Dark #blog-title > a,
+body.Dark #blog-title > a:hover,
+body.Dark #blog-title > a:visited {
+  color: #aaa;
+}
+
 /* Pages and Search Box */
 
 #cse-search-box {
@@ -111,11 +156,19 @@ kbd {
   padding: 0.5ex;
 }
 
+body.Dark #cse-search-box {
+  background-color: #444;
+}
+
 #cse-search-box > div > input[type=text] {
   background-color: transparent;
   border: none;
   font-family: "Envy Code R", monospace;
   font-size: 1em;
+}
+
+body.Dark #cse-search-box > div > input[type=text] {
+  color: #aaa;
 }
 
 #PageList1 {
@@ -136,12 +189,25 @@ kbd {
   padding: 0.5ex;
 }
 
+body.Dark #PageList1 > ul > li {
+  background-color: #444;
+  color: #aaa;
+}
+
 #PageList1 > ul > li:hover {
   background-color: #eee;
 }
 
+body.Dark #PageList1 > ul > li:hover {
+  background-color: #555;
+}
+
 #PageList1 > ul > li.selected {
   background-color: #efe;
+}
+
+body.Dark #PageList1 > ul > li.selected {
+  background-color: #454;
 }
 
 /* Blog post stuff
@@ -163,6 +229,10 @@ article > header > time {
   text-shadow: #AAA 0 0 2px;
 }
 
+body.Dark article > header > time {
+  color: #aaa;
+}
+
 .notice {
   background-color: LemonChiffon;
   border: 3px solid LemonChiffon;
@@ -174,10 +244,23 @@ article > header > time {
   width: 628px;
 }
 
+body.Dark .notice {
+  background-color: DarkGreen;
+  border: 3px solid DarkGreen;
+  box-shadow: 0 0 3px DarkGreen;
+  color: #aaa;
+}
+
 .notice.OldBlog {
   background-color: Pink;
   border: 3px solid Pink;
   box-shadow: 0 0 3px Pink;
+}
+
+body.Dark .notice.OldBlog {
+  background-color: #804;
+  border: 3px solid #804;
+  box-shadow: 0 0 3px #804;
 }
 
 .notice.StatusDraft {
@@ -185,6 +268,13 @@ article > header > time {
   border: 3px solid LightSkyBlue;
   box-shadow: 0 0 3px LightSkyBlue;
   color: Tomato;
+}
+
+body.Dark .notice.StatusDraft {
+  background-color: SteelBlue;
+  border: 3px solid SteelBlue;
+  box-shadow: 0 0 3px SteelBlue;
+  color: #aaa;
 }
 
 article h2,
@@ -200,9 +290,12 @@ article img {
   height: auto !important;
   padding: 5px;
   border: 1px solid #eee;
-  -moz-box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
-  -webkit-box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
   box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
+}
+
+body.Dark article img {
+  border: none;
+  box-shadow: 1px 1px 5px rgba(255, 255, 255, .5);
 }
 
 article img.original-640 {
@@ -251,6 +344,11 @@ article img.original-640 {
   padding: 0 0.5ex;
 }
 
+body.Dark .post-content code {
+  background-color:#666;
+  color: #aaa;
+}
+
 .post-content pre {
   background-color:#eee;
   font-family: "Envy Code R", "Courier New";
@@ -260,6 +358,11 @@ article img.original-640 {
   overflow:auto;
   word-wrap:normal;
   padding:5px;
+}
+
+body.Dark .post-content pre {
+  background-color:#666;
+  color: #aaa;
 }
 
 .post-content pre > code {
@@ -403,7 +506,6 @@ figcaption {
 
 article > footer {
   background-color: #F9F9F9;
-  border-bottom: 1px solid #EEE;
   border-radius: 0.5ex;
   color: #666;
   font-size: 0.9em;
@@ -411,6 +513,11 @@ article > footer {
   margin: 1em auto 0 auto;
   padding: 0.5ex 0.5ex;
   width: 640px;
+}
+
+body.Dark article > footer {
+  background-color: #444;
+  color: #aaa;
 }
 
 /* AdSense */
@@ -426,6 +533,10 @@ article > footer {
 #blog-footer {
   border-top: 1px solid #EEE;
   margin-top: 10px;
+}
+
+body.Dark #blog-footer {
+  border-top: 1px solid #444;
 }
 
 #footer-widgets-left {

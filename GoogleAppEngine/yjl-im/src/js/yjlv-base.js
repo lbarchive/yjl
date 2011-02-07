@@ -38,6 +38,27 @@ function collapse_pre() {
   }
 
 $(function(){
+  if (window.localStorage) {
+    function set_theme() {
+      var theme = localStorage['theme'] ? localStorage['theme'] : 'Light'
+      $('body').removeClass();
+      $('body').addClass(theme);
+      $('#theme-switcher').text(theme)
+      }
+    function switch_theme() {
+      if (localStorage['theme'] == 'Dark')
+        localStorage['theme'] = 'Light';
+      else
+        localStorage['theme'] = 'Dark';
+      set_theme();
+      }
+    $('<div/>')
+        .attr('id', 'theme-switcher')
+        .css('top', $('#navbar').height() + 'px')
+        .click(switch_theme)
+        .appendTo($('body'));
+    set_theme();
+    }
   // Image resizing
   var max_width = 640 - 1*2 - 5*2;
   $(".post-content img").each(function(i, e){
