@@ -22,7 +22,7 @@ hi CompItem[selected]		background: #666;
 
 " Used in Command Line
 " Entire bottom line
-hi CmdLine                  color: #aaa; background: #333; font-family: monospace; padding: 2px; vertical-align: middle;
+hi CmdLine                  color: #aaa; background: #333; font-family: "Envy Code R"; padding: 2px; vertical-align: middle;
 
 " Used in the URL column of `bmarks`
 hi CompResult				color: #aaa; width: 45%; overflow: hidden;
@@ -30,7 +30,7 @@ hi CompTitle				color: #ddc; background: #333; font-weight: bold;
 hi CompTitle>*				color: #aaa; font-weight: bold; border-top: 1px solid gray; border-bottom: 1px solid #BBB; padding: 1px 0.5ex;
 
 " Hints!
-hi Hint						color: white; background-color: #800; border-color: ButtonShadow; font-family: monospace; font-size: 10px; font-weight: bold; border-width: 0px; border-style: solid; padding 0 1px;
+hi Hint						color: white; background-color: #800; border-color: ButtonShadow; font-family: "Envy Code R""; font-size: 10px; border-width: 0px; border-style: solid; padding 0 1px;
 hi Hint::after				content: attr(number);
 hi HintActive				color: black; background: #480;
 hi HintElem					color: black; background-color: #880; 

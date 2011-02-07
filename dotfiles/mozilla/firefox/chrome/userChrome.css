@@ -6,22 +6,84 @@
  */
 @namespace url("http://www.mozilla.org/keymaster/gatekeeper/there.is.only.xul"); /* set default namespace to XUL */
 
+#navigator-toolbox {
+  /* remove the line below tabs bar */
+  border-bottom: none !important;
+}
+
 #TabsToolbar {
   background: #242424 !important;
 }
 
-.tabbrowser-tab {
+.tabbrowser-tab,
+.tabs-newtab-button {
   background: transparent !important;
-  color: #fff !important;
-  font-family: monospace;
-  font-size: 12px;
-  font-weight: bold;
+  border: none !important;
+  border-radius: 0 !important;
+  color: #eee !important;
+  font-family: "Envy Code R";
+  font-size: 14px;
+  padding-left: 1ex !important;
+  padding-right: 0.5ex   !important;
 }
 
-.tabbrowser-tab:hover {
+.tabbrowser-tab:hover,
+.tabs-newtab-button:hover {
   background: #404040 !important;
+}
+
+.tabs-newtab-button {
+  margin: 0 !important;
+  padding: 0 !important;
 }
 
 .tabbrowser-tab[selected] {
   background: #666 !important;
 }
+
+.tab-close-button {
+  -moz-appearance: none !important;
+  border: none !important;
+  border-radius: 0 !important;
+  margin: 0 !important;
+  padding: 1ex !important;
+}
+
+.tab-close-button:hover {
+  background: #888 !important;
+}
+
+/* All tabs list
+ * ============= */
+
+#alltabs-button {
+  -moz-appearance: none !important;
+  border: none !important;
+}
+
+#alltabs-button:hover {
+  background-color: #404040 !important;
+}
+
+/* Also knows as "Group Your Tabs" in Firefox 4
+ * ============================================ */
+
+#tabview-button {
+  -moz-appearance: none !important;
+  border: none !important;
+}
+
+#tabview-button:hover {
+  background-color: #404040 !important;
+}
+
+.statuspanel-label {
+  background: #333 !important;
+  border: none !important;
+  color: #eee !important;
+  font-family: "Envy Code R";
+  font-size: 14px;
+}
+
+/* vim:et:ts=2:sts=2:sw=2:ai
+ * */
