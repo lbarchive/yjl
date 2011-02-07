@@ -117,11 +117,13 @@ $(function(){
 
   // Code highlighting
   if ($('pre code').length > 0) {
+    $.ajaxSetup({cache: true});
     $.getScript('http://www.yjl.im/js/highlight.pack.js', function() {
         hljs.initHighlighting();
         // Collapse pre blocks
         collapse_pre();
         });
+    $.ajaxSetup({cache: false});
     }
   else {
     // Collapse pre blocks
@@ -166,6 +168,7 @@ $(function(){
   $.each($('a[href$=#disqus_thread]'), function (idx, ele) {
       query += 'url' + idx + '=' + encodeURIComponent(ele.href) + '&';
       });
+  $.ajaxSetup({cache: true});
   $.getScript('http://disqus.com/forums/yjlv/get_num_replies.js' + query);
   // If visitors are led to comments, then load comments automatically.
   var href = document.location.href;
@@ -173,6 +176,7 @@ $(function(){
     $.getScript('http://yjlv.disqus.com/embed.js');
     $('#comments-loader-button').remove();
     }
+  $.ajaxSetup({cache: false});
 
   // Google Analytics
   function _track() {
@@ -186,7 +190,9 @@ $(function(){
     _track();
     }
   else {
+    $.ajaxSetup({cache: true});
     $.getScript(('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js', _track);
+    $.ajaxSetup({cache: false});
     }
   });
 
