@@ -20,6 +20,17 @@ a:hover {
   text-decoration: underline;
 }
 
+a.highlighted {
+  background-color: #7C93A1;
+  border-radius: 0.5ex;
+  box-shadow: 0 0 0.5ex #7C93A1;
+  color: #fff;
+  margin-left: -0.5ex;
+  margin-right: -0.5ex;
+  padding-left: 0.5ex;
+  padding-right: 0.5ex;
+}
+
 ul {
   margin-left: 2em;
   padding-left: 0;

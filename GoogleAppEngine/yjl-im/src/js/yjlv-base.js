@@ -86,7 +86,24 @@ $(function(){
         exclude_url_regexp: /(\/search\/label\/|(archive\.html|blog\.yjl\.im\/|\.blogspot\.com\/)$)/
         };
     }
+
+  // Clicked link highlighter
+  function _highlight_a(e){
+    // find old highlighted
+    $('a.highlighted').removeClass('highlighted');
+    $(e).addClass('highlighted');
+    }
   
+  $('a')
+      .mousedown(function(evt){
+          _highlight_a(this);
+          })
+      .keyup(function(evt){
+          if (evt.keycode == 13)
+            _highlight_a(this);
+          })
+      ;
+
   // Don't go below?
   if (document.location.protocol == 'file:' || document.location.host == 'localhost')
     return
