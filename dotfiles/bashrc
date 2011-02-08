@@ -9,11 +9,7 @@ alias ls='ls --color=auto'
 
 alias vi='vim'
 alias mc='. /usr/libexec/mc/mc-wrapper.sh -x'
-alias hl='highlight -q -s vim-dark -M'
 alias lhl='less -R'
-
-# Let shell-fm run with socket opening
-#alias shell-fm="$HOME/bin/shell-fm -i localhost"
 
 # for root
 if (( UID == 0 )); then
@@ -32,17 +28,12 @@ for comp in $HOME/.bash_completion.d/* ; do
 done
 unset comp
 
-#if (( RUNDIALOG == 1 )); then
-#	. $HOME/.runrc
-#else
 # Prompt
 [[ $TERM == 'linux' ]] && STR_MAX_LENGTH=2 || STR_MAX_LENGTH=3
 DIR_COLOR='\[\e[1;32m\]'
 DIR_HOME_COLOR='\[\e[1;35m\]'
 DIR_SEP_COLOR='\[\e[1;31m\]'
 ABBR_DIR_COLOR='\[\e[1;37m\]'
-HOSTNAME_COLOR='\[\e[1;33m\]'
-AT_COLOR='\[\e[1;36m\]'
 (( UID == 0 )) && USER_COLOR='\[\e[1;31m\]' || USER_COLOR='\[\e[1;34m\]'
 
 NEW_PWD='$(
@@ -67,19 +58,13 @@ done
 PS1_ERROR='$(
 ret=$?
 (( ret == 0 )) && exit 0
-(( i = 3 - ${#ret} ))
-echo -n "\[\e[41;1;37m\] ["
-(( i > 0 )) && echo -n " "
-echo -n "$ret"
-(( i == 2 )) && echo -n " "
-echo -n "] \[\e[0m\]"
+printf "\[\e[41;1;37m\][%3s]\[\e[0m\]" "$ret"
 )'
 
 if [[ $TERM == 'screen' ]]; then
-    PS1="$PS1_ERROR$USER_COLOR\u$AT_COLOR@$HOSTNAME_COLOR\h $DIR_COLOR$NEW_PWD"'\[\033k\033\\\]'" $USER_COLOR> \[\e[0m\]"
+    PS1="$PS1_ERROR $DIR_COLOR$NEW_PWD"'\[\033k\033\\\]'" $USER_COLOR\$ \[\e[0m\]"
 else
-    PS1="$PS1_ERROR$USER_COLOR\u$AT_COLOR@$HOSTNAME_COLOR\h $DIR_COLOR$NEW_PWD $USER_COLOR> \[\e[0m\]"
-#fi
-
-unset STR_MAX_LENGTH DIR_COLOR DIR_HOME_COLOR DIR_SEP_COLOR ABBR_DIR_COLOR HOSTNAME_COLOR AT_COLOR USER_COLOR NEW_PWD PS1_ERROR
+    PS1="$PS1_ERROR $DIR_COLOR$NEW_PWD $USER_COLOR\$ \[\e[0m\]"
 fi
+
+unset STR_MAX_LENGTH DIR_COLOR DIR_HOME_COLOR DIR_SEP_COLOR ABBR_DIR_COLOR USER_COLOR NEW_PWD PS1_ERROR
