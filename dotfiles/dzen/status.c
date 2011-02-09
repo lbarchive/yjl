@@ -395,13 +395,17 @@ void update_mpd(int ID) {
 			idx = strstr(buf, "Title: ");
 			if (idx != NULL) {
 				idx += strlen("Title: ");
-				mbstowcs(title, idx, title_size - 1);
+				*strstr(idx, "\n") = '\0';
+				title[mbstowcs(title, idx, title_size - 1)] = L'\0';
+				idx[strlen(idx)] = '\n';
 				}
 			// find artist
 			idx = strstr(buf, "Artist: ");
 			if (idx != NULL) {
 				idx += strlen("Artist: ");
-				mbstowcs(artist, idx, artist_size - 1);
+				*strstr(idx, "\n") = '\0';
+				artist[mbstowcs(artist, idx, artist_size - 1)] = L'\0';
+				idx[strlen(idx)] = '\n';
 				}
 			}
 		wcscpy(new_text, artist);
@@ -439,11 +443,12 @@ void update_mpd(int ID) {
 			len = MPD_TEXT_SIZE;
 		t_text[len] = L'\0';
 
-		sprintf(dzen_str, "^ca(1,./status-mpd.sh)%s^ca() ^fg(#aa0)%-20ls^fg()",
+		swprintf(new_text, text_size, L"%-20ls", t_text);
+		sprintf(dzen_str, "^ca(1,./status-mpd.sh)%s^ca() ^fg(#aa0)%ls^fg()",
 			is_lf_submit
 				? "^fg(#0a0)^i(icons/note.xbm)^fg()"
 				: "^ca(3,bash -c 'killall status-mpd.sh &>/dev/null ; mpd --kill ; killall mpdscribble')^i(icons/note.xbm)^ca()"
-			, t_text);
+			, new_text);
 		}
 	if (!is_lf_submit && mpd_send(sockfd, "status\n") != -1) {
 		if ((buf = mpd_recv(sockfd)) == NULL || strlen(buf) <= 0)
