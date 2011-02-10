@@ -73,7 +73,8 @@ $(function(){
       });
   // Processing special Labels
   var SPECIAL_LABELS = [
-      ['StatusDraft', 'StatusDraft', 'This post is a draft.']
+      ['StatusDraft', 'StatusDraft', 'This post is a draft.'],
+      ['lilbtn', '', 'This post is part of the documentation of <a href="http://lilbtn.yjl.im/">lil∘btn</a>.']
       ];
   $.each(['The B Thing', 'Get Ctrl Back', 'Blogarbage', 'make YJL', 'Tux Wears Fedora'], function(idx,name) {
       SPECIAL_LABELS.push([
@@ -86,7 +87,8 @@ $(function(){
     var $lbl = $(lbl);
     var label = $lbl.text().replace(/\n/g, '');
     // Only check label starts with 'OldBlog' or 'Status'
-    if (label.indexOf('OldBlog') != 0 && label.indexOf('Status') != 0)
+    if (label.indexOf('OldBlog') != 0 && label.indexOf('Status') != 0 &&
+        label.indexOf('lilbtn') != 0)
       return;
     for (var idx=0; idx<SPECIAL_LABELS.length; idx++) {
       var slabel = SPECIAL_LABELS[idx];

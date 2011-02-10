@@ -251,6 +251,15 @@ body.Dark .notice {
   color: #aaa;
 }
 
+body.Dark .notice.warning,
+.notice.warning {
+  background-color: #d22;
+  border: 3px solid #d22;
+  box-shadow: 0 0 3px #d22;
+  color: #fff;
+  text-shadow: 1px 1px 0 #000;
+}
+
 .notice.OldBlog {
   background-color: Pink;
   border: 3px solid Pink;

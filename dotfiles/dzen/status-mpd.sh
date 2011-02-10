@@ -9,9 +9,7 @@ line_height=$((font_pixelsize + 4))
 lines=3
 height=$((line_height * (lines + 1) + 5 * 2))
 
-bottom_gap=20
-read _ s_width <<< "$(xwininfo -root | egrep Width)"
-read _ s_height <<< "$(xwininfo -root | egrep Height)"
+read _ _ S_WIDTH S_HEIGHT _ <<< "$(xprop -root | sed '/_NET_WORKAREA(CARDINAL)/ {s/[^0-9 ]//g;q} ; d')"
 
 [[ $1 -gt 0 ]] && end_time=$(($(date +%s%N) + $1 * 1000000000))
 
@@ -46,7 +44,7 @@ image_filename="/tmp/lf-images/$(cut -f 4 -d \  "/tmp/lf-playcount-image" | tr -
 image_tmp="/tmp/status-mpd.tmp.png"
 image_filename_png="${image_filename%.*}.tmp.png"
 image_filename_xpm="${image_filename%.*}.xpm"
-if [[ ! -f "$image_filename_xbm" ]]; then
+if [[ ! -f "$image_filename_xpm" ]]; then
 	convert -resize 80x80 "$image_filename" "$image_tmp"
 	if [[ "$loved" == "1" ]]; then
 		# Using Process Substitution for a FIFO, which inkscape can open and read its content.
@@ -77,4 +75,4 @@ echo -n "^pa($((width-92-5));5)^i($image_filename_xpm)"
 echo ""
 sleep 1
 [[ $1 -gt 0 ]] && [[ $(date +%s%N) > "$end_time" ]] && break
-done | dzen2 -x $((s_width - width)) -y $((s_height - height - bottom_gap)) -w $width -h $height -bg "$bg_color" -ta left -fn "Envy Code R:pixelsize=$font_pixelsize" -e 'leavetitle=exit;button3=exit;button4=scrollup;button5=scrolldown;onstart=uncollapse'
+done | dzen2 -x $((S_WIDTH - width)) -y $((S_HEIGHT - height)) -w $width -h $height -bg "$bg_color" -ta left -fn "Envy Code R:pixelsize=$font_pixelsize" -e 'leavetitle=exit;button3=exit;button4=scrollup;button5=scrolldown;onstart=uncollapse'
