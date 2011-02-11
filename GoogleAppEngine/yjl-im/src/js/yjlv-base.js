@@ -74,7 +74,7 @@ $(function(){
   // Processing special Labels
   var SPECIAL_LABELS = [
       ['StatusDraft', 'StatusDraft', 'This post is a draft.'],
-      ['lilbtn', '', 'This post is part of the documentation of <a href="http://lilbtn.yjl.im/">lil∘btn</a>.']
+      ['lilbtn', '', 'This post is part of the documentation of <a href="http://lilbtn.yjl.im/">lil∘btn</a>, licensed under the Creative Commons 3.0 BY-SA.']
       ];
   $.each(['The B Thing', 'Get Ctrl Back', 'Blogarbage', 'make YJL', 'Tux Wears Fedora'], function(idx,name) {
       SPECIAL_LABELS.push([

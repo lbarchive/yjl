@@ -13,22 +13,23 @@ read _ _ S_WIDTH S_HEIGHT _ <<< "$(xprop -root | sed '/_NET_WORKAREA(CARDINAL)/ 
 
 [[ $1 -gt 0 ]] && end_time=$(($(date +%s%N) + $1 * 1000000000))
 
-COVERART='<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+IMAGE_TMP="/tmp/status-mpd.tmp.png"
+COVERART[0]='<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:xlink="http://www.w3.org/1999/xlink"
    width="92" height="80" id="coverart">
   <g id="layer1">
-    <image xlink:href="file:///tmp/status-mpd.tmp.png"
+    <image xlink:href="file://'"$IMAGE_TMP"'"
        x="12" y="0" id="coverart" />
   </g>
 </svg>'
 
 # Heart image from http://openiconlibrary.sourceforge.net/gallery2/?./Icons/emblems/emblem-favorite.png
 # 32x32 PNG
-LOVED_COVERART='<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+COVERART[1]='<?xml version="1.0" encoding="UTF-8" standalone="no"?>
 <svg xmlns:xlink="http://www.w3.org/1999/xlink"
    width="92" height="80" id="coverart">
   <g id="layer1">
-    <image xlink:href="file:///tmp/status-mpd.tmp.png"
+    <image xlink:href="file://'"$IMAGE_TMP"'"
        x="12" y="0" id="coverart" />
 	<image xlink:href="file://'"$PWD"'/icons/emblem-favorite.png"
        x="0" y="48" id="heart" />
@@ -41,19 +42,12 @@ lf-playcount-image.sh
 read _ playcount _ _ _ _ loved </tmp/lf-playcount-image
 # Preparing cover art
 image_filename="/tmp/lf-images/$(cut -f 4 -d \  "/tmp/lf-playcount-image" | tr -t \/ -)"
-image_tmp="/tmp/status-mpd.tmp.png"
-image_filename_png="${image_filename%.*}.tmp.png"
-image_filename_xpm="${image_filename%.*}.xpm"
+image_filename_xpm="${image_filename%.*}.${loved}.xpm"
 if [[ ! -f "$image_filename_xpm" ]]; then
-	convert -resize 80x80 "$image_filename" "$image_tmp"
-	if [[ "$loved" == "1" ]]; then
-		# Using Process Substitution for a FIFO, which inkscape can open and read its content.
-		# Inkscape doesn't support standard input.
-		inkscape <(echo "$LOVED_COVERART") -b "$bg_color" --export-png="$image_filename_png" &>/dev/null
-	else
-		inkscape <(echo "$COVERART") -b "$bg_color" --export-png="$image_filename_png" &>/dev/null
-	fi
-	convert "$image_filename_png" "$image_filename_xpm"
+	image_filename_png="${image_filename%.*}.${loved}.png"
+	convert -resize 80x80 "$image_filename" "$IMAGE_TMP"
+	inkscape <(echo "${COVERART[$loved]}") -b "$bg_color" --export-png="$image_filename_png" >&2
+	convert "$image_filename_png" "xpm:$image_filename_xpm"
 fi
 
 echo -n '^ib(1)'
