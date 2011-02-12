@@ -16,17 +16,17 @@ $(function (){
   if (!$.browser.msie)
     $('title').text('yjl.im');
   $('#title').text('yjl.im');
-
-  $('#bio').fadeTo(0, 0);
+  
+  $('#bio').hide();
   $('section > section').hide();
-  $('footer').fadeTo(0, 0);
+  $('footer').hide();
 
-  $('body').mousemove(start_animation);
+  $('#title').mousemove(start_animation);
   });
 
 function start_animation(){
 
-  $('body').unbind('mousemove', start_animation);
+  $('#title').unbind('mousemove', start_animation);
 
   function chg(text){
     $('#title')
@@ -93,36 +93,21 @@ function start_animation(){
 
   $('#title').delay(1000);
 
-  $('#title')
-    .queue(function(){
-      $('#bio').fadeTo('slow', 1);
-      $(this).dequeue();
-      })
-    .delay('slow')
-    .delay('slow')
-    .queue(function(){
-      $('#blog').fadeTo('slow', 1);
-      $(this).dequeue();
-      })
-    .delay('slow')
-    .delay('slow')
-    .queue(function(){
-      $('#more').fadeTo('slow', 1);
-      $(this).dequeue();
-      })
-    .delay('slow')
-    .delay('slow')
-    .queue(function(){
-      $('footer').fadeTo('slow', 1);
-      $(this).dequeue();
-      })
-    ;
+  $.each(['#bio', '#blog', '#more', 'footer'], function(idx, sel) {
+      $('#title')
+          .queue(function(){
+              $(sel).fadeTo('slow', 1);
+              $(this).dequeue();
+              })
+          .delay(1000)
+          ;
+      });
   }
 </script>
 <link href='font/stylesheet.css' rel='stylesheet' type='text/css'/> 
 <style>
-body {background-color: #242424; color: #aaa; padding: 1ex;}
-a {color: #666; text-decoration: none; -webkit-transition-property: color; -webkit-transition-duration: 0.2s}
+body {background-color: #242424; color: #aaa; padding: 1ex; cursor: default;}
+a {color: #666; text-decoration: none; -webkit-transition-property: color; -webkit-transition-duration: 0.2s; -moz-transition-property: color; -moz-transition-duration: 0.2s;}
 a:visited {color: #666;}
 a:hover {color: #fff; text-shadow: #fff 0 0 2px;}
 

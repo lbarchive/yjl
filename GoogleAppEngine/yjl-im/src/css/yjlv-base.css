@@ -153,6 +153,8 @@ body.Dark #blog-title > a:visited {
   border-radius: 0.5ex;
   float: right;
   font-family: "Envy Code R", monospace;
+  height: 23px;
+  margin-top: 0.5ex;
   padding: 0.5ex;
 }
 
