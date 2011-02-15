@@ -44,7 +44,7 @@ night_map=$BLUE_CURRENT_NIGHT
 xplanet -num_times 1 -output "$OUTPUT" -config <(echo "$config") \
 	-geometry $GEOMETRY -longitude $LONGITUDE -latitude $LATITUDE \
 	-pango \
-	-label_string ' ' -utclabel \
+	-label_string "$(td.sh $(($(date +%s) - $(stat -c %Z "$CLOUDS_FILE")))) ago" -utclabel \
 	-labelpos +10-10 \
 		-font 'Inconsolata' -fontsize 16 \
 		-color 0x88aa88 \
