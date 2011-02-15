@@ -43,8 +43,11 @@ body.Dark a.highlighted {
 }
 
 ul {
-  margin-left: 2em;
   padding-left: 0;
+}
+
+li > ul {
+  padding-left: 3ex;
 }
 
 kbd {
@@ -374,7 +377,7 @@ article img.original-640 {
 
 .post-content blockquote {
   display: block;
-  margin: 2em 36px 0;
+  margin: 0;
 }
 
 .post-content blockquote:before,
@@ -388,7 +391,7 @@ article img.original-640 {
 /* ldquo is not declared */
   content: "\201c";
   height: 0;
-  margin-left: -36px;
+  margin-left: -1ex;
   text-shadow: #666 -1px -1px 0px;
 }
 
@@ -396,7 +399,7 @@ article img.original-640 {
   content: "\201d";
   height: 0;
   margin-top: 0;
-  margin-left: 568px; /* 640 - 36 - 36 */
+  margin-left: 640px;
   text-shadow: #666 1px 1px 0px;
 }
 
