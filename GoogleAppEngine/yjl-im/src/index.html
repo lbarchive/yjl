@@ -7,9 +7,10 @@
   <script src="http://html5shiv.googlecode.com/svn/trunk/html5.js"></script>
   <![endif]-->
   <script src="http://ajax.googleapis.com/ajax/libs/jquery/1/jquery.min.js"></script>
+  <script src="http://lilbtn.appspot.com/itchape/itchape.js"></script>
 <script>
 $(function (){
-
+  get_itch('b01faf150a4bb359', 'itch');
   if (window.location.href.indexOf('localhost') >= 0)
     return;
 
@@ -93,7 +94,7 @@ function start_animation(){
 
   $('#title').delay(1000);
 
-  $.each(['#bio', '#blog', '#more', 'footer'], function(idx, sel) {
+  $.each(['#bio', '#blog', '#more', '#itchape', 'footer'], function(idx, sel) {
       $('#title')
           .queue(function(){
               $(sel).fadeTo('slow', 1);
@@ -115,7 +116,7 @@ a:hover {color: #fff; text-shadow: #fff 0 0 2px;}
 #bio {font-family: "Existence", "Trebuchet MS", Helvetica; text-shadow: #000 1px 1px 0}
 footer {font-family: "Existence", "Trebuchet MS", Helvetica}
 
-#blog h1, #more h1 {font-family: "Prociono", "Lucida Sans Unicode", "Lucida Grande"}
+#blog h1, #more h1, #itchape {font-family: "Prociono", "Lucida Sans Unicode", "Lucida Grande"}
 
 section ul {list-style-type: none; padding-left: 0;}
 
@@ -162,11 +163,16 @@ header, section, footer {display: block; margin: auto auto; width: 700px;}
     <li><a itemprop="url" href="http://j.mp/Google-livibetter">Stalking Me!</a></li>
   </ul>
   </section>
+
+  <section id="itchape">
+  <h1>My ItchApe</h1>
+  <span id="itch"></span>
+  </section>
 </section>
 
 <footer>
   <p class="credit">Webfonts: <a href="http://yeah-noah.kernest.com/fonts">Existence</a>, <a href="http://damieng.com/envy-code-r">Envy Code R</a>, <a href="http://users.cuci.nl/nonsuch/free.htm">Moms Typewriter</a>, and <a href="http://www.theleagueofmoveabletype.com/fonts/13-prociono">Prociono</a></p>
-  <p class="copyright">© 2010 Yu-Jie Lin</p>
+  <p class="copyright">© 2010, 2011 Yu-Jie Lin</p>
 </footer>
 <script type="text/javascript">
 var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");

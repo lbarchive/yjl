@@ -1,6 +1,6 @@
 body {
   background-color: #fff;
-  color: #000;
+  color: #222;
   font-family: 'Gentium Book Basic';
   font-size: 11pt;
   margin: 0 0;
@@ -63,6 +63,58 @@ body.Dark kbd {
   border-right: 2px solid #333;
   border-bottom: 2px solid #333;
   color: #aaa;
+}
+
+button,
+input,
+select {
+  background-color: #eee;
+  border: none;
+  border-radius: 0.5ex;
+  -moz-border-radius: 0.5ex;
+  -webkit-border-radius: 0.5ex;
+  color: #000;
+  margin: 0.25ex;
+  padding: 0.25ex;
+}
+
+body.Dark button,
+body.Dark input,
+body.Dark select {
+  background-color: #444;
+  color: #aaa;
+}
+
+button:hover,
+input:hover,
+select:hover {
+  background-color: #ddd;
+}
+
+body.Dark button:hover,
+body.Dark input:hover,
+body.Dark select:hover {
+  background-color: #555;
+}
+
+button:focus,
+input:focus {
+  background-color: #ddf;
+}
+
+body.Dark button:focus,
+body.Dark input:focus {
+  background-color: #558;
+}
+
+button:active,
+input:active {
+  background-color: #fdd;
+}
+
+body.Dark button:active,
+body.Dark input:active {
+  background-color: #855;
 }
 
 .wrapper {
@@ -167,6 +219,8 @@ body.Dark #cse-search-box {
   border: none;
   font-family: "Envy Code R", monospace;
   font-size: 1em;
+  margin: 0;
+  padding: 0;
 }
 
 body.Dark #cse-search-box > div > input[type=text] {
@@ -527,7 +581,7 @@ article > footer {
 }
 
 body.Dark article > footer {
-  background-color: #444;
+  background-color: #333;
   color: #aaa;
 }
 
