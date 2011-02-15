@@ -414,6 +414,7 @@ void update_mpd(int ID) {
 //printf("%s\n", new_text);
 		if (wcscmp(new_text, mpd_text)) {
 			system("killall status-mpd.sh &>/dev/null");
+			system("itch-music.sh &");
 			system("./status-mpd.sh 10 &");
 			wcscpy(mpd_text, new_text);
 			pos = 0;
@@ -574,7 +575,7 @@ int main(void) {
 				strcat(new_dzen, " ");
 			strcat(new_dzen, tmp_dzen[i]);
 			}
-		strcat(new_dzen, " ^ca(1,./status-misc.sh)^i(icons/info_01.xbm)^ca()");
+		strcat(new_dzen, " ^ca(1,./status-misc.sh)^ca(3,./status-clouds.sh)^i(icons/info_01.xbm)^ca()^ca() ");
 //		printf("*: %d\n", (unsigned int) strlen(new_dzen));
 
 		if (strcmp(old_dzen, new_dzen)) {
