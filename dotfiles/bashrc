@@ -57,8 +57,8 @@ done
 
 PS1_ERROR='$(
 ret=$?
-(( ret == 0 )) && exit 0
-printf "\[\e[41;1;37m\][%3s]\[\e[0m\]" "$ret"
+(( ret == 0 )) ||
+printf "\e[41;1;37m%${COLUMNS}s\e[$(((COLUMNS-${#ret})/2))G%s\e[0m\n\[\e[0m\]" "" "$ret"
 )'
 
 if [[ $TERM == 'screen' ]]; then
