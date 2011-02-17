@@ -3,36 +3,29 @@ function collapse_pre() {
     var $pre = $(pre);
     if ($pre.height() <= 200 || $pre.hasClass('no-collapse'))
       return
+    function uncollapse() {
+      $(this)
+        .css({
+            cursor: 'auto',
+            overflow: 'auto',
+            height: this.expand_height,
+            opacity: 1.0
+            })
+        .unbind('click')
+        .attr('title', '')
+        ;
+      this.expand_height = undefined;
+      }
     pre.expand_height = $pre.height();
     $pre
       .css({
-        cursor: 'pointer',
-        overflow: 'hidden'
-        })
-      .animate({
-        height: 100,
-        opacity: 0.5
-        }, 'slow', function () {
-          $(this)
-            .attr('title', 'Click to expand')
-            .click(function () {
-              $(this).animate({
-                height: this.expand_height,
-                opacity: 1.0
-                }, 'slow', function () {
-                  $(this)
-                    .unbind('click')
-                    .css({
-                      cursor: 'auto',
-                      overflow: 'auto'
-                      })
-                    .attr('title', '')
-                    ;
-                  this.expand_height = undefined;
-                  })
-              })
-            ;
+          cursor: 'pointer',
+          overflow: 'hidden',
+          height: 100,
+          opacity: 0.2
           })
+      .attr('title', 'Click to expand')
+      .click(uncollapse)
       ;
     });
   }
