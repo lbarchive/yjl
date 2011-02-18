@@ -141,11 +141,11 @@ $(function(){
   // Clicked link highlighter
   function _highlight_a(e){
     // find old highlighted
-    $('a.highlighted').removeClass('highlighted');
+    $('.post-content a.highlighted').removeClass('highlighted');
     $(e).addClass('highlighted');
     }
   
-  $('a')
+  $('.post-content a')
       .mousedown(function(evt){
           _highlight_a(this);
           })

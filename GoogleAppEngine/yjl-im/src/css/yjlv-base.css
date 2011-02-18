@@ -352,29 +352,69 @@ article h3,
 article h4,
 article h5,
 article h6 {
-  font-family: "Bergamo Std";
-  text-align: center;
+  font-family: Prociono, serif;
+  margin-top: 1em;
+  margin-bottom: 1em;
 }
 
-article img {
+article h2 {
+  font-size: 1.2em;
+  font-weight: bold;
+  text-align: center;
+  text-transform: capitalize;
+}
+
+article h3 {
+  font-size: 1.2em;
+  font-weight: bold;
+  text-transform: capitalize;
+}
+
+/* Don't capitalize code */
+article h2 code,
+article h3 code {
+  text-transform: none;
+}
+
+article h4 {
+  font-size: 1.1em;
+  font-weight: bold;
+  text-indent: 1cm;
+}
+
+article h5 {
+  font-size: 1.1em;
+  font-style: italic;
+  font-weight: bold;
+  text-indent: 1cm;
+}
+
+article h6 {
+  font-size: 1.1em;
+  font-style: italic;
+  font-weight: normal;
+  text-indent: 1cm;
+}
+
+.post-content {
+  line-height: 1.5em;
+}
+
+.post-content img {
   height: auto !important;
   padding: 5px;
   border: 1px solid #eee;
   box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
 }
 
-body.Dark article img {
+body.Dark .post-content img {
   border: none;
   box-shadow: 1px 1px 5px rgba(255, 255, 255, .5);
 }
 
-article img.original-640 {
+.post-content img.original-640 {
   margin-left: -6px;
   margin-right: 6px;
-}
-
-.post-content {
-  line-height: 1.5em;
 }
 
 .post-content blockquote {
