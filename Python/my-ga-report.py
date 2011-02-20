@@ -20,12 +20,12 @@ def get_date_ago(days):
   return (dt.datetime.utcnow() - dt.timedelta(days=days, hours=8)).strftime('%Y-%m-%d')
 
 
+# General
+###########
 def print_general(my_client, table_id,
     date_start=get_date_ago(VISITS_CHART_DAYS), date=get_date_ago(1),
     date_before=get_date_ago(2)):
 
-  # General
-  ###########
   data_query = gdata.analytics.client.DataFeedQuery({
       'ids': table_id,
       'start-date': date_start,
@@ -38,7 +38,7 @@ def print_general(my_client, table_id,
   max_visits = max(visits)
   print '=== General ==='
   print
-  print '--- Visits of %s ---' % date
+  print '--- Visits of %s -> %s ---' % (date_start, date)
   print
   CHART_HEIGHT = 10
   VISIT_WIDTH = len(str(max_visits)) + 5
@@ -131,10 +131,10 @@ def print_general(my_client, table_id,
   print
 
 
+# Referrals
+###########
 def print_referrals(my_client, table_id, date=get_date_ago(1)):
 
-  # Referrals
-  ###########
   data_query = gdata.analytics.client.DataFeedQuery({
       'ids': table_id,
       'start-date': date,
@@ -156,7 +156,8 @@ def print_referrals(my_client, table_id, date=get_date_ago(1)):
     else:
       print "%3s" % entry.metric[0].value, "%-40s %s" % (referrer, values[2])
   print
-  
+
+
 # Keywords
 ##########
 def print_keywords(my_client, table_id, date=get_date_ago(1)):
