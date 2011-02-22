@@ -89,22 +89,23 @@ def print_general(my_client, table_id,
     for medium_name in data[i].keys():
       data[i][medium_name]['ga:visitBounceRate'] = 100.0 * data[i][medium_name]['ga:bounces'] / data[i][medium_name]['ga:visits']
   
+  cols = ['ga:visits', 'ga:pageviews', 'ga:avgTimeOnSite', 'ga:visitBounceRate']
   diff = {}
-  for medium_name in data[0].keys():
-    for metric_name in data[0][medium_name].keys():
-      if medium_name not in diff:
-        diff[medium_name] = {}
-      try:
+  for medium_name in set(data[0].keys() + data[1].keys()):
+    for d in data + [diff]:
+      if medium_name not in d:
+        d[medium_name] = dict(zip(cols, [0]*len(cols)))
+    for metric_name in cols:
+      if data[0][medium_name][metric_name]:
         if metric_name == 'ga:visitBounceRate':
           diff[medium_name][metric_name] = data[1][medium_name][metric_name] - data[0][medium_name][metric_name]
         else:
           diff[medium_name][metric_name] = 100 * (data[1][medium_name][metric_name] - data[0][medium_name][metric_name]) / data[0][medium_name][metric_name]
-      except (ZeroDivisionError, KeyError):
+      else:
         diff[medium_name][metric_name] = 99999.99
-  
+
   print '--- values of %s (change of %s -> %s) ---' % (date, date_before, date)
   print
-  cols = ['ga:visits', 'ga:pageviews', 'ga:avgTimeOnSite', 'ga:visitBounceRate']
   print '%-10s  %-15s %-15s %-18s %-18s' % tuple(['ga:medium'] + cols)
   mediums = list(data[1].keys())
   mediums.sort()
