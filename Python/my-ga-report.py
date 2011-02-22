@@ -80,11 +80,14 @@ def print_general(my_client, table_id,
       if medium_name == 'all':
         continue
       for metric_name, metric_value in data[i][medium_name].items():
+        if metric_name == 'ga:avgTimeOnSite':
+          metric_value *= float(data[i][medium_name]['ga:visits'])
         if metric_name not in data[i]['all']:
           data[i]['all'][metric_name] = metric_value
         else:
           data[i]['all'][metric_name] += metric_value
-  
+    data[i]['all']['ga:avgTimeOnSite'] /= data[i]['all']['ga:visits']
+
   for i in range(2):
     for medium_name in data[i].keys():
       data[i][medium_name]['ga:visitBounceRate'] = 100.0 * data[i][medium_name]['ga:bounces'] / data[i][medium_name]['ga:visits']
