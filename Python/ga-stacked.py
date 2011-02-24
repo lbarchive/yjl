@@ -246,7 +246,7 @@ def print_text_result(data, width=80, filled=False, moving_average=0, grouping=N
       width - len(query.get('filters', 'None')) - len('Filter    : '))) % max_all_value
   print '-'*width
 
-  date_width = len(dates[0])
+  date_width = len(str(dates[0]))
   line_width = width - date_width - 1
   for idx in range(len(dates)):
     date = dates[idx]
