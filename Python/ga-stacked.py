@@ -7,6 +7,7 @@ from hashlib import md5
 from optparse import OptionParser
 from tempfile import gettempdir
 
+import ConfigParser
 import datetime as dt
 import os
 import shelve
@@ -36,17 +37,19 @@ group_funcs = {
     }
 
 
-def retrieve_data(client, table_id, dates, dimension='ga:medium', metric='ga:visits'):
+def retrieve_data(client, table_id, dates, dimension='ga:medium', metric='ga:visits', filters=''):
 
   data = {}
   query = {
       'ids': table_id,
       'start-date': dates[0],
       'end-date': dates[1],
-      'dimensions': 'ga:date,%s' % dimension,
+      'dimensions': ('ga:date,' + dimension).rstrip(','),
       'sort': 'ga:date',
       'metrics': metric,
       }
+  if filters:
+    query['filters'] = filters
   items_per_page = 1000
   query['max-results'] = items_per_page
 
@@ -144,26 +147,48 @@ def assign_symbols(dim_values):
   return symbols
 
 
-def print_legend(dim_symbols, color=True):
-  
-  print 'Legend:',
+def print_legend(dim_symbols, width=80, color=True):
+ 
   keys = [(v['symbol'], k) for k, v in dim_symbols.items()]
   keys.sort(lambda a, b: ord(a[0][0]) - ord(b[0][0]))
-
+  
+  if len(keys) == 1 and not keys[0][1]:
+    # This chart should be the result without querying dimensions
+    return
+  
+  indent = 2
+  left_space = 0
+  print 'Legend:',
   for idx in range(len(keys)):
     dim = keys[idx][1]
     symbol = dim_symbols[dim]['symbol']
+    use_space = len(dim) + 4 # 2 spaces, ',', and symbol
+    if color and symbol in dim:
+      use_space -= 2 # only ',', and symbol
+
+    if use_space > left_space:
+      print
+      sys.stdout.write(' '*indent)
+      left_space = width - indent
     if color:
       sym_color = dim_symbols[dim]['color']
-      print '\033[%sm%s\033[0m = %s' % (sym_color, symbol, dim),
+      if symbol in dim:
+        print dim.replace(symbol, '\033[%sm%s\033[0m' % (sym_color, symbol), 1),
+      else:
+        print '\033[%sm%s\033[0m %s' % (sym_color, symbol, dim),
     else:
-      print '%s = %s' % (symbol, dim),
+      print '%s %s' % (symbol, dim),
     if idx < len(keys) - 1:
-      print ',',
+      sys.stdout.write(', ')
+    left_space -= use_space
   print
 
 
 def print_text_result(data, width=80, filled=False, moving_average=0, grouping=None, center=False, color=True):
+
+  if not data['meta']['total_results']:
+    print 'Found no results'
+    return
 
   # Don't mess with original data
   data = data.copy() 
@@ -209,8 +234,20 @@ def print_text_result(data, width=80, filled=False, moving_average=0, grouping=N
     data = new_data
 
   max_all_value = max(v['all'] for v in data.values())
-  
-  date_width = width
+
+  query = meta['query']
+  dim = query['dimensions'].replace('ga:date', '').lstrip(',')
+  if not dim:
+    dim = 'None'
+  date = 'Date: %s -> %s' % (query['start-date'], query['end-date'])
+  print ('Dimensions: %s%%%ds' % (dim, width - len(dim) - len('Dimensions: '))) % date
+  print 'Metric    : %s' % query['metrics']
+  print ('Filter    : %s%%%df' % (query.get('filters', 'None'),
+      width - len(query.get('filters', 'None')) - len('Filter    : '))) % max_all_value
+  print '-'*width
+
+  date_width = len(dates[0])
+  line_width = width - date_width - 1
   for idx in range(len(dates)):
     date = dates[idx]
     if not max_all_value:
@@ -220,18 +257,18 @@ def print_text_result(data, width=80, filled=False, moving_average=0, grouping=N
     print date,
     dims = data[date]
     if not filled:
-      date_width = width * dims['all'] / max_all_value
+      line_width = int((width - date_width - 1.0) * dims['all'] / max_all_value)
     acc_pos = 0.0
     line = ''
-    line_width = 0
+    area_width = 0
     for m_idx in range(len(dim_values)):
       dim = dim_values[m_idx]
       value = dims[dim]
       if not value:
         continue
       symbol = dim_symbols[dim]['symbol']
-      w1 = int(round((acc_pos + value) / dims['all'] * date_width))
-      w2 = int(round(acc_pos / dims['all'] * date_width))
+      w1 = int(round((acc_pos + value) / dims['all'] * line_width))
+      w2 = int(round(acc_pos / dims['all'] * line_width))
       dim_width = w1 - w2
       acc_pos += value
       if not dim_width:
@@ -241,13 +278,14 @@ def print_text_result(data, width=80, filled=False, moving_average=0, grouping=N
         line += '\033[%sm%s\033[0m' % (sym_color, symbol*dim_width)
       else:
         line += symbol*dim_width
-      line_width += dim_width
+      area_width += dim_width
     if center:
-      print '%s%s' % (' '*((width - line_width)/2), line)
+      print '%s%s' % (' '*((width - date_width - 1 - line_width)/2), line)
     else:
       print line
-  print
-  print_legend(dim_symbols, color=color)
+  print '-'*width
+  print ('%%%df' % width) % max_all_value
+  print_legend(dim_symbols, width=width, color=color)
 
 
 def main():
@@ -265,9 +303,13 @@ def main():
       type='str', dest='metric', default='ga:visits',
       help='Metric to chart with [default: %default]',
       )
+  parser.add_option('-f', '--filter',
+      type='str', dest='filters', default='',
+      help='Filter for querying data',
+      )
   parser.add_option('-w', '--width',
       type='int', dest='width', default=80,
-      help='Width of chart (date text is excluded) [default: %default]',
+      help='Width of chart [default: %default]',
       )
   parser.add_option('-c', '--center',
       dest='center', default=False, action='store_true',
@@ -284,6 +326,14 @@ def main():
   parser.add_option('-F', '--no-fill',
       dest='filled', default=True, action='store_false',
       help='Do not fill the chart [chart is filled by default]',
+      )
+  parser.add_option('-i', '--config',
+      type='str', dest='config',
+      help='Configuration file for general account settings',
+      )
+  parser.add_option('-t', '--section',
+      type='str', dest='section',
+      help='Section of configuration file',
       )
   parser.add_option('-g', '--group-by',
       type='str', dest='group',
@@ -311,17 +361,39 @@ def main():
   if not os.path.exists(tmpdir):
     os.makedirs(tmpdir, 0700)
 
+  account = {'email': None, 'password': None, 'table_id': None}
+
+  # Load config file
+  if options.config:
+    config = ConfigParser.ConfigParser()
+    config.read(options.config)
+    print 'Loading config %s:' % options.config,
+    sections = ['general']
+    if options.section:
+      sections.append(options.section)
+    for section in sections:
+      if config.has_section(section):
+        for option in ['email', 'password', 'table_id']:
+          if config.has_option(section, option):
+            option_value = config.get(section, option)
+            account[option] = option_value
+            print '[%s] %s,' % (section, option),
+      elif section != 'general':
+        parser.error('Cannot find section %s' % option.section)
+    print 'Done.'
+  
   if len(args) >= 2:
-    username = args[0]
-    password = args[1]
-  if len(args) == 2:
+    account['email'] = args[0]
+    account['password'] = args[1]
+    print 'Read EMAIL, PASSWORD from command-line'
+  if account['email'] and account['password'] and not account['table_id']:
     # List table ids
     client = gdata.analytics.client.AnalyticsClient(source=SOURCE_APP_NAME)
-    client.ClientLogin(username, password, source=SOURCE_APP_NAME)
+    client.ClientLogin(account['email'], account['password'],
+        source=SOURCE_APP_NAME)
     account_query = gdata.analytics.client.AccountFeedQuery()
     feed = client.GetAccountFeed(account_query)
-    # Rough calcuation
-    fmt = '%%-%ds %%-%ds' % (options.width/2, options.width/2-1)
+    fmt = '%%-%ds %%-%ds' % (options.width/2, options.width - options.width/2)
     print fmt % ('Web Property ID', 'Table ID')
     print fmt % ('Account Name', 'Profile Name')
     print '='*options.width
@@ -332,22 +404,25 @@ def main():
           entry.title.text)
       print '-'*options.width
     return
-
-  if len(args) != 3:
-    parser.error('Need email password table_id')
+  
+  if not (account['email'] and account['password'] and account['table_id']):
+    parser.error('Need EMAIL PASSWORD TABLE_ID')
   if options.date_start > options.date_end:
     parser.error('Date of the start must be earlier than or equal to date of the end')
   if options.group and options.group not in group_funcs.keys():
     parser.error('Data can only be groupped by one of %s' % ', '.join(group_funcs.keys()))
 
-  table_id = args[2]
+  if len(args) == 3:
+    account['table_id'] = args[2]
+    print 'Read TABLE_ID from command-line'
   
   # Generate cache file name
   cache_file = os.sep.join([
       tmpdir,
       md5('|'.join([
-          username, table_id, options.date_start, options.date_end,
-          options.dimension, options.metric,
+          account['email'], account['table_id'],
+          options.date_start, options.date_end,
+          options.dimension, options.metric, options.filters,
           ])).hexdigest()
       ])
 
@@ -363,11 +438,12 @@ def main():
   # If no data, then retrieve data via API
   if data is None:
     client = gdata.analytics.client.AnalyticsClient(source=SOURCE_APP_NAME)
-    client.ClientLogin(username, password, source=SOURCE_APP_NAME)
+    client.ClientLogin(account['email'], account['password'],
+        source=SOURCE_APP_NAME)
     
-    data = retrieve_data(client, table_id,
+    data = retrieve_data(client, account['table_id'],
         [options.date_start, options.date_end],
-        options.dimension, options.metric,
+        options.dimension, options.metric, options.filters,
         )
     if options.use_cache:
       datafile = shelve.open(cache_file)
