@@ -4,15 +4,16 @@
 
 
 from hashlib import md5
-from optparse import OptionParser
 from tempfile import gettempdir
 
 import ConfigParser
 import datetime as dt
+import optparse
 import os
 import shelve
 import string
 import sys
+import textwrap
 
 import gdata.analytics.client
 
@@ -29,30 +30,25 @@ __status__ = 'Development'
 SOURCE_APP_NAME = 'ga-stacked.py'
 
 
-group_funcs = {
-    'week_sun': lambda date: date.strftime('%Yw%U'),
-    'week_mon': lambda date: date.strftime('%Yw%W'),
-    'month': lambda date: date.strftime('%Y-%m'),
-    'year': lambda date: date.strftime('%Y'),
-    }
+def retrieve_data(client, table_id, options):
 
+  dimensions = options.dimensions.split(',')
 
-def retrieve_data(client, table_id, dates, dimension='ga:medium', metric='ga:visits', filters=''):
-
-  data = {}
+  # Building query
   query = {
       'ids': table_id,
-      'start-date': dates[0],
-      'end-date': dates[1],
-      'dimensions': ('ga:date,' + dimension).rstrip(','),
-      'sort': 'ga:date',
-      'metrics': metric,
+      'start-date': options.start_date,
+      'end-date': options.end_date,
+      'dimensions': ','.join(dimensions),
+      'metrics': options.metric,
+      'sort': options.sort,
       }
-  if filters:
-    query['filters'] = filters
+  if options.filters:
+    query['filters'] = options.filters
   items_per_page = 1000
   query['max-results'] = items_per_page
 
+  # Retrieving data
   entries = []
   total_results = None
   print 'Retrieving data',
@@ -69,38 +65,58 @@ def retrieve_data(client, table_id, dates, dimension='ga:medium', metric='ga:vis
   print ' %d entries retrieved.' % len(entries)
   print
 
-  dim_values = set()
+  # Processing data
+  data = []
   for entry in entries:
-    e_date = entry.dimension[0].value
-    e_dim = ' '.join(dim.value for dim in entry.dimension[1:])
-    dim_values.add(e_dim)
-    date = dt.date(int(e_date[0:4]), int(e_date[4:6]), int(e_date[6:8]))
-    if date not in data:
-      data[date] = {}
-    data[date][e_dim] = float(entry.metric[0].value)
-  # Fill dates do not have centain dimension values
-  for date, dims in data.items():
+    data.append(
+        [entry.dimension[i].value for i in range(len(entry.dimension))] +
+        [float(entry.metric[0].value)])
+
+  return {
+      'results': data,
+      'query': query,
+      }
+
+
+def group_data(data, options):
+
+  dimensions = options.dimensions.split(',')
+  keys = []
+  key_idxs = [int(g) for g in options.group.split(',')]
+  dim_idxs = [idx for idx in range(len(dimensions)) if idx not in key_idxs]
+
+  group_data = {}
+  dim_values = set()
+  for r in data['results']:
+    key = ' '.join(r[idx] for idx in key_idxs)
+    dim = ' '.join(r[idx] for idx in dim_idxs)
+    metric_value = r[-1]
+    dim_values.add(dim)
+    if key not in group_data:
+      keys.append(key)
+      group_data[key] = {}
+    group_data[key][dim] = metric_value
+  # Fill keys do not have centain dimension values
+  for key, dims in group_data.items():
     for dim_value in dim_values:
       if dim_value not in dims:
         dims[dim_value] = 0.0
     dims['all'] = sum(dims.values())
-  # Store metadata, this might be useful for later use
-  dim_values = list(dim_values)
-  dim_values.sort()
-  data['meta'] = {
-      'query': query,
-      'total_results': total_results,
-      'dim_values': dim_values,
-      }
-  return data
+  data['group_data'] = group_data
+  data['dimensions'] = dimensions
+  data['group_by'] = ','.join(dimensions[idx] for idx in key_idxs)
+  data['key_idxs'] = key_idxs
+  data['dim_idxs'] = dim_idxs
+  data['keys'] = keys
+  data['dim_values'] = dim_values
 
 
-def sort_dims(dim_values, data):
+def sort_dims(dim_values, gdata):
 
   # Sort by dim's sum, highest value goes first
   sums = []
   for dim in dim_values:
-    sums.append((sum(v[dim] for v in data.values()), dim))
+    sums.append((sum(v[dim] for v in gdata.values()), dim))
   sums.sort()
   sums.reverse()
   return [dim for s, dim in sums]
@@ -189,80 +205,60 @@ def print_lr(left, right, width=80):
   print ('%s%%%ds' % (left, width - len(left))) % right
 
 
-def print_text_result(data, width=80, filled=False, moving_average=0, grouping=None, center=False, color=True):
+def print_text_result(data, options):
 
-  if not data['meta']['total_results']:
+  if not data['results']:
     print 'Found no results'
     return
 
-  # Don't mess with original data
-  data = data.copy() 
-  # Make sure meta isn't in data
-  meta = data.pop('meta')
-  dim_symbols = assign_symbols(sort_dims(meta['dim_values'], data))
+  gdata = data['group_data']
+  dim_symbols = assign_symbols(sort_dims(data['dim_values'], gdata))
 
-  dates = list(data.keys())
-  dates.sort()
+  keys = data['keys']
   dim_values = list(dim_symbols.keys())
   dim_values.sort()
   
-  # grouping
-  new_data = {}
-  new_dates = []
-  if grouping:
-    for idx in range(len(dates)):
-      date = dates[idx]
-      new_date = group_funcs[grouping](date)
-      if new_date not in new_data:
-        new_data[new_date] = dict(zip(dim_values, [0.0]*len(dim_values)))
-        new_dates.append(new_date)
-      for dim in dim_values:
-        new_data[new_date][dim] += data[date][dim]
-    for new_date in new_data.keys():
-      new_data[new_date]['all'] = sum(new_data[new_date].values())
-    data = new_data
-    dates = new_dates
-
   # plug into a ma filter
   new_data = {}
-  if moving_average > 1:
-    for idx in range(len(dates)):
-      date = dates[idx]
-      if date not in new_data:
-        new_data[date] = {}
+  if options.moving_average > 1:
+    for idx in range(len(keys)):
+      key = keys[idx]
+      if key not in new_data:
+        new_data[key] = {}
       for dim in dim_values:
-        date_range = [i for i in range(idx - 2, idx + 1) if i >= 0]
-        value = sum(data[dates[i]][dim] for i in date_range)
-        value /= len(date_range)
-        new_data[date][dim] = value
-      new_data[date]['all'] = sum(new_data[date].values())
-    data = new_data
+        key_range = [i for i in range(idx - (options.moving_average - 1), idx + 1) if i >= 0]
+        value = sum(gdata[keys[i]][dim] for i in key_range)
+        value /= len(key_range)
+        new_data[key][dim] = value
+      new_data[key]['all'] = sum(new_data[key].values())
+    gdata = new_data
 
-  total_value = sum(v['all'] for v in data.values())
-  max_all_value = max(v['all'] for v in data.values())
+  total_value = sum(v['all'] for v in gdata.values())
+  max_all_value = max(v['all'] for v in gdata.values())
 
-  query = meta['query']
-  dim = query['dimensions'].replace('ga:date', '').lstrip(',')
-  if not dim:
-    dim = 'None'
-  print_lr('Dimensions: %s' % dim, 'Date: %s -> %s' % (
+  query = data['query']
+  width = options.width
+  color = options.color
+  center = options.center
+  filled = options.filled
+  print 'Dimensions: %s' % query['dimensions']
+  print 'Group by  : %s' % data['group_by']
+  print_lr('Metric    : %s' % query['metrics'], 'Date: %s -> %s' % (
       query['start-date'], query['end-date']), width)
-  print 'Metric    : %s' % query['metrics']
   print_lr('Filter    : %s' % query.get('filters', 'None'), max_all_value, width)
   print '-'*width
 
-  date_width = len(str(dates[0]))
-  line_width = width - date_width - 1
-  for idx in range(len(dates)):
-    date = dates[idx]
+  key_width = max(len(k) for k in keys)
+  line_width = width - key_width - 1
+  for key in keys:
     if not max_all_value:
       # For some queries, API returns all zeros.
-      print date
+      print '%-*s' % (key_width, key)
       continue
-    print date,
-    dims = data[date]
+    print '%-*s' % (key_width, key),
+    dims = gdata[key]
     if not filled:
-      line_width = int((width - date_width - 1.0) * dims['all'] / max_all_value)
+      line_width = int((width - key_width - 1.0) * dims['all'] / max_all_value)
     acc_pos = 0.0
     line = ''
     area_width = 0
@@ -285,7 +281,7 @@ def print_text_result(data, width=80, filled=False, moving_average=0, grouping=N
         line += symbol*dim_width
       area_width += dim_width
     if center:
-      print '%s%s' % (' '*((width - date_width - 1 - line_width)/2), line)
+      print '%s%s' % (' '*((width - key_width - 1 - line_width)/2), line)
     else:
       print line
   print '-'*width
@@ -293,16 +289,85 @@ def print_text_result(data, width=80, filled=False, moving_average=0, grouping=N
 
   print_legend(dim_symbols, width=width, color=color)
 
+# BetterFormatter.py
+# http://code.google.com/p/yjl/source/browse/Python/snippet/BetterFormatter.py
+# Copyright (c) 2001-2006 Gregory P. Ward.  All rights reserved.
+# Copyright (c) 2002-2006 Python Software Foundation.  All rights reserved.
+# Copyright (c) 2011 Yu-Jie Lin.  All rights reserved.
+# New BSD License
+
+class BetterFormatter(optparse.IndentedHelpFormatter):
+
+  def __init__(self, *args, **kwargs):
+
+    optparse.IndentedHelpFormatter.__init__(self, *args, **kwargs)
+    self.wrapper = textwrap.TextWrapper(width=self.width)
+
+  def _formatter(self, text):
+
+    return '\n'.join(['\n'.join(p) for p in map(self.wrapper.wrap,
+        self.parser.expand_prog_name(text).split('\n'))])
+
+  def format_description(self, description):
+
+    if description:
+      return self._formatter(description) + '\n'
+    else:
+      return ''
+
+  def format_epilog(self, epilog):
+
+    if epilog:
+      return '\n' + self._formatter(epilog) + '\n'
+    else:
+      return ''
+
+  def format_usage(self, usage):
+
+    return self._formatter(optparse._("Usage: %s\n") % usage)
+
+  def format_option(self, option):
+    # Ripped and modified from Python 2.6's optparse's HelpFormatter
+    result = []
+    opts = self.option_strings[option]
+    opt_width = self.help_position - self.current_indent - 2
+    if len(opts) > opt_width:
+      opts = "%*s%s\n" % (self.current_indent, "", opts)
+      indent_first = self.help_position
+    else:                       # start help on same line as opts
+      opts = "%*s%-*s  " % (self.current_indent, "", opt_width, opts)
+      indent_first = 0
+    result.append(opts)
+    if option.help:
+      help_text = self.expand_default(option)
+      # Added expand program name
+      help_text = self.parser.expand_prog_name(help_text)
+      # Modified the generation of help_line
+      help_lines = []
+      wrapper = textwrap.TextWrapper(width=self.help_width)
+      for p in map(wrapper.wrap, help_text.split('\n')):
+        if p:
+          help_lines.extend(p)
+        else:
+          help_lines.append('')
+      # End of modification
+      result.append("%*s%s\n" % (indent_first, "", help_lines[0]))
+      result.extend(["%*s%s\n" % (self.help_position, "", line)
+                     for line in help_lines[1:]])
+    elif opts[-1] != "\n":
+      result.append("\n")
+    return "".join(result)
+
 
 def main():
 
-  usage = 'usage: %prog [options] EMAIL PASSWORD [TABLE_ID]'
-  parser = OptionParser(usage=usage, version='%%prog %s' % __version__,
+  usage = '%prog [options] EMAIL PASSWORD [TABLE_ID]'
+  parser = optparse.OptionParser(formatter=BetterFormatter(), usage=usage, version='%%prog %s' % __version__,
       description='''If TABLE_ID isn't present, then %prog assumes that you want a list of profiles in your account, which contains TABLE IDs.''',
-      epilog='''You may need to use --no-color if you are using Windows.''')
+      epilog='''Notes: You may need to use --no-color if you are using Windows.''')
 
-  parser.add_option('-d', '--dimension',
-      type='str', dest='dimension', default='ga:medium',
+  parser.add_option('-d', '--dimensions',
+      type='str', dest='dimensions', default='ga:date,ga:medium',
       help='Dimension to chart with [default: %default]',
       )
   parser.add_option('-m', '--metric',
@@ -341,21 +406,25 @@ def main():
       type='str', dest='section',
       help='Section of configuration file',
       )
-  parser.add_option('-g', '--group-by',
-      type='str', dest='group',
-      help='Groupping data [values: %s]' % ', '.join(group_funcs.keys()),
+  parser.add_option('-g',
+      type='str', dest='group', default='0',
+      help='Which dimensions to group data, comma-separated-value of index values (0-based) of dimensions [default: %default]',
+      )
+  parser.add_option('--sort',
+      type='str', dest='sort', default='ga:date',
+      help='Sory by which dimenstions',
       )
   parser.add_option('-a', '--moving-average',
       type='int', dest='moving_average', default=0,
       help='Length of moving average filter [default: %default]',
       )
-  parser.add_option('-s', '--date-start',
-      type='str', dest='date_start',
+  parser.add_option('-s', '--start-date',
+      type='str', dest='start_date',
       default=(dt.datetime.utcnow() - dt.timedelta(days=30, hours=8)).strftime('%Y-%m-%d'),
       help='Date of the start of data [default: %default]',
       )
-  parser.add_option('-e', '--date-end',
-      type='str', dest='date_end',
+  parser.add_option('-e', '--end-date',
+      type='str', dest='end_date',
       default=(dt.datetime.utcnow() - dt.timedelta(days=1, hours=8)).strftime('%Y-%m-%d'),
       help='Date of the end of data [default: %default]',
       )
@@ -413,10 +482,8 @@ def main():
   
   if not (account['email'] and account['password'] and account['table_id']):
     parser.error('Need EMAIL PASSWORD TABLE_ID')
-  if options.date_start > options.date_end:
+  if options.start_date > options.end_date:
     parser.error('Date of the start must be earlier than or equal to date of the end')
-  if options.group and options.group not in group_funcs.keys():
-    parser.error('Data can only be groupped by one of %s' % ', '.join(group_funcs.keys()))
 
   if len(args) == 3:
     account['table_id'] = args[2]
@@ -427,8 +494,9 @@ def main():
       tmpdir,
       md5('|'.join([
           account['email'], account['table_id'],
-          options.date_start, options.date_end,
-          options.dimension, options.metric, options.filters,
+          options.start_date, options.end_date,
+          options.dimensions, options.metric, options.filters,
+          options.sort,
           ])).hexdigest()
       ])
 
@@ -447,10 +515,7 @@ def main():
     client.ClientLogin(account['email'], account['password'],
         source=SOURCE_APP_NAME)
     
-    data = retrieve_data(client, account['table_id'],
-        [options.date_start, options.date_end],
-        options.dimension, options.metric, options.filters,
-        )
+    data = retrieve_data(client, account['table_id'], options)
     if options.use_cache:
       datafile = shelve.open(cache_file)
       datafile['data'] = data
@@ -458,10 +523,8 @@ def main():
       print 'Save data to cache file: %s' % cache_file
       print
 
-  print_text_result(data, width=options.width, filled=options.filled,
-      grouping=options.group, moving_average=options.moving_average,
-      center=options.center, color=options.color
-      )
+  group_data(data, options)
+  print_text_result(data, options)
 
 
 if __name__ == '__main__':
