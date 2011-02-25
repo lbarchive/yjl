@@ -155,6 +155,11 @@ $(function(){
           })
       ;
 
+  // Fix a > code style
+  $('a > code').each(function(idx, code) {
+      $(code.parentNode).addClass('has-code');
+      });
+
   // Don't go below?
   if (document.location.protocol == 'file:' || document.location.host == 'localhost')
     return

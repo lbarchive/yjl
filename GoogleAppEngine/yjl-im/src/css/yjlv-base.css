@@ -25,23 +25,6 @@ a:hover {
   text-decoration: underline;
 }
 
-a.highlighted {
-  background-color: #7C93A1;
-  border-radius: 0.5ex;
-  box-shadow: 0 0 0.5ex #7C93A1;
-  color: #fff;
-  margin-left: -0.5ex;
-  margin-right: -0.5ex;
-  padding-left: 0.5ex;
-  padding-right: 0.5ex;
-}
-
-body.Dark a.highlighted {
-  background-color: #888;
-  box-shadow: 0 0 0.5ex #888;
-  color: #aae;
-}
-
 ol,
 ul {
   padding-left: 0;
@@ -448,15 +431,65 @@ body.Dark .post-content img {
 .post-content code {
   background-color:#eee;
   font-family: "Envy Code R", "Courier New";
-  -moz-border-radius:5px;
-  -webkit-border-radius:5px;
-  border-radius:5px;
-  padding: 0 0.5ex;
+  -moz-border-radius:0.5ex;
+  -webkit-border-radius:0.5ex;
+  border-radius: 0.5ex;
+  margin-left: -0.5ex;
+  margin-right: -0.5ex;
+  padding-left: 0.5ex;
+  padding-right: 0.5ex;
 }
 
 body.Dark .post-content code {
   background-color:#666;
   color: #aaa;
+}
+
+.post-content a.has-code:hover {
+  text-decoration: none;
+}
+
+.post-content a.has-code:hover code {
+  text-decoration: underline;
+}
+
+.post-content a.has-code > code {
+  color: #249FA3;
+}
+
+.post-content a.highlighted {
+  background-color: #7C93A1;
+  border-radius: 0.5ex;
+  box-shadow: 0 0 0.5ex #7C93A1;
+  color: #fff;
+  margin-left: -0.5ex;
+  margin-right: -0.5ex;
+  padding-left: 0.5ex;
+  padding-right: 0.5ex;
+}
+
+body.Dark .post-content a.highlighted {
+  background-color: #888;
+  box-shadow: 0 0 0.5ex #888;
+  color: #eee;
+}
+
+.post-content a.has-code.highlighted {
+  background: none;
+  border-radius: 0;
+  box-shadow: none;
+}
+
+.post-content a.has-code.highlighted > code {
+  background-color: #7C93A1;
+  box-shadow: 0 0 0.5ex #7C93A1;
+  color: #fff;
+}
+
+body.Dark .post-content a.has-code.highlighted > code {
+  background-color: #888;
+  box-shadow: 0 0 0.5ex #888;
+  color: #eee;
 }
 
 .post-content pre {
