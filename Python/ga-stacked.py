@@ -184,6 +184,11 @@ def print_legend(dim_symbols, width=80, color=True):
   print
 
 
+def print_lr(left, right, width=80):
+
+  print ('%s%%%ds' % (left, width - len(left))) % right
+
+
 def print_text_result(data, width=80, filled=False, moving_average=0, grouping=None, center=False, color=True):
 
   if not data['meta']['total_results']:
@@ -233,17 +238,17 @@ def print_text_result(data, width=80, filled=False, moving_average=0, grouping=N
       new_data[date]['all'] = sum(new_data[date].values())
     data = new_data
 
+  total_value = sum(v['all'] for v in data.values())
   max_all_value = max(v['all'] for v in data.values())
 
   query = meta['query']
   dim = query['dimensions'].replace('ga:date', '').lstrip(',')
   if not dim:
     dim = 'None'
-  date = 'Date: %s -> %s' % (query['start-date'], query['end-date'])
-  print ('Dimensions: %s%%%ds' % (dim, width - len(dim) - len('Dimensions: '))) % date
+  print_lr('Dimensions: %s' % dim, 'Date: %s -> %s' % (
+      query['start-date'], query['end-date']), width)
   print 'Metric    : %s' % query['metrics']
-  print ('Filter    : %s%%%df' % (query.get('filters', 'None'),
-      width - len(query.get('filters', 'None')) - len('Filter    : '))) % max_all_value
+  print_lr('Filter    : %s' % query.get('filters', 'None'), max_all_value, width)
   print '-'*width
 
   date_width = len(str(dates[0]))
@@ -284,7 +289,8 @@ def print_text_result(data, width=80, filled=False, moving_average=0, grouping=N
     else:
       print line
   print '-'*width
-  print ('%%%df' % width) % max_all_value
+  print_lr('Total: %s' % total_value, max_all_value, width)
+
   print_legend(dim_symbols, width=width, color=color)
 
 
