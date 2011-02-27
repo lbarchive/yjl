@@ -517,6 +517,26 @@ body.Dark .post-content pre {
   overflow-x: auto;
 }
 
+.gist {
+  background-color: none !important;
+  border: none !important;
+}
+
+.gist-file {
+  -moz-border-radius:5px;
+  -webkit-border-radius:5px;
+  border-radius:5px;
+  border: 1px solid #444 !important;
+}
+
+.gist-data {
+  border-bottom: none !important;
+}
+
+.gist-file, .gist-data, .gist-meta {
+  background-color: #444 !important;
+}
+
 /*
 
 Zenburn style from voldmar.ru (c) Vladimir Epifanov [voldmar@voldmar.ru]
