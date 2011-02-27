@@ -32,8 +32,12 @@ SOURCE_APP_NAME = 'ga-stacked.py'
 
 def retrieve_data(client, table_id, options):
 
-  dimensions = options.dimensions.split(',')
-  metrics = options.metrics.split(',')
+  dimensions = []
+  if options.dimensions:
+    dimensions = options.dimensions.split(',')
+  metrics = []
+  if options.metrics:
+    metrics = options.metrics.split(',')
 
   # Building query
   query = {
@@ -294,6 +298,46 @@ def print_text_result(data, options):
 
   print_legend(dim_symbols, width=width, color=color)
 
+
+def print_table(data, options):
+
+  query = data['query']
+  results = data['results']
+  dimensions = data['dimensions']
+  metrics = data['metrics']
+
+  met_fmt = '%.3f'
+  # Find field length
+  dim_len = [0]*(len(dimensions))
+  met_len = [0]*(len(metrics))
+  met_sum = [0]*(len(metrics))
+
+  for i in range(len(dim_len)):
+    dim_len[i] = max(max(len(r[i]) for r in results), len(dimensions[i]))
+  for i in range(len(met_len)):
+    r_i = i + len(dim_len)
+    met_sum[i] = sum(r[r_i] for r in results)
+    met_len[i] = max(
+        len(met_fmt % max(r[r_i] for r in results)),
+        len(metrics[i]),
+        len(met_fmt % met_sum[i]),
+        )
+
+  print 'Date  : %s -> %s' % (query['start-date'], query['end-date'])
+  print 'Filter: %s' % query.get('filters', 'None')
+  print
+  fmt_str = ' | '.join(filter(None, (
+      ' '.join('%%-%ds' % dim_len[i] for i in range(len(dim_len))),
+      ' '.join('%%%d.3f' % met_len[i] for i in range(len(met_len))),
+      )))
+  header = fmt_str.replace('.3f', 's') % tuple(data['dimensions'] + data['metrics'])
+  print header
+  print '-'*len(header)
+  for r in results:
+    print fmt_str % tuple(r)
+  print '='*len(header)
+  print fmt_str % tuple(['']*len(dim_len) + met_sum)
+
 # BetterFormatter.py
 # http://code.google.com/p/yjl/source/browse/Python/snippet/BetterFormatter.py
 # Copyright (c) 2001-2006 Gregory P. Ward.  All rights reserved.
@@ -437,6 +481,10 @@ def main():
       default=(dt.datetime.utcnow() - dt.timedelta(days=1, hours=8)).strftime('%Y-%m-%d'),
       help='Date of the end of data [default: %default]',
       )
+  parser.add_option('--table',
+      dest='print_table', default=False, action='store_true',
+      help='Print a table of all dimensions and metrics',
+      )
 
   options, args = parser.parse_args()
 
@@ -532,8 +580,11 @@ def main():
       print 'Save data to cache file: %s' % cache_file
       print
 
-  group_data(data, options)
-  print_text_result(data, options)
+  if options.print_table or not options.dimensions:
+    print_table(data, options)
+  else:
+    group_data(data, options)
+    print_text_result(data, options)
 
 
 if __name__ == '__main__':
