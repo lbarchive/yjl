@@ -33,6 +33,7 @@ SOURCE_APP_NAME = 'ga-stacked.py'
 def retrieve_data(client, table_id, options):
 
   dimensions = options.dimensions.split(',')
+  metrics = options.metrics.split(',')
 
   # Building query
   query = {
@@ -40,7 +41,7 @@ def retrieve_data(client, table_id, options):
       'start-date': options.start_date,
       'end-date': options.end_date,
       'dimensions': ','.join(dimensions),
-      'metrics': options.metric,
+      'metrics': ','.join(metrics),
       'sort': options.sort,
       }
   if options.filters:
@@ -70,17 +71,22 @@ def retrieve_data(client, table_id, options):
   for entry in entries:
     data.append(
         [entry.dimension[i].value for i in range(len(entry.dimension))] +
-        [float(entry.metric[0].value)])
+        [float(m.value) for m in entry.metric])
 
   return {
       'results': data,
       'query': query,
+      'dimensions': dimensions,
+      'metrics': metrics,
+      'metrics_start': len(dimensions),
       }
 
 
 def group_data(data, options):
 
-  dimensions = options.dimensions.split(',')
+  dimensions = data['dimensions']
+  # Which metric as value
+  metric_index = data['metrics_start'] + options.m
   keys = []
   key_idxs = [int(g) for g in options.group.split(',')]
   dim_idxs = [idx for idx in range(len(dimensions)) if idx not in key_idxs]
@@ -90,7 +96,7 @@ def group_data(data, options):
   for r in data['results']:
     key = ' '.join(r[idx] for idx in key_idxs)
     dim = ' '.join(r[idx] for idx in dim_idxs)
-    metric_value = r[-1]
+    metric_value = r[metric_index]
     dim_values.add(dim)
     if key not in group_data:
       keys.append(key)
@@ -103,7 +109,6 @@ def group_data(data, options):
         dims[dim_value] = 0.0
     dims['all'] = sum(dims.values())
   data['group_data'] = group_data
-  data['dimensions'] = dimensions
   data['group_by'] = ','.join(dimensions[idx] for idx in key_idxs)
   data['key_idxs'] = key_idxs
   data['dim_idxs'] = dim_idxs
@@ -243,7 +248,7 @@ def print_text_result(data, options):
   filled = options.filled
   print 'Dimensions: %s' % query['dimensions']
   print 'Group by  : %s' % data['group_by']
-  print_lr('Metric    : %s' % query['metrics'], 'Date: %s -> %s' % (
+  print_lr('Metric    : %s' % data['metrics'][options.m], 'Date: %s -> %s' % (
       query['start-date'], query['end-date']), width)
   print_lr('Filter    : %s' % query.get('filters', 'None'), max_all_value, width)
   print '-'*width
@@ -368,13 +373,13 @@ def main():
 
   parser.add_option('-d', '--dimensions',
       type='str', dest='dimensions', default='ga:date,ga:medium',
-      help='Dimension to chart with [default: %default]',
+      help='Dimensions to chart with [default: %default]',
       )
-  parser.add_option('-m', '--metric',
-      type='str', dest='metric', default='ga:visits',
-      help='Metric to chart with [default: %default]',
+  parser.add_option('-m', '--metrics',
+      type='str', dest='metrics', default='ga:visits',
+      help='Metrics data to download [default: %default]',
       )
-  parser.add_option('-f', '--filter',
+  parser.add_option('-f', '--filters',
       type='str', dest='filters', default='',
       help='Filter for querying data',
       )
@@ -409,6 +414,10 @@ def main():
   parser.add_option('-g',
       type='str', dest='group', default='0',
       help='Which dimensions to group data, comma-separated-value of index values (0-based) of dimensions [default: %default]',
+      )
+  parser.add_option('--m',
+      type='int', dest='m', default=0,
+      help='Which metric for stacked area chart. 0-based index value [default: %default]',
       )
   parser.add_option('--sort',
       type='str', dest='sort', default='ga:date',
@@ -495,7 +504,7 @@ def main():
       md5('|'.join([
           account['email'], account['table_id'],
           options.start_date, options.end_date,
-          options.dimensions, options.metric, options.filters,
+          options.dimensions, options.metrics, options.filters,
           options.sort,
           ])).hexdigest()
       ])
