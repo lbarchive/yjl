@@ -42,6 +42,7 @@ def retrieve_data(client, table_id, options):
   # Building query
   query = {
       'ids': table_id,
+      'start-index': 1,
       'start-date': options.start_date,
       'end-date': options.end_date,
       'dimensions': ','.join(dimensions),
@@ -51,7 +52,7 @@ def retrieve_data(client, table_id, options):
   if options.filters:
     query['filters'] = options.filters
   items_per_page = 1000
-  query['max-results'] = items_per_page
+  query['max-results'] = min(items_per_page, options.limit) if options.limit else items_per_page
 
   # Retrieving data
   entries = []
@@ -62,7 +63,11 @@ def retrieve_data(client, table_id, options):
     feed = client.GetDataFeed(data_query)
     entries += feed.entry
     total_results = int(feed.total_results.text)
+    if options.limit and options.limit < total_results:
+      total_results = options.limit
     query['start-index'] = int(feed.start_index.text) + len(feed.entry)
+    if options.limit and query['start-index'] + items_per_page > options.limit + 1:
+      query['max-results'] = options.limit - query['start-index'] + 1
     sys.stdout.write('.')
     sys.stdout.flush()
   del query['start-index']
@@ -252,9 +257,10 @@ def print_text_result(data, options):
   filled = options.filled
   print 'Dimensions: %s' % query['dimensions']
   print 'Group by  : %s' % data['group_by']
-  print_lr('Metric    : %s' % data['metrics'][options.m], 'Date: %s -> %s' % (
-      query['start-date'], query['end-date']), width)
-  print_lr('Filter    : %s' % query.get('filters', 'None'), max_all_value, width)
+  print 'Metrics   : %s' % data['metrics'][options.m]
+  print_lr('Filters   : %s' % query.get('filters', 'None'),
+      'Date: %s -> %s' % (query['start-date'], query['end-date']), width)
+  print_lr('Limit     : %d' % options.limit, max_all_value, width)
   print '-'*width
 
   key_width = max(len(k) for k in keys)
@@ -325,6 +331,7 @@ def print_table(data, options):
 
   print 'Date  : %s -> %s' % (query['start-date'], query['end-date'])
   print 'Filter: %s' % query.get('filters', 'None')
+  print 'Limit : %d' % options.limit
   print
   fmt_str = ' | '.join(filter(None, (
       ' '.join('%%-%ds' % dim_len[i] for i in range(len(dim_len))),
@@ -467,6 +474,10 @@ def main():
       type='str', dest='sort', default='ga:date',
       help='Sory by which dimenstions',
       )
+  parser.add_option('-l',
+      type='int', dest='limit', default=0,
+      help='Limit the number of returned result, 0 means no limit. [default: %default]',
+      )
   parser.add_option('-a', '--moving-average',
       type='int', dest='moving_average', default=0,
       help='Length of moving average filter [default: %default]',
@@ -553,7 +564,7 @@ def main():
           account['email'], account['table_id'],
           options.start_date, options.end_date,
           options.dimensions, options.metrics, options.filters,
-          options.sort,
+          options.sort, str(options.limit),
           ])).hexdigest()
       ])
 
