@@ -12,7 +12,7 @@ body.Dark {
 }
 
 body.Geek,
-body.Geek * {
+body.Geek *:not(.dsq-font) {
   font-family: 'Envy Code R', monospace !important;
 }
 
