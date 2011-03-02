@@ -255,10 +255,11 @@ def print_text_result(data, options):
   color = options.color
   center = options.center
   filled = options.filled
-  print 'Dimensions: %s' % query['dimensions']
-  print 'Group by  : %s' % data['group_by']
-  print 'Metrics   : %s' % data['metrics'][options.m]
-  print_lr('Filters   : %s' % query.get('filters', 'None'),
+  print 'Dimensions: %s' % query['dimensions'].replace('ga:', '')
+  print 'Group by  : %s' % data['group_by'].replace('ga:', '')
+  print 'Metrics   : %s' % data['metrics'][options.m].replace('ga:', '')
+  print 'Filters   : %s' % query.get('filters', 'None').replace('ga:', '')
+  print_lr('Sort      : %s' % query.get('sort', 'None').replace('ga:', ''),
       'Date: %s -> %s' % (query['start-date'], query['end-date']), width)
   print_lr('Limit     : %d' % options.limit, max_all_value, width)
   print '-'*width
@@ -311,6 +312,8 @@ def print_table(data, options):
   results = data['results']
   dimensions = data['dimensions']
   metrics = data['metrics']
+  s_dimensions = list(dim.replace('ga:', '') for dim in dimensions)
+  s_metrics = list(met.replace('ga:', '') for met in metrics)
 
   met_fmt = '%.3f'
   # Find field length
@@ -319,25 +322,26 @@ def print_table(data, options):
   met_sum = [0]*(len(metrics))
 
   for i in range(len(dim_len)):
-    dim_len[i] = max(max(len(r[i]) for r in results), len(dimensions[i]))
+    dim_len[i] = max(max(len(r[i]) for r in results), len(s_dimensions[i]))
   for i in range(len(met_len)):
     r_i = i + len(dim_len)
     met_sum[i] = sum(r[r_i] for r in results)
     met_len[i] = max(
         len(met_fmt % max(r[r_i] for r in results)),
-        len(metrics[i]),
+        len(s_metrics[i]),
         len(met_fmt % met_sum[i]),
         )
 
   print 'Date  : %s -> %s' % (query['start-date'], query['end-date'])
-  print 'Filter: %s' % query.get('filters', 'None')
+  print 'Filter: %s' % query.get('filters', 'None').replace('ga:', '')
+  print 'Sort  : %s' % query.get('sort', 'None').replace('ga:', '')
   print 'Limit : %d' % options.limit
   print
   fmt_str = ' | '.join(filter(None, (
       ' '.join('%%-%ds' % dim_len[i] for i in range(len(dim_len))),
       ' '.join('%%%d.3f' % met_len[i] for i in range(len(met_len))),
       )))
-  header = fmt_str.replace('.3f', 's') % tuple(data['dimensions'] + data['metrics'])
+  header = fmt_str.replace('.3f', 's') % tuple(s_dimensions + s_metrics)
   print header
   print '-'*len(header)
   for r in results:
