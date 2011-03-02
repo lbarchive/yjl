@@ -47,8 +47,9 @@ def retrieve_data(client, table_id, options):
       'end-date': options.end_date,
       'dimensions': ','.join(dimensions),
       'metrics': ','.join(metrics),
-      'sort': options.sort,
       }
+  if options.sort:
+    query['sort'] = options.sort
   if options.filters:
     query['filters'] = options.filters
   items_per_page = 1000
