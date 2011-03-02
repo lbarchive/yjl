@@ -68,8 +68,9 @@ def print_general(my_client, table_id,
       'metrics': 'ga:visits,ga:pageviews,ga:avgTimeOnSite,ga:bounces'})
   feed = my_client.GetDataFeed(data_query)
   data = [{}, {}]
+  dt_date_before = dt.datetime.strptime(date_before, '%Y-%m-%d')
   for entry in feed.entry:
-    i = int(entry.dimension[0].value) - int(date_before.replace('-', ''))
+    i = (dt.datetime.strptime(entry.dimension[0].value, '%Y%m%d') - dt_date_before).days
     medium_name = entry.dimension[1].value
     if medium_name not in data[i]:
       data[i][medium_name] = {}
@@ -111,7 +112,9 @@ def print_general(my_client, table_id,
   print
   print '%-10s  %-15s %-15s %-18s %-18s' % tuple(['ga:medium'] + cols)
   mediums = list(data[1].keys())
+  mediums.remove('all')
   mediums.sort()
+  mediums.append('all')
   for medium_name in mediums:
     medium = data[1][medium_name]
     print '%-10s: %3d (%8.2f%%) %3d (%8.2f%%) %6.2f (%8.2f%%) %6.2f%% (%8.2f%%)' % tuple([medium_name] + list(chain(*zip([medium[metric_name] for metric_name in cols], [diff[medium_name][metric_name] for metric_name in cols]))))
