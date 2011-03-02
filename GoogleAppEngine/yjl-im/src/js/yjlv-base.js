@@ -39,10 +39,8 @@ $(function(){
       $('#theme-switcher').text(theme)
       }
     function switch_theme() {
-      if (localStorage['theme'] == 'Dark')
-        localStorage['theme'] = 'Light';
-      else
-        localStorage['theme'] = 'Dark';
+      var theme_names = ['Light', 'Light Geek', 'Dark', 'Dark Geek'];
+      localStorage['theme'] = theme_names[($.inArray(localStorage['theme'], theme_names) + 1) % theme_names.length];
       set_theme();
       }
     $('<div/>')

@@ -11,6 +11,11 @@ body.Dark {
   color: #aaa;
 }
 
+body.Geek,
+body.Geek * {
+  font-family: 'Envy Code R', monospace !important;
+}
+
 a {
   color: #249FA3;
   text-decoration: none;
@@ -170,7 +175,6 @@ body.Dark #blog-header {
   font-family: 'Moms Typewriter';
   font-size: 4em;
   margin: 0.5em 0 0 0;
-  text-shadow: #000 0 0 3px;
 }
 
 #blog-title > a,
@@ -270,7 +274,6 @@ article > header > h1 {
 article > header > time {
   color: #444;
   font-size: 1.5em;
-  text-shadow: #AAA 0 0 2px;
 }
 
 body.Dark article > header > time {
@@ -431,13 +434,11 @@ body.Dark .post-content img {
 .post-content code {
   background-color:#eee;
   font-family: "Envy Code R", "Courier New";
-  -moz-border-radius:0.5ex;
-  -webkit-border-radius:0.5ex;
-  border-radius: 0.5ex;
-  margin-left: -0.5ex;
-  margin-right: -0.5ex;
-  padding-left: 0.5ex;
-  padding-right: 0.5ex;
+  border-radius: 3px;
+  margin-left: -2px;
+  margin-right: -2px;
+  padding-left: 2px;
+  padding-right: 2px;
 }
 
 body.Dark .post-content code {
@@ -459,18 +460,16 @@ body.Dark .post-content code {
 
 .post-content a.highlighted {
   background-color: #7C93A1;
-  border-radius: 0.5ex;
-  box-shadow: 0 0 0.5ex #7C93A1;
+  border-radius: 3px;
   color: #fff;
-  margin-left: -0.5ex;
-  margin-right: -0.5ex;
-  padding-left: 0.5ex;
-  padding-right: 0.5ex;
+  margin-left: -2px;
+  margin-right: -2px;
+  padding-left: 2px;
+  padding-right: 2px;
 }
 
 body.Dark .post-content a.highlighted {
   background-color: #888;
-  box-shadow: 0 0 0.5ex #888;
   color: #eee;
 }
 
@@ -482,13 +481,11 @@ body.Dark .post-content a.highlighted {
 
 .post-content a.has-code.highlighted > code {
   background-color: #7C93A1;
-  box-shadow: 0 0 0.5ex #7C93A1;
   color: #fff;
 }
 
 body.Dark .post-content a.has-code.highlighted > code {
   background-color: #888;
-  box-shadow: 0 0 0.5ex #888;
   color: #eee;
 }
 
