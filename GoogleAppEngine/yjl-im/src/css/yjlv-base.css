@@ -155,6 +155,14 @@ body.Dark #theme-switcher {
   padding: 0;
 }
 
+.status-msg-wrap {
+  width: 640px;
+}
+
+.status-msg-border {
+  width: 638px;
+}
+
 /* Blog header stuff
 ==================== */
 
