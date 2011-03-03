@@ -32,8 +32,35 @@ function itch(url) {
 	else if (url.indexOf('flickr.com') != -1) {
 		msg = 'Wandering on Flickr';
 		}
+	else if (url.indexOf('youtube.com') != -1) {
+		msg = 'Could be lost 1 minute and 30 seconds of my life or having a great time on YouTube...';
+		}
 	if (!!msg)
 		io.system('itch.sh "' + msg + '"');
+	}
+
+function fix_yt_home(tab) {
+	var d = tabs.getTab(tab - 1).linkedBrowser.contentDocument;
+	var target_sideblock_ids = ['feedmodule-TOP', 'homepage-side-content'];
+	for (idx in target_sideblock_ids) {
+		var id = target_sideblock_ids[idx];
+		var target = d.getElementById(id);
+		target.parentNode.removeChild(target);
+		}
+	var s = d.createElement('style');
+	s.innerHTML = '\
+#homepage-main-content {\
+	width: 970px;\
+	margin-right: 0;\
+	}\
+.see-more-videos-from-aggregate-feeditem {\
+	margin-right: 0;\
+	}\
+.feedmodule-item-with-x {\
+	width: 16%;\
+	}\
+'
+	d.getElementsByTagName('head')[0].appendChild(s);
 	}
 
 switch (liberator.profileName) {
@@ -49,6 +76,10 @@ switch (liberator.profileName) {
 
 		// ItchApe
 		liberator.execute('autocmd PageLoad .* js itch("<url>")');
+
+		// Fix damn YouTube
+		liberator.execute('autocmd DOMLoad www\\\\.youtube\\\\.com\\\\/$ js fix_yt_home(<tab>)');
+		liberator.execute('autocmd PageLoad www\\\\.youtube\\\\.com\\\\/$ js tabs.getTab(<tab> - 1).linkedBrowser.contentDocument.getElementById("masthead-search-term").blur()');
 		break;
 	case 'Test':
 		// Make command line red
