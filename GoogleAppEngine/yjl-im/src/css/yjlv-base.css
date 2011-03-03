@@ -35,6 +35,11 @@ ul {
   padding-left: 0;
 }
 
+body.OldList ol,
+body.OldList ul {
+  padding-left: 5ex
+}
+
 li > ol,
 li > ul {
   padding-left: 3ex;
@@ -125,9 +130,11 @@ body.Dark input:active {
   position: absolute;
   left: 0;
   top: 0;
-  padding: 0.5ex 1ex 0.5ex 0.5ex;
-  border-bottom-right-radius: 0.5ex;
+  width: 44px;
+  padding: 3px;
+  border-bottom-right-radius: 5px;
   cursor: pointer;
+  text-align: center;
 }
 
 body.Dark #theme-switcher {

@@ -33,20 +33,50 @@ function collapse_pre() {
 $(function(){
   if (window.localStorage) {
     function set_theme() {
-      var theme = localStorage['theme'] ? localStorage['theme'] : 'Light'
+      var theme = localStorage['theme'] ? localStorage['theme'] : 'Light';
+      var geek = localStorage['geek'] == 'true';
+      var old_list = localStorage['old_list'] == 'true';
       $('body').removeClass();
       $('body').addClass(theme);
-      $('#theme-switcher').text(theme)
+      if (geek)
+        $('body').addClass('Geek');
+      if (old_list)
+        $('body').addClass('OldList');
+      $('#theme-switcher')
+          .empty()
+          .append(
+              $('<div>')
+                  .text(theme)
+                  .click(switch_theme)
+              )
+          .append(
+              $('<div>')
+                  .text(geek?'Geeky':'Eggy')
+                  .click(toggle_geek)
+              )
+          .append(
+              $('<div>')
+                  .html(old_list?'&nbsp;&nbsp;|&nbsp;&bull;':'&bull;&nbsp;|&nbsp;&nbsp;')
+                  .click(toggle_old_list)
+              )
+          ;
       }
     function switch_theme() {
-      var theme_names = ['Light', 'Light Geek', 'Dark', 'Dark Geek'];
+      var theme_names = ['Light', 'Dark'];
       localStorage['theme'] = theme_names[($.inArray(localStorage['theme'], theme_names) + 1) % theme_names.length];
+      set_theme();
+      }
+    function toggle_geek() {
+      localStorage['geek'] = (!(localStorage['geek'] == 'true')).toString();
+      set_theme();
+      }
+    function toggle_old_list() {
+      localStorage['old_list'] = (!(localStorage['old_list'] == 'true')).toString();
       set_theme();
       }
     $('<div/>')
         .attr('id', 'theme-switcher')
         .css('top', $('#navbar').height() + 'px')
-        .click(switch_theme)
         .appendTo($('body'));
     set_theme();
     }
