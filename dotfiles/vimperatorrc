@@ -1,17 +1,16 @@
 colorscheme vimPgray
 
 set defsearch=g
-set gui=none,tabs
+set toolbars=none,tabs
 
 " Remove all key mappings
 mapclear
 
-map <F8> :set gui=all<CR>
-map <F9> :set gui=none,tabs<CR>
+map <silent> <F8> :js toggle_toolbars()<CR>
 
 " Tab order rearragement
-map <C-S-PageUp> :tabm -1<CR>
-map <C-S-PageDown> :tabm +1<CR>
+map <silent> <C-S-PageUp> :tabm -1<CR>
+map <silent> <C-S-PageDown> :tabm +1<CR>
 
 " I hate when I want to press <C-w> but I hit q instead
 map <C-q> <Nop>
@@ -20,6 +19,13 @@ map <C-q> <Nop>
 :autocmd!
 
 :js << EOF
+function toggle_toolbars() {
+	if (options.get('toolbars').get().indexOf('nomenu') != -1)
+		options.get('toolbars').set('all')
+	else
+		options.get('toolbars').set('none,tabs')
+	}
+
 function itch(url) {
 	var msg = '';
 	if (url.indexOf('mail.google.com') != -1) {
