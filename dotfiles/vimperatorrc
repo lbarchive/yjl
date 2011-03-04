@@ -1,14 +1,13 @@
 colorscheme vimPgray
 
 set defsearch=g
-set guioptions=rb
+set gui=none,tabs
 
 " Remove all key mappings
 mapclear
 
-map <F8> :set guioptions!=B<CR>
-map <F9> :set guioptions!=m<CR>
-map <F10> :set guioptions!=T<CR>
+map <F8> :set gui=all<CR>
+map <F9> :set gui=none,tabs<CR>
 
 " Tab order rearragement
 map <C-S-PageUp> :tabm -1<CR>
