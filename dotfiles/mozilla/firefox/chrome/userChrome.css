@@ -95,5 +95,17 @@
   font-size: 16px !important;
 }
 
+/* Application button menu */
+
+#appmenu-toolbar-button {
+  -moz-appearance: none !important;
+  background: #aaa !important;
+  border: none !important;
+}
+
+#appmenu-toolbar-button:hover {
+  background: #bbb !important;
+}
+
 /* vim:et:ts=2:sts=2:sw=2:ai
  * */
