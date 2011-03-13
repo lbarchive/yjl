@@ -50,7 +50,8 @@ function fix_yt_home(tab) {
 	for (idx in target_sideblock_ids) {
 		var id = target_sideblock_ids[idx];
 		var target = d.getElementById(id);
-		target.parentNode.removeChild(target);
+		if (target)
+			target.parentNode.removeChild(target);
 		}
 	var s = d.createElement('style');
 	s.innerHTML = '\
@@ -66,6 +67,61 @@ function fix_yt_home(tab) {
 	}\
 '
 	d.getElementsByTagName('head')[0].appendChild(s);
+	}
+
+var lg_track = '';
+var lg_artist = '';
+var lg_album = '';
+var lg_timestamp = 0;
+var lg_timer = undefined;
+
+function lg_submit() {
+	var tab = undefined;
+	for (var idx=0; idx<tabs.count; idx++) {
+		if (tabs.getTab(idx).linkedBrowser.contentDocument.location.href.indexOf('http://listen.grooveshark.com/') != -1) {
+			tab = tabs.getTab(idx);
+			}
+		}
+	if (!tab) {
+		lg_timer = undefined;
+		return;
+		}
+	var w = tab.linkedBrowser.contentWindow.wrappedJSObject;
+	var $ = w.jQuery;
+	var d = tab.linkedBrowser.contentDocument;
+	var $pD = $('#playerDetails');
+	var track = $pD.find('a.song').attr('title');
+	var artist = $pD.find('a.artist').attr('title');
+	var album = $pD.find('a.album').attr('title');
+	var is_stopped = $('#player_play_pause.play').length > 0 && $('#player_elapsed').text() + $('#player_duration').text() != '0:000:00';
+	if (track != lg_track || artist != lg_artist || album != lg_album || is_stopped) {
+		if (lg_track && lg_artist) {
+			if (Math.floor(new Date().valueOf() / 1000) - lg_timestamp >= 30) {
+				// Send scrobble, only do so when has been played for 30 seconds at least. CAVEAT: song length must be at least 30 seconds.
+				// CAVEAT: If single loop is turned on, after the song plays, it won't get scrobbled. Because song info doesn't change and this function doesn't detect for that.
+				var cmdstr = 'lf-submit.sh -s "artist=' + lg_artist.replace(/"/g, '\\"') + '" "track=' + lg_track.replace(/"/g, '\\"') + '" "timestamp=' + lg_timestamp + '"';
+				if (!!lg_album)
+					cmdstr += ' "album=' + lg_album.replace(/"/g, '\\"') + '"';
+				//w.console.log(cmdstr);
+				io.system(cmdstr);
+				}
+			lg_track = lg_artist = lg_album = '';
+			lg_timestamp = 0;
+			}
+		if (!is_stopped && track && artist) {
+			// Send now playing
+			lg_track = track;
+			lg_artist = artist;
+			lg_album = album;
+			lg_timestamp = Math.floor(new Date().valueOf() / 1000);
+			var cmdstr = 'lf-submit.sh -n "artist=' + lg_artist.replace(/"/g, '\\"') + '" "track=' + lg_track.replace(/"/g, '\\"') + '"';
+			if (!!lg_album)
+				cmdstr += ' "album=' + lg_album.replace(/"/g, '\\"') + '"';
+			//w.console.log(cmdstr);
+			io.system(cmdstr);
+			}
+		}
+	lg_timer = setTimeout(lg_submit, 1000);
 	}
 
 switch (liberator.profileName) {
@@ -85,6 +141,9 @@ switch (liberator.profileName) {
 		// Fix damn YouTube
 		liberator.execute('autocmd DOMLoad www\\\\.youtube\\\\.com\\\\/$ js fix_yt_home(<tab>)');
 		liberator.execute('autocmd PageLoad www\\\\.youtube\\\\.com\\\\/$ js tabs.getTab(<tab> - 1).linkedBrowser.contentDocument.getElementById("masthead-search-term").blur()');
+		
+		// Grooveshark
+		liberator.execute('autocmd PageLoad listen\\\\.grooveshark\\\\.com js if (lg_timer == undefined) lg_submit();');
 		break;
 	case 'Test':
 		// Make command line red
