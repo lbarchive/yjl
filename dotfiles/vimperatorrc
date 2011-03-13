@@ -73,6 +73,7 @@ var lg_track = '';
 var lg_artist = '';
 var lg_album = '';
 var lg_timestamp = 0;
+var lg_duration = 0;
 var lg_timer = undefined;
 
 function lg_submit() {
@@ -93,11 +94,15 @@ function lg_submit() {
 	var track = $pD.find('a.song').attr('title');
 	var artist = $pD.find('a.artist').attr('title');
 	var album = $pD.find('a.album').attr('title');
-	var is_stopped = $('#player_play_pause.play').length > 0 && $('#player_elapsed').text() + $('#player_duration').text() != '0:000:00';
+	function _t(id) {
+		var t = $('#' + id).text().split(':');
+		return parseInt(t[0]) * 60 + parseInt(t[1]);
+		}
+	var is_stopped = $('#player_play_pause.play').length > 0 && Math.abs(_t('player_elapsed') - _t('player_duration')) <= 1;
 	if (track != lg_track || artist != lg_artist || album != lg_album || is_stopped) {
 		if (lg_track && lg_artist) {
-			if (Math.floor(new Date().valueOf() / 1000) - lg_timestamp >= 30) {
-				// Send scrobble, only do so when has been played for 30 seconds at least. CAVEAT: song length must be at least 30 seconds.
+			if (Math.floor(new Date().valueOf() / 1000) - lg_timestamp > lg_duration * 0.5) {
+				// Scrobbling
 				// CAVEAT: If single loop is turned on, after the song plays, it won't get scrobbled. Because song info doesn't change and this function doesn't detect for that.
 				var cmdstr = 'lf-submit.sh -s "artist=' + lg_artist.replace(/"/g, '\\"') + '" "track=' + lg_track.replace(/"/g, '\\"') + '" "timestamp=' + lg_timestamp + '"';
 				if (!!lg_album)
@@ -106,7 +111,7 @@ function lg_submit() {
 				io.system(cmdstr);
 				}
 			lg_track = lg_artist = lg_album = '';
-			lg_timestamp = 0;
+			lg_timestamp = lg_duration = 0;
 			}
 		if (!is_stopped && track && artist) {
 			// Send now playing
@@ -114,12 +119,16 @@ function lg_submit() {
 			lg_artist = artist;
 			lg_album = album;
 			lg_timestamp = Math.floor(new Date().valueOf() / 1000);
+			lg_duration = _t('player_duration');
 			var cmdstr = 'lf-submit.sh -n "artist=' + lg_artist.replace(/"/g, '\\"') + '" "track=' + lg_track.replace(/"/g, '\\"') + '"';
 			if (!!lg_album)
 				cmdstr += ' "album=' + lg_album.replace(/"/g, '\\"') + '"';
 			//w.console.log(cmdstr);
 			io.system(cmdstr);
 			}
+		}
+	else if (track == lg_track && artist == lg_artist && album == lg_album && lg_duration != _t('player_duration')) {
+		lg_duration = _t('player_duration');
 		}
 	lg_timer = setTimeout(lg_submit, 1000);
 	}
