@@ -204,8 +204,19 @@ void update_thm(int ID) {
 	char *color;
 	int thm;
 
-	FILE *f = fopen("/proc/acpi/thermal_zone/THM/temperature", "r");
-	fscanf(f, "%*s %d", &thm);
+	FILE *f;
+	if ((f = fopen("/proc/acpi/thermal_zone/THM/temperature", "r")) != NULL) {
+		fscanf(f, "%*s %d", &thm);
+		}
+	// kernel 2.6.37+ doesn't have /proc/acpi/thermal_zone
+	else if ((f = fopen("/sys/class/thermal/thermal_zone0/temp", "r")) != NULL) {
+		fscanf(f, "%d", &thm);
+		thm /= 1000;
+		}
+	else {
+		sprintf(dzen_str, "^fg(#a00)^i(icons/temp.xbm) --°C^fg()");
+		return;
+		}
 	fclose(f);
 
 	color = used_color(thm, 70, -1, 40);
