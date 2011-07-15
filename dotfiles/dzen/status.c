@@ -554,7 +554,7 @@ int main(void) {
 
 	chdir("/home/livibetter/.dzen");
 	
-	dzen = popen("dzen2 -bg '#303030' -fg '#aaa' -fn 'Envy Code R-9' -x 840 -y 2084 -w 840 -h 18 -ta right -e 'button3=;onstart=lower'", "w");
+	dzen = popen("dzen2 -bg '#303030' -fg '#aaa' -fn 'Envy Code R-9' -x 840 -y 0 -w 840 -h 17 -ta right -e 'button3='", "w");
 	if (!dzen) {
 		fprintf (stderr, "can not open dzen2.\n");
 		return 1;

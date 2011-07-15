@@ -32,9 +32,12 @@ export EDITOR
 # .xinitrc ###################################################################
 
 xrdb -merge .Xresources
-which $1 &> /dev/null
-if [ "$?" != "0" ]; then
-	exec startfluxbox
-else
-	exec $1
+xset fp+ ~/.fonts/Envy\ Code\ R/
+setxkbmap -model pc104 -layout us -option compose:menu
+
+urxvtd -q -o -f
+
+if [[ "$1" == "dwm" ]]; then
+	{ sleep 1s ; dzen-status ; } &
 fi
+exec "$1"
