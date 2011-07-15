@@ -2,10 +2,13 @@ colorscheme vimPgray
 
 set defsearch=g
 set toolbars=none,tabs
+set editor="urxvt -name vimp-ext-editor -e vim"
 
 " Remove all key mappings
 mapclear
 
+map <silent> <C-F8> :js toggle_bottombar()<CR>
+map <silent> <S-F8> :js toggle_tabs()<CR>
 map <silent> <F8> :js toggle_toolbars()<CR>
 
 " Tab order rearragement
@@ -15,43 +18,55 @@ map <silent> <C-S-PageDown> :tabm +1<CR>
 " I hate when I want to press <C-w> but I hit q instead
 map <C-q> <Nop>
 
+" Some version around 3.1 or 3.2, key d cannot delete pinned tab anymore
+map D :tabclose!<CR>
+
+" Toggle app tab
+map <C-A-a> :set apptab!<CR>
+
 " Clean up all auto commands
 :autocmd!
 
 :js << EOF
-function toggle_toolbars() {
-	if (options.get('toolbars').get().indexOf('nomenu') != -1)
-		options.get('toolbars').set('all')
-	else
-		options.get('toolbars').set('none,tabs')
+function toggle_bottombar() {
+	var bb = document.getElementById('liberator-bottombar');
+	if (!bb)
+		return;
+	bb.style.height = (bb.style.height == '') ? '0px' : '';
+	bb.style.overflow = (bb.style.height == '') ? '' : 'hidden';
 	}
 
-function itch(url) {
-	var msg = '';
-	if (url.indexOf('mail.google.com') != -1) {
-		msg = 'Reading emails';
-		}
-	else if (url.indexOf('www.google.com/reader/') != -1) {
-		msg = 'Reading feeds';
-		}
-	else if (url.indexOf('flickr.com') != -1) {
-		msg = 'Wandering on Flickr';
-		}
-	else if (url.indexOf('youtube.com') != -1) {
-		msg = 'Could be lost 1 minute and 30 seconds of my life or having a great time on YouTube...';
-		}
-	if (!!msg)
-		io.system('itch.sh "' + msg + '"');
+function toggle_toolbars() {
+	if (options.get('toolbars').get().indexOf('nomenu') != -1)
+		options.get('toolbars').set('addons,bookmarks,menu,navigation')
+	else
+		options.get('toolbars').set('noaddons,nobookmarks,nomenu,nonavigation');
+	}
+
+function toggle_tabs() {
+	if (options.get('toolbars').get().indexOf('notabs') != -1)
+		options.get('toolbars').set('tabs')
+	else
+		options.get('toolbars').set('notabs');
 	}
 
 function fix_yt_home(tab) {
 	var d = tabs.getTab(tab - 1).linkedBrowser.contentDocument;
-	var target_sideblock_ids = ['feedmodule-TOP', 'homepage-side-content'];
-	for (idx in target_sideblock_ids) {
-		var id = target_sideblock_ids[idx];
+	var target_ids = ['homepage-side-content'];
+	for (idx in target_ids) {
+		var id = target_ids[idx];
 		var target = d.getElementById(id);
 		if (target)
 			target.parentNode.removeChild(target);
+		}
+	var target_classes = ['top-videos-module'];
+	for (idx in target_classes) {
+		var cls = target_classes[idx];
+		var targets = d.getElementsByClassName(cls);
+		while (targets.length) {
+			var target = targets[0];
+			target.parentNode.removeChild(target);
+			}
 		}
 	var s = d.createElement('style');
 	s.innerHTML = '\
@@ -69,103 +84,40 @@ function fix_yt_home(tab) {
 	d.getElementsByTagName('head')[0].appendChild(s);
 	}
 
-var lg_track = '';
-var lg_artist = '';
-var lg_album = '';
-var lg_timestamp = 0;
-var lg_duration = 0;
-var lg_timer = undefined;
-
-function lg_submit() {
-	var tab = undefined;
-	for (var idx=0; idx<tabs.count; idx++) {
-		if (tabs.getTab(idx).linkedBrowser.contentDocument.location.href.indexOf('http://listen.grooveshark.com/') != -1) {
-			tab = tabs.getTab(idx);
-			}
-		}
-	if (!tab) {
-		lg_timer = undefined;
-		return;
-		}
-	var w = tab.linkedBrowser.contentWindow.wrappedJSObject;
-	var $ = w.jQuery;
-	var d = tab.linkedBrowser.contentDocument;
-	var $pD = $('#playerDetails');
-	var track = $pD.find('a.song').attr('title');
-	var artist = $pD.find('a.artist').attr('title');
-	var album = $pD.find('a.album').attr('title');
-	function _t(id) {
-		var t = $('#' + id).text().split(':');
-		return parseInt(t[0]) * 60 + parseInt(t[1]);
-		}
-	var is_stopped = $('#player_play_pause.play').length > 0 && Math.abs(_t('player_elapsed') - _t('player_duration')) <= 1;
-	if (track != lg_track || artist != lg_artist || album != lg_album || is_stopped) {
-		if (lg_track && lg_artist) {
-			if (Math.floor(new Date().valueOf() / 1000) - lg_timestamp > lg_duration * 0.5) {
-				// Scrobbling
-				// CAVEAT: If single loop is turned on, after the song plays, it won't get scrobbled. Because song info doesn't change and this function doesn't detect for that.
-				var cmdstr = 'lf-submit.sh -s "artist=' + lg_artist.replace(/"/g, '\\"') + '" "track=' + lg_track.replace(/"/g, '\\"') + '" "timestamp=' + lg_timestamp + '"';
-				if (!!lg_album)
-					cmdstr += ' "album=' + lg_album.replace(/"/g, '\\"') + '"';
-				//w.console.log(cmdstr);
-				io.system(cmdstr);
-				}
-			lg_track = lg_artist = lg_album = '';
-			lg_timestamp = lg_duration = 0;
-			}
-		if (!is_stopped && track && artist) {
-			// Send now playing
-			lg_track = track;
-			lg_artist = artist;
-			lg_album = album;
-			lg_timestamp = Math.floor(new Date().valueOf() / 1000);
-			lg_duration = _t('player_duration');
-			var cmdstr = 'lf-submit.sh -n "artist=' + lg_artist.replace(/"/g, '\\"') + '" "track=' + lg_track.replace(/"/g, '\\"') + '"';
-			if (!!lg_album)
-				cmdstr += ' "album=' + lg_album.replace(/"/g, '\\"') + '"';
-			//w.console.log(cmdstr);
-			io.system(cmdstr);
-			}
-		}
-	else if (track == lg_track && artist == lg_artist && album == lg_album && lg_duration != _t('player_duration')) {
-		lg_duration = _t('player_duration');
-		}
-	lg_timer = setTimeout(lg_submit, 1000);
-	}
 
 switch (liberator.profileName) {
 	case 'Normal':
-		// Enter passthrough mode automatically in Gmail, Reader
-		liberator.execute('autocmd LocationChange .* js modes.passAllKeys = /((mail|groups)\\.google\\.com|www\\.google\\.com\\/reader\\/)/.test(buffer.URL)');
+		// Enter passthrough mode automatically in Gmail, Reader, and GrooveShark
+		liberator.execute('autocmd LocationChange .* js modes.passAllKeys = /((mail|groups)\\.google\\.com|www\\.google\\.com\\/reader\\/|grooveshark\\.com)/.test(buffer.URL)');
 
 		// Auto reload
 		liberator.execute('autocmd PageLoad tw\\\\.finance\\\\.yahoo.com\\\\/pf\\\\/mypf js (function(){var t=getBrowser().tabs[<tab>-1];if (!t.pinned) getBrowser().pinTab(t);window.setTimeout(function(){getBrowser().reloadTab(t)},60000)})()');
 
 		// Auto-pin
-		liberator.execute('autocmd PageLoad listen.grooveshark.com js if(!getBrowser().mCurrentTab.pinned) getBrowser().pinTab(getBrowser().mCurrentTab);');
-
-		// ItchApe
-		liberator.execute('autocmd PageLoad .* js itch("<url>")');
+		liberator.execute('autocmd PageLoad grooveshark.com set apptab');
 
 		// Fix damn YouTube
 		liberator.execute('autocmd DOMLoad www\\\\.youtube\\\\.com\\\\/$ js fix_yt_home(<tab>)');
 		liberator.execute('autocmd PageLoad www\\\\.youtube\\\\.com\\\\/$ js tabs.getTab(<tab> - 1).linkedBrowser.contentDocument.getElementById("masthead-search-term").blur()');
 		
-		// Grooveshark
-		liberator.execute('autocmd PageLoad listen\\\\.grooveshark\\\\.com js if (lg_timer == undefined) lg_submit();');
+		liberator.execute('autocmd PageLoad about:blank js tabs.getTab(<tab>-1).linkedBrowser.contentDocument.body.style.backgroundColor = "#333"');
+		// PageLoad isn't fired when browser is launched
+		if (getBrowser().contentDocument.location.href == 'about:blank')
+			getBrowser().contentDocument.body.style.backgroundColor = "#333";
 		break;
 	case 'Test':
 		// Make command line red
 		for ([k, v] in Iterator(highlight)) {
 			highlight.set(k, highlight.get(k).value.replace('background: #333', 'background: #633'));
 			}
+
+		liberator.execute('autocmd PageLoad about:blank js tabs.getTab(<tab>-1).linkedBrowser.contentDocument.body.style.backgroundColor = "#633"');
+		// PageLoad isn't fired when browser is launched
+		if (getBrowser().contentDocument.location.href == 'about:blank')
+			getBrowser().contentDocument.body.style.backgroundColor = "#633";
+		
 		// Source special config
 		io.source('~/.vimperator-Test.rc', false);
 		break;
 	}
-// PageLoad isn't fired when browser is launched
-if (getBrowser().contentDocument.location.href == 'about:blank')
-	getBrowser().contentDocument.body.style.backgroundColor = "#333";
 EOF
-
-autocmd PageLoad about:blank js tabs.getTab(<tab>-1).linkedBrowser.contentDocument.body.style.backgroundColor = "#333"
