@@ -33,7 +33,7 @@ sleep 1
 #	conky -q &
 #	urxvtc -e screen &
 	#start-pulseaudio-x11
-	[[ $(lsusb -v | grep -i mouse) ]] && toggle-touchpad.sh 
+#	[[ $(lsusb -v | grep -i mouse) ]] && toggle-touchpad.sh 
 #	xcompmgr -n &
 #	ibus-daemon -d -x
 	setxkbmap -model pc104 -layout us -option compose:menu

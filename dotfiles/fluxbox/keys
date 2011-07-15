@@ -58,6 +58,10 @@ Mod4 Prior :PrevTab
 Mod4 Up :exec move-active-win.sh u
 Mod4 Down :exec move-active-win.sh d
 
+# Resizing for 720p casting
+Mod4 Mod1 Z :exec move-active-win.sh 720p
+Mod4 Mod1 X :exec move-active-win.sh 720p-deco
+
 # go to a specific tab in the current window
 Mod4 1 :Tab 1
 Mod4 2 :Tab 2

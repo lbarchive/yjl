@@ -4,19 +4,17 @@
   [exec] (Terminal [safe]) {urxvt}
   [exec] (tmux) {urxvtc -sl 0 -e tmux -2}
   [exec] (tmux attach) {urxvtc -sl 0 -e tmux -2 attach}
-  [exec] (Chromium) {chromium} </usr/share/pixmaps/chromium-browser.png>
+#  [exec] (Chromium) {chromium} </usr/share/pixmaps/chromium-browser.png>
 #  [exec] (Chromium Bin) {chromium-bin} </usr/share/pixmaps/chromium-bin.png>
 #  [exec] (Chromium Bin) {XMODIFIERS=@im=gcin QT_IM_MODULE=gcin chromium-bin} </usr/share/pixmaps/chromium-bin.png>
-#  [exec] (Firefox) {firefox} #</usr/share/pixmaps/firefox-icon.png>
-#  [exec] (Firefox no-remote) {firefox --no-remote} #</usr/share/pixmaps/firefox-icon.png>
-  [exec] (Firefox) {~/bin/firefox} #</usr/share/pixmaps/firefox-icon.png>
-  [exec] (Firefox no-remote) {~/bin/firefox --no-remote} #</usr/share/pixmaps/firefox-icon.png>
+  [exec] (Firefox) {firefox} </usr/share/pixmaps/firefox.png>
+  [exec] (Firefox no-remote) {firefox --no-remote} </usr/share/pixmaps/firefox.png>
 #	  [exec] (CenterIM) {urxvtc -e tmux-cim.sh}
   [exec] (Midnight Commander) {urxvtc -e mc}
   [exec] (GIMP) {gimp} </usr/share/icons/hicolor/48x48/apps/gimp.png>
   [exec] (Inkscape) {inkscape} </usr/share/pixmaps/inkscape.png>
-  [exec] (OO.o Writer) {XMODIFIERS=@im=gcin GTK_IM_MODULE=gcin oowriter} </usr/share/pixmaps/ooo-draw.png>
-  [exec] (OO.o Writer [gnome]) {OOO_FORCE_DESKTOP=gnome XMODIFIERS=@im=gcin GTK_IM_MODULE=gcin oowriter} </usr/share/pixmaps/ooo-draw.png>
+  [exec] (FreeMind) {freemind} </usr/share/pixmaps/freemind.png>
+  [exec] (LibreOffice) {/usr/lib64/libreoffice/program/soffice} </usr/share/icons/gnome/16x16/apps/libreoffice-startcenter.png>
   [exec] (Leafpad) {leafpad} </usr/share/pixmaps/leafpad.png>
   [exec] (Blog Draft) {leafpad /tmp/draft.html}
   [exec] (KeepNote) {keepnote} </home/livibetter/var/src/keepnote/desktop/keepnote.png>
