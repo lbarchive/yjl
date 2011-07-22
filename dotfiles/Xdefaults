@@ -45,6 +45,9 @@ Rxvt*color12: #3333ff
 #Rxvt*color15: #e2e2e5
 Rxvt*color15: #a8a8a8
 
+# For less highlighting
+Rxvt*colorIT: #ff0000
+
 #*background:    #000000
 #*foreground:    #FFFFFF
 #!black
