@@ -37,6 +37,7 @@ _ret=
 song_title=
 song_artist=
 
+APPNAME='lf-playcount-image.sh'
 TRACKINFO_API="http://ws.audioscrobbler.com/2.0/?method=track.getinfo"
 
 ###########
@@ -88,7 +89,9 @@ function get_track_info() {
 	[[ "$_ret" != "" ]] && URL="$URL&track=$_ret"
 	urlencode "$song_artist"
 	[[ "$_ret" != "" ]] && URL="$URL&artist=$_ret"
+	log "Request: $URL"
 	_ret=$(wget "$URL" -O -)
+	log "Response: $_ret"
 	# Parsing
 	userplaycount=$(extract_XML_value "userplaycount" "$_ret")
 	[[ "$userplaycount" == "" ]] && userplaycount=0
@@ -119,6 +122,10 @@ function get_track_info() {
 	[[ "$image_extralarge" != "" ]] && ln -sf "/tmp/lf-images/$f_image_extralarge" "/tmp/lf-images/extralarge.png" || rm "/tmp/lf-images/extralarge.png"
 	}
 
+log () {
+	[[ $LOG ]] && echo "[$(date -u +%FT%TZ)] $@" >> "$LOG_FILE"
+	}
+
 ######
 # Main
 
@@ -141,6 +148,9 @@ USERNAME=YOUR_LASTFM_USERNAME
 "
 	exit 1
 fi
+
+[[ $LOG ]] && LOG_FILE=${LOG_FILE:-/tmp/$APPNAME.$(date -u +%FZ).log}
+log "Command-line options: $@"
 
 TRACKINFO_API="$TRACKINFO_API&api_key=$APIKEY&username=$USERNAME"
 

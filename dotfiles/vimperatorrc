@@ -128,3 +128,7 @@ switch (liberator.profileName) {
 		break;
 	}
 EOF
+
+" Styles
+" fix gmail doesn't have readable monospace theme, Terminal uses Courier New which is horrible to read.
+style mail.google.com -name gmail-monospace * { font-family: 'Envy Code R' !important }

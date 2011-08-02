@@ -38,6 +38,8 @@ static const Rule rules[] = {
 	{ "Firefox",		"Dialog",		NULL,		0,			True,		-1 },
 	{ "Firefox",		"Places",		NULL,		0,			True,		-1 },
 	
+	{ "Keepnote",		NULL,			"Find",		0,			True,		-1 },
+
 	{ "Key-mon",		NULL,			NULL,		~0,			True,		-1 },
 	
 	{ "Leafpad",		NULL,			NULL,		0,			True,		-1 },
@@ -52,9 +54,12 @@ static const Rule rules[] = {
 	{ "URxvt",			"vimp-ext-editor",
 										NULL,		0,			True,		-1 },
 	
+	{ "VNC Viewer",		NULL,			NULL,		0,			True,		-1 },
+	{ "TigerVNC",		NULL,			NULL,		0,			True,		-1 },
+
 	// Tag row #2
 	// Programs with special initial tag
-	{ "Keepnote",		NULL,			NULL,		1<<3,		False,		-1 },
+	{ "Keepnote",		NULL,			"KeepNote",	1<<3,		False,		-1 },
 	
 	{ "libreoffice",	NULL,			NULL,		1<<4,		False,		-1 },
 

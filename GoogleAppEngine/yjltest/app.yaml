@@ -28,6 +28,9 @@ handlers:
 - url: /t_lb.*
   script: t_lb.py
 
+- url: /test
+  script: test.py
+
 - url: /_ah/queue/deferred
   script: $PYTHON_LIB/google/appengine/ext/deferred/handler.py
   login: admin
