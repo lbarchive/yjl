@@ -3,11 +3,11 @@ set t_Co=256
 
 colorscheme koehler
 
-set sts=0
-set ai ts=4
+" Do not set ts=4, if does, can't really tell the difference between
+" tab/space. It will be easy to tell someone mess up the coding style.
+set ai sts=4 et
 set sw=4
 set tw=0
-"set expandtab
 
 " Showing space-indentation, evolved from the following links
 " http://www.vim.org/scripts/script.php?script_id=1800
