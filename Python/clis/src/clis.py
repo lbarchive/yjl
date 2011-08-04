@@ -153,6 +153,19 @@ def remove_additional_space(s):
   return re.sub('( |\n|\t)+', ' ', s)
 
 
+# A very simple version of tags stripping, it might be buggy
+RE_STRIP_TAGS = re.compile(r'<([a-z]+)\b[^>]*>(.*?)</\1>', re.IGNORECASE | re.MULTILINE | re.DOTALL)
+
+def strip_tags(s):
+
+  while True:
+    s1 = RE_STRIP_TAGS.sub(r'\2', s)
+    if s1 == s:
+      break
+    s = s1
+  return s1
+
+
 ##################
 # ANSI escape code
 
@@ -201,7 +214,15 @@ class ANSI:
   biwhite = '\033[107m'
 
 
-common_tpl_opts = {'ansi': ANSI, 'ftime': ftime, 'surl': surl, 'lurls': lurls, 'unescape': unescape, 'remove_additional_space': remove_additional_space}
+common_tpl_opts = {
+    'ansi': ANSI,
+    'ftime': ftime,
+    'surl': surl, 'lurls': lurls,
+    'unescape': unescape,
+    'remove_additional_space': remove_additional_space,
+    'strip_tags': strip_tags,
+    }
+
 
 ##########
 # Timezone
