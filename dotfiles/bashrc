@@ -29,6 +29,10 @@ done
 unset comp
 
 # Prompt
+if enable -f ~/bin/vimps1 vimps1; then
+    PS1='$(vimps1 $?)'
+else # fail to enable vimps1
+
 [[ $TERM == 'linux' ]] && STR_MAX_LENGTH=2 || STR_MAX_LENGTH=3
 DIR_COLOR='\[\e[1;32m\]'
 DIR_HOME_COLOR='\[\e[1;35m\]'
@@ -61,11 +65,16 @@ ret=$?
 printf "\e[41;1;37m%${COLUMNS}s\e[$(((COLUMNS-${#ret})/2))G%s\e[0m\n\[\e[0m\]" "" "$ret"
 )'
 
+# the first $DIR_COLOR can be removed
 if [[ $TERM == 'screen' ]]; then
     PS1="$PS1_ERROR $DIR_COLOR$NEW_PWD"'\[\033k\033\\\]'" $USER_COLOR\$ \[\e[0m\]"
 else
     PS1="$PS1_ERROR $DIR_COLOR$NEW_PWD $USER_COLOR\$ \[\e[0m\]"
 fi
+
+unset STR_MAX_LENGTH DIR_COLOR DIR_HOME_COLOR DIR_SEP_COLOR ABBR_DIR_COLOR USER_COLOR NEW_PWD PS1_ERROR
+
+fi # end of prompt
 
 # Change the window title of X terminals
 # originally from /etc/bash/bashrc on Gentoo
@@ -77,6 +86,3 @@ case ${TERM} in
 		PROMPT_COMMAND='echo -ne "\033_${PWD/$HOME/~}\033\\"'
 		;;
 esac
-
-
-unset STR_MAX_LENGTH DIR_COLOR DIR_HOME_COLOR DIR_SEP_COLOR ABBR_DIR_COLOR USER_COLOR NEW_PWD PS1_ERROR
