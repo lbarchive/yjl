@@ -154,7 +154,7 @@ def remove_additional_space(s):
 
 
 # A very simple version of tags stripping, it might be buggy
-RE_STRIP_TAGS = re.compile(r'<([a-z]+)\b[^>]*>(.*?)</\1>', re.IGNORECASE | re.MULTILINE | re.DOTALL)
+RE_STRIP_TAGS = re.compile(ur'<([a-z]+)\b[^>]*>(.*?)</\1>', re.IGNORECASE | re.MULTILINE | re.DOTALL | re.UNICODE)
 
 def strip_tags(s):
 
