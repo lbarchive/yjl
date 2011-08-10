@@ -16,6 +16,11 @@ for d in "${DIRS[@]}"; do
 	printf "Delete  %-30s?" "${d}/*"
 	read ans
 	if [[ "$ans" =~ [yY] ]]; then
-		rm -rf "${d}"/*
+		if [[ "${d}" =~ *ccache* ]]; then
+			CCACHE_DIR="${d}" ccache -C
+		else
+			rm -rf "${d}"/*
+		fi
 	fi
 done
+# vim:sts=0:sw=4:noet
