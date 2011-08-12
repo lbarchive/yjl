@@ -27,7 +27,7 @@ if [[ ! -f "$INIFILE" ]]; then
     exit 1
 fi
 
-if [[ $# -le 1 ]]; then
+if [[ $# -lt 1 ]]; then
     echo "You need to specify a path, e.g. 
     $0 /tmp" >&2
     exit 1
