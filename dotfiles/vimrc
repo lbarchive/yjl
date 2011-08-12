@@ -89,15 +89,10 @@ nmap <F4> "=strftime("%FT%TZ", localtime()-8*3600)<CR>p
 "nmap <F5><F5> :!bash sync<CR>
 
 " no highlight
-nmap @ :nohl<CR>
+imap <F8>8 :nohl<CR>
+nmap <F8>8 :nohl<CR>
 
 " Fix key control codes
-map OC <Right>
-map OD <Left>
-map [C <S-Right>
-map [D <S-Left>
-"map [C <C-Right>
-"map [D <C-Left>
 map [31~ <S-F7>
 
 " Spell check
