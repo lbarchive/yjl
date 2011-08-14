@@ -91,8 +91,11 @@ def print_general(my_client, table_id,
 
   for i in range(2):
     for medium_name in data[i].keys():
-      data[i][medium_name]['ga:visitBounceRate'] = 100.0 * data[i][medium_name]['ga:bounces'] / data[i][medium_name]['ga:visits']
-  
+      if data[i][medium_name]['ga:visits'] != 0.0:
+        data[i][medium_name]['ga:visitBounceRate'] = 100.0 * data[i][medium_name]['ga:bounces'] / data[i][medium_name]['ga:visits']
+      else:
+        data[i][medium_name]['ga:visitBounceRate'] = 0.0
+
   cols = ['ga:visits', 'ga:pageviews', 'ga:avgTimeOnSite', 'ga:visitBounceRate']
   diff = {}
   for medium_name in set(data[0].keys() + data[1].keys()):
