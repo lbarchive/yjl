@@ -154,12 +154,12 @@ def remove_additional_space(s):
 
 
 # A very simple version of tags stripping, it might be buggy
-RE_STRIP_TAGS = re.compile(ur'<([a-z]+)\b[^>]*>(.*?)</\1>', re.IGNORECASE | re.MULTILINE | re.DOTALL | re.UNICODE)
+RE_STRIP_TAGS = re.compile(ur'<.*?>', re.IGNORECASE | re.MULTILINE | re.DOTALL | re.UNICODE)
 
 def strip_tags(s):
 
   while True:
-    s1 = RE_STRIP_TAGS.sub(r'\2', s)
+    s1 = RE_STRIP_TAGS.sub('', s)
     if s1 == s:
       break
     s = s1
@@ -1019,6 +1019,16 @@ class Craigslist(Feed):
     return feed
 
 
+class FlickrContacts(Craigslist):
+
+  TYPE = 'frck'
+
+  @classmethod
+  def get_entry_id(cls, entry):
+
+    return super(Feed, cls).get_entry_id(entry)
+
+
 class StackOverflowNewOnly(Craigslist):
 
   TYPE = 'sono'
@@ -1423,7 +1433,7 @@ class Tail(Source):
 
 SOURCE_CLASSES = {'twitter': Twitter, 'twittermentions': TwitterMentions,
     'friendfeed': FriendFeed, 'feed': Feed,
-    'sono': StackOverflowNewOnly, 'cl': Craigslist,
+    'sono': StackOverflowNewOnly, 'cl': Craigslist, 'frck': FlickrContacts,
     'gmail': GoogleMail, 'greader': GoogleReader, 'weather': Weather,
     'punbb12': PunBB12, 'punbb12onlynew': PunBB12OnlyNew,
     'twittersearch': TwitterSearch, 'tail': Tail}
