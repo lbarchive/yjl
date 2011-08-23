@@ -373,7 +373,9 @@ article h3 {
 
 /* Don't capitalize code */
 article h2 code,
-article h3 code {
+article h3 code,
+article h2 tt.literal,
+article h3 tt.literal {
   text-transform: none;
 }
 
@@ -446,7 +448,8 @@ body.Dark .post-content img {
   text-shadow: #666 1px 1px 0px;
 }
 
-.post-content code {
+.post-content code,
+.post-content tt.literal {
   background-color:#eee;
   font-family: "Envy Code R", "Courier New";
   border-radius: 3px;
@@ -456,7 +459,8 @@ body.Dark .post-content img {
   padding-right: 2px;
 }
 
-body.Dark .post-content code {
+body.Dark .post-content code,
+body.Dark .post-content tt.literal {
   background-color:#666;
   color: #aaa;
 }
@@ -465,11 +469,13 @@ body.Dark .post-content code {
   text-decoration: none;
 }
 
-.post-content a.has-code:hover code {
+.post-content a.has-code:hover,
+.post-content a.has-code:hover tt.literal {
   text-decoration: underline;
 }
 
-.post-content a.has-code > code {
+.post-content a.has-code > code,
+.post-content a.has-code > tt.literal {
   color: #249FA3;
 }
 
@@ -494,12 +500,14 @@ body.Dark .post-content a.highlighted {
   box-shadow: none;
 }
 
-.post-content a.has-code.highlighted > code {
+.post-content a.has-code.highlighted > code,
+.post-content a.has-code.highlighted > tt.literal {
   background-color: #7C93A1;
   color: #fff;
 }
 
-body.Dark .post-content a.has-code.highlighted > code {
+body.Dark .post-content a.has-code.highlighted > code,
+body.Dark .post-content a.has-code.highlighted > tt.literal {
   background-color: #888;
   color: #eee;
 }
