@@ -448,8 +448,14 @@ body.Dark .post-content img {
   text-shadow: #666 1px 1px 0px;
 }
 
-.post-content code,
-.post-content tt.literal {
+#post-comments blockquote {
+  margin-left: 1ex;
+  padding-left: 1ex;
+  border-left: 0.5ex solid #666;
+}
+
+article code,
+article tt.literal {
   background-color:#eee;
   font-family: "Envy Code R", "Courier New";
   border-radius: 3px;
@@ -459,27 +465,27 @@ body.Dark .post-content img {
   padding-right: 2px;
 }
 
-body.Dark .post-content code,
-body.Dark .post-content tt.literal {
+body.Dark article code,
+body.Dark article tt.literal {
   background-color:#666;
   color: #aaa;
 }
 
-.post-content a.has-code:hover {
+article a.has-code:hover {
   text-decoration: none;
 }
 
-.post-content a.has-code:hover,
-.post-content a.has-code:hover tt.literal {
+article a.has-code:hover,
+article a.has-code:hover tt.literal {
   text-decoration: underline;
 }
 
-.post-content a.has-code > code,
-.post-content a.has-code > tt.literal {
+article a.has-code > code,
+article a.has-code > tt.literal {
   color: #249FA3;
 }
 
-.post-content a.highlighted {
+article a.highlighted {
   background-color: #7C93A1;
   border-radius: 3px;
   color: #fff;
@@ -489,30 +495,30 @@ body.Dark .post-content tt.literal {
   padding-right: 2px;
 }
 
-body.Dark .post-content a.highlighted {
+body.Dark article a.highlighted {
   background-color: #888;
   color: #eee;
 }
 
-.post-content a.has-code.highlighted {
+article a.has-code.highlighted {
   background: none;
   border-radius: 0;
   box-shadow: none;
 }
 
-.post-content a.has-code.highlighted > code,
-.post-content a.has-code.highlighted > tt.literal {
+article a.has-code.highlighted > code,
+article a.has-code.highlighted > tt.literal {
   background-color: #7C93A1;
   color: #fff;
 }
 
-body.Dark .post-content a.has-code.highlighted > code,
-body.Dark .post-content a.has-code.highlighted > tt.literal {
+body.Dark article a.has-code.highlighted > code,
+body.Dark article a.has-code.highlighted > tt.literal {
   background-color: #888;
   color: #eee;
 }
 
-.post-content pre {
+article pre {
   background-color:#eee;
   font-family: "Envy Code R", "Courier New";
   -moz-border-radius:5px;
@@ -523,12 +529,12 @@ body.Dark .post-content a.has-code.highlighted > tt.literal {
   padding:5px;
 }
 
-body.Dark .post-content pre {
+body.Dark article pre {
   background-color:#666;
   color: #aaa;
 }
 
-.post-content pre > code {
+article pre > code {
   background-color: #444;
   -moz-border-radius:5px;
   -webkit-border-radius:5px;
