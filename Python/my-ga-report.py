@@ -161,10 +161,10 @@ def print_referrals(my_client, table_id, date=get_date_ago(1)):
     values = tuple(dim.value for dim in entry.dimension)
     referrer = 'http://%s%s' % (values[0], values[1])
     if len(referrer) > 40:
-      print "%3s" % entry.metric[0].value, "%s" % referrer
+      print "%3s" % entry.metric[0].value, "%s" % referrer.encode('utf-8')
       print "%44s %s" % ('', values[2])
     else:
-      print "%3s" % entry.metric[0].value, "%-40s %s" % (referrer, values[2])
+      print "%3s" % entry.metric[0].value, "%-40s %s" % (referrer.encode('utf-8'), values[2])
   print
 
 
