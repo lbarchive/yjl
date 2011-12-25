@@ -20,18 +20,29 @@ class FontFile(webapp.RequestHandler):
       '.woff': 'application/octet-stream',
       }
 
+  EXT_TYPES_NAMES = EXT_TYPES.keys()
+
+  VALID_ORIGINS = [
+      'http://www.yjl.im',
+      'http://blog.yjl.im',
+      'http://draft.blogger.com',
+      'http://translate.googleusercontent.com',
+      'http://webcache.googleusercontent.com',
+      'null',
+      ]
+
   def get(self, fontpath):
 
     fontpath = os.path.normpath(urllib.unquote(fontpath))
     # Does someone try to get other files?
-    if fontpath.startswith('.') or fontpath.startswith('/'):
+    if fontpath[0] in ('.', '/'):
       logging.error('Suspicious Path: %s' % fontpath);
       self.error(403)
       return
 
     # Is requested file a font file?
     ext = os.path.splitext(fontpath)[1]
-    if ext not in FontFile.EXT_TYPES.keys():
+    if ext not in FontFile.EXT_TYPES_NAMES:
       logging.error('Suspicious Path, Extension: %s %s' % (fontpath, ext));
       self.error(403)
       return
@@ -45,12 +56,7 @@ class FontFile(webapp.RequestHandler):
     if 'Origin' not in self.request.headers:
       self.response.headers.add_header('Access-Control-Allow-Origin', 'http://www.yjl.im')
     elif os.environ['SERVER_NAME'] == 'localhost' or \
-        self.request.headers['Origin'] in [
-            'http://www.yjl.im', 'http://blog.yjl.im',
-            'http://draft.blogger.com',
-            'http://translate.googleusercontent.com',
-            'http://webcache.googleusercontent.com',
-            'null']:
+        self.request.headers['Origin'] in FontFile.VALID_ORIGINS:
       self.response.headers.add_header('Access-Control-Allow-Origin', self.request.headers['Origin'])
     else:
       self.response.headers.add_header('Access-Control-Allow-Origin', 'http://www.yjl.im')
