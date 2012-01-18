@@ -205,9 +205,6 @@ $(function(){
     $('#comments-loader-button').remove();
     }
   $.ajaxSetup({cache: false});
-  // ItchApe
-  if ($('#itch').length == 1)
-    get_itch('b01faf150a4bb359','itch');
   // Google Analytics
   function _track() {
     var _gaq = window._gaq || [];
