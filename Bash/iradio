@@ -44,6 +44,8 @@ stations=(\
 'mplayer -playlist http://www.npr.org/templates/dmg/dmg.php?getProgramStream=true&NPRMediaPref=RM' \
 'WJBQ' \
 'mplayer mms://citadelcc-wjbq-fm.wm.llnwd.net/citadelcc_WJBQ_FM?MSWMExt=.asf' \
+'WBCL' \
+'mplayer -playlist http://www.wbcl.org/wbcl_live.asx' \
 )
 
 function sigint {
