@@ -92,7 +92,8 @@ while [[ $index -lt $count ]]; do
     (( index=$index + 1 ))
 done
 
-read -p "Which station? " radio
+radio="$1"
+[[ -z "$radio" ]] && read -p "Which station? " radio
 [[ "$radio" == "" ]] && exit 1
 (( i=$radio * 2 + 1 ))
 
