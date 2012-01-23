@@ -5,8 +5,6 @@
 # Author       : Yu-Jie Lin
 # Creation Date: 2007-11-19T17:48:09+0800
 
-echo Internet Radio Stations:
-
 stations=(\
 'BBC Radio 1 (mms) UK only' \
 'mplayer -playlist http://www.bbc.co.uk/radio1/wm_asx/aod/radio1.asx' \
@@ -82,19 +80,26 @@ function sigwinch {
 
 let "count = ${#stations[@]} / 2"
 
-# List stations
-index=0
+list_stations() {
+  echo Internet Radio Stations:
 
-while [[ $index -lt $count ]]; do
-  # List all the elements in the array.
-  (( i=$index * 2 ))
-  echo "$index: ${stations[$i]}"
-    (( index=$index + 1 ))
-done
+  # List stations
+  index=0
+
+  while [[ $index -lt $count ]]; do
+    # List all the elements in the array.
+    (( i=$index * 2 ))
+    echo "$index: ${stations[$i]}"
+      (( index=$index + 1 ))
+  done
+}
 
 radio="$1"
-[[ -z "$radio" ]] && read -p "Which station? " radio
-[[ "$radio" == "" ]] && exit 1
+if [[ -z "$radio" ]]; then
+  list_stations
+  read -p "Which station? " radio
+  [[ "$radio" == "" ]] && exit 1
+fi
 (( i=$radio * 2 + 1 ))
 
 if [[ "${stations[$((i - 1))]}" == "WJBQ" ]]; then
