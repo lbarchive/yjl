@@ -50,7 +50,7 @@ def print_general(my_client, table_id,
     for x in range(-VISITS_CHART_DAYS, 0):
       vst = visits[x]
       # vst / max_visits >= y / CHART_HEIGHT
-      if vst * CHART_HEIGHT >= y * max_visits:
+      if vst and vst * CHART_HEIGHT >= y * max_visits:
         sys.stdout.write('#')
       else:
         sys.stdout.write(' ')
@@ -134,7 +134,10 @@ def print_general(my_client, table_id,
     print '%-10s:' % medium_name,
     for metric_name in cols:
       medium = data[1][medium_name]
-      m_percent = 100.0 * medium[metric_name] / data[1]['all'][metric_name]
+      if data[1]['all'][metric_name] == 0.0:
+        m_percent = 0
+      else:
+        m_percent = 100.0 * medium[metric_name] / data[1]['all'][metric_name]
       m_bar = int(m_percent * bar_size / 100.0)
       print '%6.2f%% %s%s' % (m_percent, '#'*m_bar, ' '*(bar_size-m_bar)),
     print
