@@ -115,9 +115,10 @@ def print_general(my_client, table_id,
   print
   print '%-10s  %-15s %-15s %-18s %-18s' % tuple(['ga:medium'] + cols)
   mediums = list(data[1].keys())
-  mediums.remove('all')
-  mediums.sort()
-  mediums.append('all')
+  if 'all' in mediums:
+    mediums.remove('all')
+    mediums.sort()
+    mediums.append('all')
   for medium_name in mediums:
     medium = data[1][medium_name]
     print '%-10s: %3d (%8.2f%%) %3d (%8.2f%%) %6.2f (%8.2f%%) %6.2f%% (%8.2f%%)' % tuple([medium_name] + list(chain(*zip([medium[metric_name] for metric_name in cols], [diff[medium_name][metric_name] for metric_name in cols]))))
