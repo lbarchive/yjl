@@ -39,7 +39,7 @@ password = getpass.getpass()
 
 # TODO: Remove this temporary fix when gdata.py gets updated
 gdata.blogger.BlogEntry.blog_id_pattern = \
-    re.compile('tag:blogger.com,1999:user-(\d+)\.blog-(\d+)')
+    re.compile('tag:blogger.com,1999:user-g(\d+)\.blog-(\d+)')
 
 date_tag = datetime.datetime.now().strftime('%Y%m%d-%H%M%S')
 
