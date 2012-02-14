@@ -709,6 +709,27 @@ body.Dark article > footer {
   color: #aaa;
 }
 
+/* Labels */
+
+.post-labels a {
+  background-color: #eee;
+  padding: 0 0.5ex;
+  border-radius: 0 1ex 0 1ex;
+}
+
+.post-labels a:hover {
+  background-color: #ddd;
+  text-decoration: none;
+}
+
+body.Dark .post-labels a {
+  background-color: #444;
+}
+
+body.Dark .post-labels a:hover {
+  background-color: #666;
+}
+
 /* AdSense */
 
 #AdSense1 {
