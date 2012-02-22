@@ -140,8 +140,11 @@ $(function(){
 
   // Code highlighting
   if ($('pre code').length > 0) {
+    var hljs_src = 'http://www.yjl.im/js/highlight.pack.js';
+    if (document.location.protocol == 'file:' || document.location.host == 'localhost')
+      var hljs_src = 'http://localhost:8080/js/highlight.pack.js';
     $.ajaxSetup({cache: true});
-    $.getScript('http://www.yjl.im/js/highlight.pack.js', function() {
+    $.getScript(hljs_src, function() {
         hljs.initHighlighting();
         // Collapse pre blocks
         collapse_pre();
