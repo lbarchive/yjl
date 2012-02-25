@@ -208,22 +208,6 @@ $(function(){
     $('#comments-loader-button').remove();
     }
   $.ajaxSetup({cache: false});
-  // Google Analytics
-  function _track() {
-    var _gaq = window._gaq || [];
-    _gaq.push(['_setAccount', 'UA-15896368-3']);
-    _gaq.push(['_trackPageview']);
-    if (!window._gaq)
-      window._gaq = _gaq;
-    }
-  if (window._gaq) {
-    _track();
-    }
-  else {
-    $.ajaxSetup({cache: true});
-    $.getScript(('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js', _track);
-    $.ajaxSetup({cache: false});
-    }
   });
 
 // vim: set sw=2 ts=2 et:
