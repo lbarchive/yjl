@@ -165,7 +165,7 @@ $(function(){
             'StatusDraft'],
         limit: 10,
         remove_string_regexp: /(^.*?: | &lt;&lt;.*$)/,
-        exclude_url_regexp: /(\/search\/label\/|(archive\.html|blog\.yjl\.im\/|\.blogspot\.com\/)$)/
+        exclude_url_regexp: /(\/search\/label\/|\/view\/|(archive\.html|blog\.yjl\.im\/|\.blogspot\.com\/)$)/
         };
     }
 
