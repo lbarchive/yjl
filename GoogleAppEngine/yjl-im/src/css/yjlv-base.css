@@ -45,6 +45,29 @@ li > ul {
   padding-left: 3ex;
 }
 
+table, th, td {
+  border: none;
+  border-radius: 0.5ex;
+}
+
+th {
+  background-color: #ddd;
+}
+
+body.Dark th {
+  background-color: #333;
+}
+
+td {
+  background-color: #ccc;
+  padding-left: 0.5ex;
+  padding-right: 0.5ex;
+}
+
+body.Dark td {
+  background-color: #444;
+}
+
 kbd {
   background-color: #ccc;
   border: 2px solid #888;
