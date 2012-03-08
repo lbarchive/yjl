@@ -50,6 +50,12 @@ table, th, td {
   border-radius: 0.5ex;
 }
 
+table.tr-caption-container,
+td.tr-caption {
+  border: none;
+  padding: 0;
+}
+
 th {
   background-color: #ddd;
 }
@@ -64,8 +70,17 @@ td {
   padding-right: 0.5ex;
 }
 
+table.tr-caption-container td {
+  background: none;
+  padding: 0;
+}
+
 body.Dark td {
   background-color: #444;
+}
+
+body.Dark table.tr-caption-container td {
+  background: none;
 }
 
 kbd {
