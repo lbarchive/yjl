@@ -428,19 +428,13 @@ article h6 {
 
 .post-content img {
   height: auto !important;
-  padding: 5px;
-  border: 1px solid #eee;
-  box-shadow: 1px 1px 5px rgba(0, 0, 0, .1);
+  border: none;
+  border-radius: 5px;
+  box-shadow: 0 0 5px rgba(0, 0, 0, .1);
 }
 
 body.Dark .post-content img {
-  border: none;
-  box-shadow: 1px 1px 5px rgba(255, 255, 255, .5);
-}
-
-.post-content img.original-640 {
-  margin-left: -6px;
-  margin-right: 6px;
+  box-shadow: 0 0 5px rgba(255, 255, 255, .5);
 }
 
 .post-content blockquote {

@@ -81,14 +81,10 @@ $(function(){
     set_theme();
     }
   // Image resizing
-  var max_width = 640 - 1*2 - 5*2;
+  var max_width = 640;
   $(".post-content img").each(function(i, e){
       var $e = $(e);
       if ($e.css("float") != "none" || $e.hasClass("no-autoresize")) return;
-      if ($e.width() == 640) {
-        $e.addClass('original-640');
-        return;
-        }
       if ($e.width() != max_width)
         $e.width(max_width);
       });
