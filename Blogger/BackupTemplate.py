@@ -2,7 +2,7 @@
 #
 # BackupTemplate - Backup templates of blogs on Blogger.com
 #
-# Copyright (C) 2008 Yu-Jie Lin
+# Copyright (C) 2008, 2012 Yu-Jie Lin
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -29,13 +29,22 @@ __author__ = 'livibetter@gmail.com (Yu-Jie Lin)'
 import datetime
 import getpass
 import re
+import os
+import yaml
 
 from gdata.blogger.service import BloggerService
 import gdata.blogger
 
+YAML = 'BackupTemplate.yaml'
 
-email = raw_input('Please enter your email: ')
-password = getpass.getpass()
+if os.path.exists(YAML):
+  with open(YAML, 'r') as f:
+    data = yaml.load(f)
+    email = data['email']
+    password = data['password']
+else:
+  email = raw_input('Please enter your email: ')
+  password = getpass.getpass()
 
 # TODO: Remove this temporary fix when gdata.py gets updated
 gdata.blogger.BlogEntry.blog_id_pattern = \
@@ -62,7 +71,15 @@ for blog in feed.entry:
     print 'ERROR: Can not find a link to download template of %s!' % blog_name
     continue
 
-  template = client.Get(uri=link.href).entry[0].content.text
+  # FIXME This is from Blogger dashboard, probably will stop working in the future
+  URI = 'http://draft.blogger.com/blogger-nongwt.do?blogID=%s&action=download&expandWidget=true' % blog_id
+  try:
+    template = client.Get(uri=URI, converter=lambda c: c)
+  except Exception as e:
+    print 'ERROR: %s' % e
+    continue
+  # FIXME Next returns the feed is not enabled
+  # template = client.Get(uri=link.href).entry[0].content.text
   try:
     file = open('%s-%s-%s.xml' % (blog_id, blog_name, date_tag), 'w')
     try:
