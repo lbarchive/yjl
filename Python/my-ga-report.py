@@ -8,16 +8,20 @@ import sys
 from itertools import chain
 
 import gdata.analytics.client
+import pytz
 
 
 VISITS_CHART_DAYS = 60
 EXCLUDE_SRC = ';'.join(['ga:source!=%s.blogspot.com' % src for src in ['blogarbage', 'fedoratux', 'makeyjl', 'getctrlback', 'thebthing']])
 
+# Save timezone info globally, don't want to add new argument to get_date_ago
+TIMEZONE='America/Los_Angeles'
 
 def get_date_ago(days):
 
-  # Adjust to UTC-8
-  return (dt.datetime.utcnow() - dt.timedelta(days=days, hours=8)).strftime('%Y-%m-%d')
+  # Adjust to TIMEZONE
+  utc = dt.datetime.utcnow() - dt.timedelta(days=days)
+  return pytz.timezone(TIMEZONE).fromutc(utc).strftime('%Y-%m-%d')
 
 
 # General
@@ -233,6 +237,14 @@ def main():
   table_id = sys.argv[3]
   my_client.ClientLogin(username, password, source=SOURCE_APP_NAME)
   
+  # FIXME Will break if there is more than 1000 profiles, don't seem to be able
+  # to query by table_id directly.
+  profile_query = gdata.analytics.client.ProfileQuery(query={'max-results': '1000'})
+  for profile in my_client.GetManagementFeed(profile_query).entry:
+    if 'ga:' + profile.GetProperty('ga:profileId').value == table_id:
+      TIMEZONE = profile.GetProperty('ga:timezone').value
+      break
+
   print_general(my_client, table_id)
   print_referrals(my_client, table_id)
   print_keywords(my_client, table_id)
