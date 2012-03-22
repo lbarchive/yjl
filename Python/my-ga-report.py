@@ -187,7 +187,7 @@ def print_keywords(my_client, table_id, date=get_date_ago(1)):
       'dimensions': 'ga:keyword,ga:landingPagePath',
       'metrics': 'ga:visits',
       'sort': '-ga:visits',
-      'filters': 'ga:medium==organic',
+      'filters': 'ga:medium==organic;ga:keyword!=(not provided)',
       'max-results': '100'})
   feed = my_client.GetDataFeed(data_query)
   print '=== Keywords ==='
