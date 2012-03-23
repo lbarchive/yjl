@@ -5,10 +5,8 @@ from google.appengine.api.urlfetch import fetch
 
 from src_lb_model import SearchResultCount
 
-YAHOO_APPID = 'k7NNT8DV34HFckFK7ZYLD6Ou7MvAW2mqnAi16suw41dvIqOV0OmI6wdf0ot4EyBEDg--'
 BING_APPID = 'F102804AE27C06275E0B535689E4134DABC92FBA'
 RE_GOOGLE = re.compile('"estimatedResultCount":"([0-9]+)"')
-RE_YAHOO = re.compile(' totalhits="([0-9]+)"')
 RE_BING = re.compile('"Total":([0-9]+)')
 
 
