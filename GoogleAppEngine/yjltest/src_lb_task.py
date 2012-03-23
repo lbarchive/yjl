@@ -35,14 +35,7 @@ def src_lb_update():
     raise UnableToSearch('Failed to find result on Google Results')
   google = int(m.group(1))
   
-  f = fetch('http://boss.yahooapis.com/ysearch/web/v1/%s?appid=%s&format=xml' % (keyword, YAHOO_APPID))
-  if f.status_code != 200:
-    raise UnableToSearch('Failed to search on Yahoo')
-  m = RE_YAHOO.search(f.content)
-  if not m:
-    raise UnableToSearch('Failed to find result on Yahoo Results')
-  yahoo = int(m.group(1))
-  
+ 
   f = fetch('http://api.bing.net/json.aspx?AppId=%s&Version=2.2&Market=en-US&Query=%s&Sources=web&Web.Count=1' % (BING_APPID, keyword))
   if f.status_code != 200:
     raise UnableToSearch('Failed to search on Bing')
@@ -53,5 +46,5 @@ def src_lb_update():
     raise UnableToSearch('Failed to find result on Bing Results')
   bing = int(m.group(1))
   
-  record = SearchResultCount(date=today, google=google, yahoo=yahoo, bing=bing)
+  record = SearchResultCount(date=today, google=google, bing=bing)
   record.put()

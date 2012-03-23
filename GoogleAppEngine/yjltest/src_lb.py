@@ -14,7 +14,12 @@ class HomePage(webapp.RequestHandler):
 
   def get(self):
 
-    results = SearchResultCount.all().order('-date').fetch(1000)
+    q = SearchResultCount.all().order('-date')
+    results = []
+    offset = 0
+    while offset <= len(results):
+      results += q.fetch(1000, offset=offset)
+      offset += 1000
     tmpl_values = {
         'results': results,
         }
