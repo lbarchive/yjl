@@ -2,7 +2,7 @@
 #
 # g - Quick Directory Switcher
 #
-# Copyright (C) 2008, 2009 Yu-Jie Lin
+# Copyright (C) 2008, 2009, 2012 Yu-Jie Lin
 # 
 # This program is free software: you can redistribute it and/or modify
 # it under the terms of the GNU General Public License as published by
@@ -131,6 +131,7 @@ g() {
 	[[ $i == "" ]] && return 1
 
 	cd ${dir[$i]}
+	unset dir
 	}
 
 # The Bash completion function
