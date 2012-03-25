@@ -172,7 +172,7 @@ def print_referrals(my_client, table_id, date=get_date_ago(1)):
       print "%3s" % entry.metric[0].value, "%s" % referrer.encode('utf-8')
       print "%44s %s" % ('', values[2].encode('utf-8'))
     else:
-      print "%3s" % entry.metric[0].value, "%-40s %s" % (referrer.encode('utf-8'), values[2])
+      print "%3s" % entry.metric[0].value, "%-40s %s" % (referrer.encode('utf-8'), values[2].encode('utf-8'))
   print
 
 
