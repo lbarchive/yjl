@@ -69,7 +69,7 @@ def print_general(my_client, table_id,
       'end-date': date,
       'dimensions': 'ga:date,ga:medium',
       'sort': 'ga:date',
-      'metrics': 'ga:visits,ga:pageviews,ga:avgTimeOnSite,ga:bounces'})
+      'metrics': 'ga:visits,ga:pageviews,ga:avgTimeOnSite,ga:bounces,ga:avgPageLoadTime'})
   feed = my_client.GetDataFeed(data_query)
   data = [{}, {}]
   dt_date_before = dt.datetime.strptime(date_before, '%Y-%m-%d')
@@ -100,7 +100,7 @@ def print_general(my_client, table_id,
       else:
         data[i][medium_name]['ga:visitBounceRate'] = 0.0
 
-  cols = ['ga:visits', 'ga:pageviews', 'ga:avgTimeOnSite', 'ga:visitBounceRate']
+  cols = ['ga:visits', 'ga:pageviews', 'ga:avgTimeOnSite', 'ga:visitBounceRate', 'ga:avgPageLoadTime']
   diff = {}
   for medium_name in set(data[0].keys() + data[1].keys()):
     for d in data + [diff]:
@@ -117,7 +117,7 @@ def print_general(my_client, table_id,
 
   print '--- values of %s (change of %s -> %s) ---' % (date, date_before, date)
   print
-  print '%-10s  %-15s %-15s %-18s %-18s' % tuple(['ga:medium'] + cols)
+  print '%-10s  %-15s %-15s %-18s %-20s %-18s' % tuple(['ga:medium'] + cols)
   mediums = list(data[1].keys())
   if 'all' in mediums:
     mediums.remove('all')
@@ -125,7 +125,7 @@ def print_general(my_client, table_id,
     mediums.append('all')
   for medium_name in mediums:
     medium = data[1][medium_name]
-    print '%-10s: %3d (%8.2f%%) %3d (%8.2f%%) %6.2f (%8.2f%%) %6.2f%% (%8.2f%%)' % tuple([medium_name] + list(chain(*zip([medium[metric_name] for metric_name in cols], [diff[medium_name][metric_name] for metric_name in cols]))))
+    print '%-10s: %3d (%8.2f%%) %3d (%8.2f%%) %6.2f (%8.2f%%) %6.2f%% (%8.2f%%) %6.2f (%8.2f%%)' % tuple([medium_name] + list(chain(*zip([medium[metric_name] for metric_name in cols], [diff[medium_name][metric_name] for metric_name in cols]))))
   print
 
   print '--- %% of total (%s) ---' % date
