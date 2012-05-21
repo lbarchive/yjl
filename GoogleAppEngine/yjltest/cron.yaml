@@ -5,6 +5,3 @@ cron:
 - description: src_lb_cron
   url: /src_lb_cron
   schedule: every day 01:00
-- description: t_lb_cron
-  url: /t_lb_cron
-  schedule: every monday 01:00
