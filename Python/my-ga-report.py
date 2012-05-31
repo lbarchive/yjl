@@ -5,7 +5,7 @@
 
 import datetime as dt
 import sys
-from itertools import chain
+from itertools import chain, groupby
 
 import gdata.analytics.client
 import pytz
@@ -165,14 +165,18 @@ def print_referrals(my_client, table_id, date=get_date_ago(1)):
   feed = my_client.GetDataFeed(data_query)
   print '=== Referrals ==='
   print
-  for entry in feed.entry:
-    values = tuple(dim.value for dim in entry.dimension)
-    referrer = 'http://%s%s' % (values[0], values[1])
-    if len(referrer) > 40:
-      print "%3s" % entry.metric[0].value, "%s" % referrer.encode('utf-8')
-      print "%44s %s" % ('', values[2].encode('utf-8'))
-    else:
-      print "%3s" % entry.metric[0].value, "%-40s %s" % (referrer.encode('utf-8'), values[2].encode('utf-8'))
+  keyfunc = lambda entry: entry.dimension[0].value
+  for k, g in groupby(sorted(feed.entry, key=keyfunc), key=keyfunc):
+    print '%s:' % k
+    for entry in g:
+      values = tuple(dim.value for dim in entry.dimension)
+      referrer = 'http://%s%s' % (values[0], values[1])
+      if len(referrer) > 40:
+        print "%3s" % entry.metric[0].value, "%s" % referrer.encode('utf-8')
+        print "%44s %s" % ('', values[2].encode('utf-8'))
+      else:
+        print "%3s" % entry.metric[0].value, "%-40s %s" % (referrer.encode('utf-8'), values[2].encode('utf-8'))
+    print
   print
 
 
