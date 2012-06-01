@@ -165,17 +165,13 @@ def print_referrals(my_client, table_id, date=get_date_ago(1)):
   feed = my_client.GetDataFeed(data_query)
   print '=== Referrals ==='
   print
-  keyfunc = lambda entry: entry.dimension[0].value
+  keyfunc = lambda entry: entry.dimension[2].value
   for k, g in groupby(sorted(feed.entry, key=keyfunc), key=keyfunc):
-    print '%s:' % k
+    print k
     for entry in g:
       values = tuple(dim.value for dim in entry.dimension)
       referrer = 'http://%s%s' % (values[0], values[1])
-      if len(referrer) > 40:
-        print "%3s" % entry.metric[0].value, "%s" % referrer.encode('utf-8')
-        print "%44s %s" % ('', values[2].encode('utf-8'))
-      else:
-        print "%3s" % entry.metric[0].value, "%-40s %s" % (referrer.encode('utf-8'), values[2].encode('utf-8'))
+      print "%3s" % entry.metric[0].value, referrer.encode('utf-8')
     print
   print
 
@@ -196,13 +192,13 @@ def print_keywords(my_client, table_id, date=get_date_ago(1)):
   feed = my_client.GetDataFeed(data_query)
   print '=== Keywords ==='
   print
-  for entry in feed.entry:
-    values = tuple(dim.value for dim in entry.dimension)
-    if len(values[0]) > 40:
-      print "%3s" % entry.metric[0].value, "%s" % values[0].encode('utf-8')
-      print "%44s %s" % ('', values[1])
-    else:
-      print "%3s" % entry.metric[0].value, (u"%-40s %s" % (values[0], values[1])).encode('utf-8')
+  keyfunc = lambda entry: entry.dimension[1].value
+  for k, g in groupby(sorted(feed.entry, key=keyfunc), key=keyfunc):
+    print k
+    for entry in g:
+      values = tuple(dim.value for dim in entry.dimension)
+      print "%3s" % entry.metric[0].value, values[0].encode('utf-8')
+    print
   print
 
 
@@ -222,13 +218,13 @@ def print_top_content(my_client, table_id, date=get_date_ago(1)):
   feed = my_client.GetDataFeed(data_query)
   print '=== Top content ==='
   print
-  for entry in feed.entry:
-    values = tuple(dim.value for dim in entry.dimension)
-    if len(values[0]) > 40:
-      print "%3s" % entry.metric[0].value, "%s" % values[0]
-      print "%44s %s" % ('', values[1])
-    else:
-      print "%3s" % entry.metric[0].value, "%-40s %s" % values
+  keyfunc = lambda entry: entry.dimension[0].value
+  for k, g in groupby(sorted(feed.entry, key=keyfunc), key=keyfunc):
+    print k
+    for entry in g:
+      values = tuple(dim.value for dim in entry.dimension)
+      print "%3s" % entry.metric[0].value, values[1]
+    print
   print
 
 
