@@ -44,6 +44,10 @@ stations=(\
 'mplayer mms://citadelcc-wjbq-fm.wm.llnwd.net/citadelcc_WJBQ_FM?MSWMExt=.asf' \
 'WBCL' \
 'mplayer -playlist http://www.wbcl.org/wbcl_live.asx' \
+'Whisperings Radio (MP3)' \
+'mplayer -playlist http://pianosolo.streamguys.net/live.m3u' \
+'Whisperings Radio (WMA)' \
+'mplayer -playlist http://vistaweb.streamguys.com/pianosolo64k.asx' \
 )
 
 function sigint {
