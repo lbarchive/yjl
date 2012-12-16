@@ -48,6 +48,8 @@ stations=(\
 'mplayer -playlist http://pianosolo.streamguys.net/live.m3u' \
 'Whisperings Radio (WMA)' \
 'mplayer -playlist http://vistaweb.streamguys.com/pianosolo64k.asx' \
+'Radio Santa Claus (MP3)' \
+'mplayer http://tier1.radiostreamlive.com:9000/' \
 )
 
 function sigint {
