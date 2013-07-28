@@ -202,6 +202,32 @@ def print_keywords(my_client, table_id, date=get_date_ago(1)):
   print
 
 
+# Social
+########
+def print_social(my_client, table_id, date=get_date_ago(1)):
+
+  data_query = gdata.analytics.client.DataFeedQuery({
+      'ids': table_id,
+      'start-date': date,
+      'end-date': date,
+      'dimensions': 'ga:socialActivityContentUrl,ga:socialActivityEndorsingUrl',
+      'metrics': 'ga:socialActivities',
+      'sort': '-ga:socialActivities',
+      'filters': 'ga:socialActivityEndorsingUrl!=(not set)',
+      'max-results': '100'})
+  feed = my_client.GetDataFeed(data_query)
+  print '=== Social ==='
+  print
+  keyfunc = lambda entry: entry.dimension[0].value
+  for k, g in groupby(sorted(feed.entry, key=keyfunc), key=keyfunc):
+    print k
+    for entry in g:
+      values = tuple(dim.value for dim in entry.dimension)
+      print "%3s" % entry.metric[0].value, values[1]
+    print
+  print
+
+
 # Top content
 ##########
 def print_top_content(my_client, table_id, date=get_date_ago(1)):
@@ -248,6 +274,7 @@ def main():
   print_general(my_client, table_id)
   print_referrals(my_client, table_id)
   print_keywords(my_client, table_id)
+  print_social(my_client, table_id)
   print_top_content(my_client, table_id)
 
 
