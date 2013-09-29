@@ -61,6 +61,9 @@ def print_general(my_client, table_id,
   max_visits = max(visits)
   print '=== General ==='
   print
+  print '%s / %s' % (feed.data_source[0].GetProperty('ga:accountName').value,
+                     feed.data_source[0].table_name.text)
+  print
   print '--- Visits of %s -> %s ---' % (date_start, date)
   print
   CHART_HEIGHT = 10
