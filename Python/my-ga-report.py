@@ -28,10 +28,12 @@ import pytz
 
 
 VISITS_CHART_DAYS = 60
-EXCLUDE_SRC = ';'.join(['ga:source!=%s.blogspot.com' % src for src in ['blogarbage', 'fedoratux', 'makeyjl', 'getctrlback', 'thebthing']])
+BLOGS = ('blogarbage', 'fedoratux', 'makeyjl', 'getctrlback', 'thebthing')
+EXCLUDE_SRC = ';'.join(['ga:source!=%s.blogspot.com' % src for src in BLOGS])
 
 # Save timezone info globally, don't want to add new argument to get_date_ago
-TIMEZONE='America/Los_Angeles'
+TIMEZONE = 'America/Los_Angeles'
+
 
 def get_date_ago(days):
 
@@ -43,8 +45,9 @@ def get_date_ago(days):
 # General
 ###########
 def print_general(my_client, table_id,
-    date_start=get_date_ago(VISITS_CHART_DAYS), date=get_date_ago(1),
-    date_before=get_date_ago(2)):
+                  date_start=get_date_ago(VISITS_CHART_DAYS),
+                  date=get_date_ago(1),
+                  date_before=get_date_ago(2)):
 
   data_query = gdata.analytics.client.DataFeedQuery({
       'ids': table_id,
@@ -64,9 +67,9 @@ def print_general(my_client, table_id,
   VISIT_WIDTH = len(str(max_visits)) + 5
   for y in range(CHART_HEIGHT, -1, -1):
     if y == CHART_HEIGHT:
-      sys.stdout.write('%s%d |' % (' '*5, max_visits))
+      sys.stdout.write('%s%d |' % (' ' * 5, max_visits))
     else:
-      sys.stdout.write('%s |' % (' '*VISIT_WIDTH))
+      sys.stdout.write('%s |' % (' ' * VISIT_WIDTH))
     for x in range(-VISITS_CHART_DAYS, 0):
       vst = visits[x]
       # vst / max_visits >= y / CHART_HEIGHT
@@ -76,7 +79,7 @@ def print_general(my_client, table_id,
         sys.stdout.write(' ')
     sys.stdout.write('\n')
     sys.stdout.flush()
-  print '%s0 +%s' % (' '*(VISIT_WIDTH-1), '-'*VISITS_CHART_DAYS)
+  print '%s0 +%s' % (' ' * (VISIT_WIDTH - 1), '-' * VISITS_CHART_DAYS)
   print
 
   data_query = gdata.analytics.client.DataFeedQuery({
@@ -85,12 +88,15 @@ def print_general(my_client, table_id,
       'end-date': date,
       'dimensions': 'ga:date,ga:medium',
       'sort': 'ga:date',
-      'metrics': 'ga:visits,ga:pageviews,ga:avgTimeOnSite,ga:bounces,ga:avgPageLoadTime'})
+      'metrics': ('ga:visits,ga:pageviews,ga:avgTimeOnSite,ga:bounces,'
+                  'ga:avgPageLoadTime'),
+  })
   feed = my_client.GetDataFeed(data_query)
   data = [{}, {}]
   dt_date_before = dt.datetime.strptime(date_before, '%Y-%m-%d')
   for entry in feed.entry:
-    i = (dt.datetime.strptime(entry.dimension[0].value, '%Y%m%d') - dt_date_before).days
+    i = dt.datetime.strptime(entry.dimension[0].value, '%Y%m%d')
+    i = (i - dt_date_before).days
     medium_name = entry.dimension[1].value
     if medium_name not in data[i]:
       data[i][medium_name] = {}
@@ -111,25 +117,31 @@ def print_general(my_client, table_id,
 
   for i in range(2):
     for medium_name in data[i].keys():
-      if data[i][medium_name]['ga:visits'] != 0.0:
-        data[i][medium_name]['ga:visitBounceRate'] = 100.0 * data[i][medium_name]['ga:bounces'] / data[i][medium_name]['ga:visits']
+      m = data[i][medium_name]
+      if m['ga:visits'] != 0.0:
+        m['ga:visitBounceRate'] = 100.0 * m['ga:bounces'] / m['ga:visits']
       else:
-        data[i][medium_name]['ga:visitBounceRate'] = 0.0
+        m['ga:visitBounceRate'] = 0.0
 
-  cols = ['ga:visits', 'ga:pageviews', 'ga:avgTimeOnSite', 'ga:visitBounceRate', 'ga:avgPageLoadTime']
+  cols = ['ga:visits', 'ga:pageviews', 'ga:avgTimeOnSite',
+          'ga:visitBounceRate', 'ga:avgPageLoadTime']
   diff = {}
   for medium_name in set(data[0].keys() + data[1].keys()):
     for d in data + [diff]:
       if medium_name not in d:
-        d[medium_name] = dict(zip(cols, [0]*len(cols)))
+        d[medium_name] = dict(zip(cols, [0] * len(cols)))
     for metric_name in cols:
-      if data[0][medium_name][metric_name]:
+      m = diff[medium_name]
+      m0 = data[0][medium_name]
+      m1 = data[1][medium_name]
+      if m0[metric_name]:
         if metric_name == 'ga:visitBounceRate':
-          diff[medium_name][metric_name] = data[1][medium_name][metric_name] - data[0][medium_name][metric_name]
+          m[metric_name] = m1[metric_name] - m0[metric_name]
         else:
-          diff[medium_name][metric_name] = 100 * (data[1][medium_name][metric_name] - data[0][medium_name][metric_name]) / data[0][medium_name][metric_name]
+          d = (m1[metric_name] - m0[metric_name]) / m0[metric_name]
+          m[metric_name] = 100 * d
       else:
-        diff[medium_name][metric_name] = 99999.99
+        m[metric_name] = 99999.99
 
   print '--- values of %s (change of %s -> %s) ---' % (date, date_before, date)
   print
@@ -141,14 +153,20 @@ def print_general(my_client, table_id,
     mediums.append('all')
   for medium_name in mediums:
     medium = data[1][medium_name]
-    print '%-10s: %3d (%8.2f%%) %3d (%8.2f%%) %6.2f (%8.2f%%) %6.2f%% (%8.2f%%) %6.2f (%8.2f%%)' % tuple([medium_name] + list(chain(*zip([medium[metric_name] for metric_name in cols], [diff[medium_name][metric_name] for metric_name in cols]))))
+    fmt = ('%-10s: %3d (%8.2f%%) %3d (%8.2f%%) %6.2f (%8.2f%%) '
+           '%6.2f%% (%8.2f%%) %6.2f (%8.2f%%)')
+    dat = zip([medium[metric_name] for metric_name in cols],
+              [diff[medium_name][metric_name] for metric_name in cols])
+    dat = tuple([medium_name] + list(chain(*dat)))
+    print fmt % dat
   print
 
   print '--- %% of total (%s) ---' % date
   print
   bar_size = 24
   cols = ['ga:visits', 'ga:pageviews']
-  print ('%%-10s  %%-%ds %%-%ds' % (bar_size+8, bar_size+8)) % tuple(['ga:medium'] + cols)
+  fmt = '%%-10s  %%-%ds %%-%ds' % (bar_size + 8, bar_size + 8)
+  print fmt % tuple(['ga:medium'] + cols)
   for medium_name in mediums:
     if medium_name == 'all':
       continue
@@ -160,7 +178,8 @@ def print_general(my_client, table_id,
       else:
         m_percent = 100.0 * medium[metric_name] / data[1]['all'][metric_name]
       m_bar = int(m_percent * bar_size / 100.0)
-      print '%6.2f%% %s%s' % (m_percent, '#'*m_bar, ' '*(bar_size-m_bar)),
+      dat = (m_percent, '#' * m_bar, ' ' * (bar_size - m_bar))
+      print '%6.2f%% %s%s' % dat,
     print
   print
 
@@ -226,7 +245,8 @@ def print_social(my_client, table_id, date=get_date_ago(1)):
       'ids': table_id,
       'start-date': date,
       'end-date': date,
-      'dimensions': 'ga:socialActivityContentUrl,ga:socialActivityEndorsingUrl',
+      'dimensions': ('ga:socialActivityContentUrl,'
+                     'ga:socialActivityEndorsingUrl'),
       'metrics': 'ga:socialActivities',
       'sort': '-ga:socialActivities',
       'filters': 'ga:socialActivityEndorsingUrl!=(not set)',
@@ -278,10 +298,11 @@ def main():
   password = sys.argv[2]
   table_id = sys.argv[3]
   my_client.ClientLogin(username, password, source=SOURCE_APP_NAME)
-  
+
   # FIXME Will break if there is more than 1000 profiles, don't seem to be able
   # to query by table_id directly.
-  profile_query = gdata.analytics.client.ProfileQuery(query={'max-results': '1000'})
+  query = {'max-results': '1000'}
+  profile_query = gdata.analytics.client.ProfileQuery(query=query)
   for profile in my_client.GetManagementFeed(profile_query).entry:
     if 'ga:' + profile.GetProperty('ga:profileId').value == table_id:
       TIMEZONE = profile.GetProperty('ga:timezone').value
